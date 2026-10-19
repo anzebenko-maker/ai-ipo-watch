@@ -1,25 +1,1056 @@
 {
- "as_of": "2026-10-19T18:46Z",
+ "as_of": "2026-10-19T18:31Z",
  "source": "https://www.sec.gov/cgi-bin/browse-edgar (submissions API data.sec.gov)",
- "companies": {},
+ "companies": {
+  "2110365": {
+   "name": "NSCALE Ltd",
+   "tickers": [],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002110365",
+   "filings": [
+    {
+     "form": "S-1",
+     "date": "2026-09-18",
+     "url": "https://www.sec.gov/Archives/edgar/data/2110365/000119312526395475/ck0002110365-20260918.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-08-12",
+     "url": "https://www.sec.gov/Archives/edgar/data/2110365/000119312526345235/filename1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-06-26",
+     "url": "https://www.sec.gov/Archives/edgar/data/2110365/000119312526285636/filename1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-05-12",
+     "url": "https://www.sec.gov/Archives/edgar/data/2110365/000119312526217685/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2026-02-17",
+     "url": "https://www.sec.gov/Archives/edgar/data/2110365/000119312526052815/filename1.htm"
+    }
+   ]
+  },
+  "2133037": {
+   "name": "SB Energy, Inc.",
+   "tickers": [
+    "SBE"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002133037",
+   "filings": [
+    {
+     "form": "S-1/A",
+     "date": "2026-09-21",
+     "url": "https://www.sec.gov/Archives/edgar/data/2133037/000162828026062846/sbenergy-sx1a2.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-09-04",
+     "url": "https://www.sec.gov/Archives/edgar/data/2133037/000162828026060761/sbenergy-sx1a1exhibitsonly.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2026-09-01",
+     "url": "https://www.sec.gov/Archives/edgar/data/2133037/000162828026059639/sbenergy-sx1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-07-22",
+     "url": "https://www.sec.gov/Archives/edgar/data/2133037/000162827926000912/filename1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-06-23",
+     "url": "https://www.sec.gov/Archives/edgar/data/2133037/000162827926000772/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2026-05-22",
+     "url": "https://www.sec.gov/Archives/edgar/data/2133037/000162827926000650/filename1.htm"
+    }
+   ]
+  },
+  "2133022": {
+   "name": "Oura Inc.",
+   "tickers": [
+    "OURA"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002133022",
+   "filings": [
+    {
+     "form": "S-1/A",
+     "date": "2026-09-21",
+     "url": "https://www.sec.gov/Archives/edgar/data/2133022/000119312526396051/d119865ds1a.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2026-09-03",
+     "url": "https://www.sec.gov/Archives/edgar/data/2133022/000119312526381855/d119865ds1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-08-18",
+     "url": "https://www.sec.gov/Archives/edgar/data/2133022/000119312526355689/filename1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-07-27",
+     "url": "https://www.sec.gov/Archives/edgar/data/2133022/000119312526318039/filename1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-06-30",
+     "url": "https://www.sec.gov/Archives/edgar/data/2133022/000119312526289078/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2026-05-19",
+     "url": "https://www.sec.gov/Archives/edgar/data/2133022/000119312526229319/filename1.htm"
+    }
+   ]
+  },
+  "1718728": {
+   "name": "Syntiant Corp.",
+   "tickers": [
+    "SYTN"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001718728",
+   "filings": [
+    {
+     "form": "S-1/A",
+     "date": "2026-08-31",
+     "url": "https://www.sec.gov/Archives/edgar/data/1718728/000119312526376166/ck0001718728-20260831.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-07-13",
+     "url": "https://www.sec.gov/Archives/edgar/data/1718728/000119312526302144/project_sterling_s-1a_ex.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2026-07-06",
+     "url": "https://www.sec.gov/Archives/edgar/data/1718728/000119312526296426/ck0001718728-20260706.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-06-12",
+     "url": "https://www.sec.gov/Archives/edgar/data/1718728/000119312526269342/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2026-04-27",
+     "url": "https://www.sec.gov/Archives/edgar/data/1718728/000119312526181422/filename1.htm"
+    }
+   ]
+  },
+  "2104277": {
+   "name": "Holtec Nuclear Corp",
+   "tickers": [],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002104277",
+   "filings": [
+    {
+     "form": "RW",
+     "date": "2026-09-25",
+     "url": "https://www.sec.gov/Archives/edgar/data/2104277/000119312526402799/d40440drw.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-09-08",
+     "url": "https://www.sec.gov/Archives/edgar/data/2104277/000119312526384287/d40440ds1a.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-08-24",
+     "url": "https://www.sec.gov/Archives/edgar/data/2104277/000119312526361496/d40440ds1a.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2026-07-10",
+     "url": "https://www.sec.gov/Archives/edgar/data/2104277/000119312526301023/d40440ds1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-06-08",
+     "url": "https://www.sec.gov/Archives/edgar/data/2104277/000119312526260319/filename1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-04-24",
+     "url": "https://www.sec.gov/Archives/edgar/data/2104277/000119312526177567/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2026-01-30",
+     "url": "https://www.sec.gov/Archives/edgar/data/2104277/000119312526032047/filename1.htm"
+    }
+   ]
+  },
+  "1769628": {
+   "name": "CoreWeave, Inc.",
+   "tickers": [
+    "CRWV"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001769628",
+   "filings": [
+    {
+     "form": "EFFECT",
+     "date": "2025-09-26",
+     "url": "https://www.sec.gov/Archives/edgar/data/1769628/999999999525003116/xslEFFECTX01/primary_doc.xml"
+    }
+   ]
+  },
+  "2021728": {
+   "name": "Cerebras Systems Inc.",
+   "tickers": [
+    "CBRS"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002021728",
+   "filings": [
+    {
+     "form": "424B4",
+     "date": "2026-05-14",
+     "url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026035214/cerebras-424b4.htm"
+    },
+    {
+     "form": "EFFECT",
+     "date": "2026-05-13",
+     "url": "https://www.sec.gov/Archives/edgar/data/2021728/999999999526001616/xslEFFECTX01/primary_doc.xml"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-05-11",
+     "url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026033143/cerebras-sx1a2.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-05-04",
+     "url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026029503/cerebras-sx1amay2026.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2026-04-17",
+     "url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026025762/cerebras-sx1april2026.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-03-31",
+     "url": "https://www.sec.gov/Archives/edgar/data/2021728/000202172826000004/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2025-12-22",
+     "url": "https://www.sec.gov/Archives/edgar/data/2021728/000202172825000005/filename1.htm"
+    },
+    {
+     "form": "RW",
+     "date": "2025-10-03",
+     "url": "https://www.sec.gov/Archives/edgar/data/2021728/000119312525230382/d886849drw.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2024-09-30",
+     "url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828024041596/cerebras-sx1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2024-08-30",
+     "url": "https://www.sec.gov/Archives/edgar/data/2021728/000162827924000336/filename1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2024-07-30",
+     "url": "https://www.sec.gov/Archives/edgar/data/2021728/000162827924000302/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2024-06-17",
+     "url": "https://www.sec.gov/Archives/edgar/data/2021728/000162827924000280/filename1.htm"
+    }
+   ]
+  },
+  "1181412": {
+   "name": "SPACE EXPLORATION TECHNOLOGIES CORP",
+   "tickers": [
+    "SPCX"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001181412",
+   "filings": [
+    {
+     "form": "424B4",
+     "date": "2026-06-12",
+     "url": "https://www.sec.gov/Archives/edgar/data/1181412/000162828026042639/spaceexplorationtechnologi.htm"
+    },
+    {
+     "form": "EFFECT",
+     "date": "2026-06-11",
+     "url": "https://www.sec.gov/Archives/edgar/data/1181412/999999999526001968/xslEFFECTX01/primary_doc.xml"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-06-03",
+     "url": "https://www.sec.gov/Archives/edgar/data/1181412/000162828026040364/spaceexplorationtechnologib.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-06-01",
+     "url": "https://www.sec.gov/Archives/edgar/data/1181412/000162828026039276/spaceexplorationtechnologi.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2026-05-20",
+     "url": "https://www.sec.gov/Archives/edgar/data/1181412/000162828026036936/spaceexplorationtechnologi.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-05-07",
+     "url": "https://www.sec.gov/Archives/edgar/data/1181412/000162827926000583/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2026-03-30",
+     "url": "https://www.sec.gov/Archives/edgar/data/1181412/000162828026021860/filename1.htm"
+    }
+   ]
+  },
+  "2105398": {
+   "name": "Csquare, Inc.",
+   "tickers": [
+    "CSQR"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002105398",
+   "filings": [
+    {
+     "form": "424B4",
+     "date": "2026-07-16",
+     "url": "https://www.sec.gov/Archives/edgar/data/2105398/000110465926084293/tm264837-15_424b4.htm"
+    },
+    {
+     "form": "EFFECT",
+     "date": "2026-07-15",
+     "url": "https://www.sec.gov/Archives/edgar/data/2105398/999999999526002311/xslEFFECTX01/primary_doc.xml"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-07-06",
+     "url": "https://www.sec.gov/Archives/edgar/data/2105398/000110465926080556/tm264837-13_s1a.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-06-25",
+     "url": "https://www.sec.gov/Archives/edgar/data/2105398/000110465926077451/tm264837-10_s1a.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2026-06-16",
+     "url": "https://www.sec.gov/Archives/edgar/data/2105398/000110465926074624/tm264837-7_s1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-05-20",
+     "url": "https://www.sec.gov/Archives/edgar/data/2105398/000110465926064601/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2026-03-30",
+     "url": "https://www.sec.gov/Archives/edgar/data/2105398/000110465926036760/filename1.htm"
+    }
+   ]
+  },
+  "2086716": {
+   "name": "Standard Nuclear, Inc.",
+   "tickers": [
+    "STDN"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002086716",
+   "filings": [
+    {
+     "form": "424B4",
+     "date": "2026-07-16",
+     "url": "https://www.sec.gov/Archives/edgar/data/2086716/000121390026078747/ea0276071-13.htm"
+    },
+    {
+     "form": "EFFECT",
+     "date": "2026-07-15",
+     "url": "https://www.sec.gov/Archives/edgar/data/2086716/999999999526002312/xslEFFECTX01/primary_doc.xml"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-07-15",
+     "url": "https://www.sec.gov/Archives/edgar/data/2086716/000121390026078128/ea0276071-12.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-07-07",
+     "url": "https://www.sec.gov/Archives/edgar/data/2086716/000121390026075742/ea0276071-11.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2026-06-18",
+     "url": "https://www.sec.gov/Archives/edgar/data/2086716/000121390026070215/ea0276071-09.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-06-02",
+     "url": "https://www.sec.gov/Archives/edgar/data/2086716/000121390026064221/filename1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-05-05",
+     "url": "https://www.sec.gov/Archives/edgar/data/2086716/000121390026051869/filename1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-04-10",
+     "url": "https://www.sec.gov/Archives/edgar/data/2086716/000121390026042144/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2026-02-13",
+     "url": "https://www.sec.gov/Archives/edgar/data/2086716/000121390026016600/filename1.htm"
+    }
+   ]
+  },
+  "2084026": {
+   "name": "QumulusAI, Inc.",
+   "tickers": [
+    "QMLS"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002084026",
+   "filings": [
+    {
+     "form": "424B4",
+     "date": "2026-07-15",
+     "url": "https://www.sec.gov/Archives/edgar/data/2084026/000143774926023622/quma20260714_424b4.htm"
+    },
+    {
+     "form": "EFFECT",
+     "date": "2026-07-14",
+     "url": "https://www.sec.gov/Archives/edgar/data/2084026/999999999526002288/xslEFFECTX01/primary_doc.xml"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-07-01",
+     "url": "https://www.sec.gov/Archives/edgar/data/2084026/000143774926022277/quma20260630c_s1a.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-06-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/2084026/000143774926022020/quma20260626_s1a.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-06-10",
+     "url": "https://www.sec.gov/Archives/edgar/data/2084026/000143774926020200/quma20260605_s1a.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-05-14",
+     "url": "https://www.sec.gov/Archives/edgar/data/2084026/000143774926017093/quma20260513_s1a.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-05-01",
+     "url": "https://www.sec.gov/Archives/edgar/data/2084026/000143774926014458/quma20260428_s1a.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-04-07",
+     "url": "https://www.sec.gov/Archives/edgar/data/2084026/000143774926011598/quma20260402c_s1a.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-02-13",
+     "url": "https://www.sec.gov/Archives/edgar/data/2084026/000143774926004148/quma20260210_s1a.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2025-12-31",
+     "url": "https://www.sec.gov/Archives/edgar/data/2084026/000143774925039073/quma20251223_s1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2025-10-17",
+     "url": "https://www.sec.gov/Archives/edgar/data/2084026/000143774925031283/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2025-09-03",
+     "url": "https://www.sec.gov/Archives/edgar/data/2084026/000143774925028305/filename1.htm"
+    }
+   ]
+  },
+  "2007691": {
+   "name": "Ionic Digital Inc.",
+   "tickers": [
+    "IOND"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002007691",
+   "filings": [
+    {
+     "form": "424B4",
+     "date": "2026-07-28",
+     "url": "https://www.sec.gov/Archives/edgar/data/2007691/000118518526003152/ionicdigi424b4072026.htm"
+    },
+    {
+     "form": "EFFECT",
+     "date": "2026-07-20",
+     "url": "https://www.sec.gov/Archives/edgar/data/2007691/999999999526002364/xslEFFECTX01/primary_doc.xml"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-07-13",
+     "url": "https://www.sec.gov/Archives/edgar/data/2007691/000118518526002919/ionicdigis1a1070926.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2026-06-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/2007691/000118518526002704/ionicdigis1061026.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-05-04",
+     "url": "https://www.sec.gov/Archives/edgar/data/2007691/000118518526001694/filename1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-02-17",
+     "url": "https://www.sec.gov/Archives/edgar/data/2007691/000118518526000599/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2025-10-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/2007691/000118518525001561/filename1.htm"
+    }
+   ]
+  },
+  "2075335": {
+   "name": "ROZE AI INC.",
+   "tickers": [
+    "RZAI"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002075335",
+   "filings": [
+    {
+     "form": "F-1",
+     "date": "2026-09-30",
+     "url": "https://www.sec.gov/Archives/edgar/data/2075335/000121390026105222/ea0306952-f1_roze.htm"
+    },
+    {
+     "form": "EFFECT",
+     "date": "2026-09-28",
+     "url": "https://www.sec.gov/Archives/edgar/data/2075335/999999999526003077/xslEFFECTX01/primary_doc.xml"
+    },
+    {
+     "form": "424B4",
+     "date": "2026-09-28",
+     "url": "https://www.sec.gov/Archives/edgar/data/2075335/000121390026104150/ea0306875-424b4_roze.htm"
+    },
+    {
+     "form": "F-1/A",
+     "date": "2026-09-16",
+     "url": "https://www.sec.gov/Archives/edgar/data/2075335/000121390026100443/ea0305507-f1a5_roze.htm"
+    },
+    {
+     "form": "F-1/A",
+     "date": "2026-09-09",
+     "url": "https://www.sec.gov/Archives/edgar/data/2075335/000121390026098134/ea0304797-f1a4_roze.htm"
+    },
+    {
+     "form": "F-1/A",
+     "date": "2026-08-21",
+     "url": "https://www.sec.gov/Archives/edgar/data/2075335/000121390026092289/ea0302951-f1a3_roze.htm"
+    },
+    {
+     "form": "F-1/A",
+     "date": "2026-08-11",
+     "url": "https://www.sec.gov/Archives/edgar/data/2075335/000121390026087750/ea0301436-f1a2_roze.htm"
+    },
+    {
+     "form": "F-1/A",
+     "date": "2026-07-27",
+     "url": "https://www.sec.gov/Archives/edgar/data/2075335/000121390026081788/ea0298482-f1a1_roze.htm"
+    },
+    {
+     "form": "F-1",
+     "date": "2026-05-11",
+     "url": "https://www.sec.gov/Archives/edgar/data/2075335/000121390026054085/ea0289273-f1_roze.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-03-09",
+     "url": "https://www.sec.gov/Archives/edgar/data/2075335/000121390026025204/filename1.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-01-23",
+     "url": "https://www.sec.gov/Archives/edgar/data/2075335/000121390026006848/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2025-10-14",
+     "url": "https://www.sec.gov/Archives/edgar/data/2075335/000121390025098725/filename1.htm"
+    }
+   ]
+  },
+  "2141406": {
+   "name": "Accelevation Holdings Corp.",
+   "tickers": [
+    "ACCV"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002141406",
+   "filings": [
+    {
+     "form": "424B4",
+     "date": "2026-10-01",
+     "url": "https://www.sec.gov/Archives/edgar/data/2141406/000162828026064097/accelevationllc-424b4.htm"
+    },
+    {
+     "form": "EFFECT",
+     "date": "2026-09-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/2141406/999999999526003099/xslEFFECTX01/primary_doc.xml"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-09-22",
+     "url": "https://www.sec.gov/Archives/edgar/data/2141406/000162828026062945/accelevationllc-sx1a2.htm"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-09-11",
+     "url": "https://www.sec.gov/Archives/edgar/data/2141406/000162828026061542/accelevationllc-sx1a1.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2026-09-02",
+     "url": "https://www.sec.gov/Archives/edgar/data/2141406/000162828026060083/accelevationllc-sx1publicf.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-08-03",
+     "url": "https://www.sec.gov/Archives/edgar/data/2141406/000162827926000969/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2026-06-30",
+     "url": "https://www.sec.gov/Archives/edgar/data/2141406/000162827926000804/filename1.htm"
+    }
+   ]
+  },
+  "1997038": {
+   "name": "Iambic Therapeutics, Inc.",
+   "tickers": [
+    "IAM"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001997038",
+   "filings": [
+    {
+     "form": "424B4",
+     "date": "2026-10-15",
+     "url": "https://www.sec.gov/Archives/edgar/data/1997038/000119312526422865/iambic_inception_424b4.htm"
+    },
+    {
+     "form": "EFFECT",
+     "date": "2026-10-14",
+     "url": "https://www.sec.gov/Archives/edgar/data/1997038/999999999526003244/xslEFFECTX01/primary_doc.xml"
+    },
+    {
+     "form": "S-1/A",
+     "date": "2026-10-08",
+     "url": "https://www.sec.gov/Archives/edgar/data/1997038/000119312526417416/iam-20261008.htm"
+    },
+    {
+     "form": "S-1",
+     "date": "2026-09-21",
+     "url": "https://www.sec.gov/Archives/edgar/data/1997038/000119312526396704/iam-20260921.htm"
+    },
+    {
+     "form": "DRS/A",
+     "date": "2026-08-28",
+     "url": "https://www.sec.gov/Archives/edgar/data/1997038/000119312526374173/filename1.htm"
+    },
+    {
+     "form": "DRS",
+     "date": "2026-07-24",
+     "url": "https://www.sec.gov/Archives/edgar/data/1997038/000119312526315779/filename1.htm"
+    }
+   ]
+  },
+  "1843974": {
+   "name": "Destiny Tech100 Inc.",
+   "tickers": [
+    "DXYZ"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001843974",
+   "filings": [
+    {
+     "form": "NPORT-P",
+     "date": "2026-08-28",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000089418926024246/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-CSRS",
+     "date": "2026-08-28",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000121390026095201/ea0302101-01_ncsrs.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2026-05-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000089418926016628/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-CSR",
+     "date": "2026-03-10",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000121390026025304/ea0276106-01_ncsr.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2026-03-02",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000089418926007429/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2025-11-12",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000089418925013417/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-CSRS",
+     "date": "2025-09-03",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000121390025084014/ea0251788-01_ncsrs.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2025-08-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000114554925057324/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "EFFECT",
+     "date": "2025-07-15",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/999999999525002251/xslEFFECTX01/primary_doc.xml"
+    },
+    {
+     "form": "N-2/A",
+     "date": "2025-07-10",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000157587225000447/dxyz083_n2a.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2025-05-30",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000114554925038259/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-2/A",
+     "date": "2025-05-20",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000157587225000352/dxyz079_n2a.htm"
+    },
+    {
+     "form": "N-CSR",
+     "date": "2025-03-25",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000139834425005937/fp0092321-2_ncsrixbrl.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2025-03-03",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000114554925015737/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2024-11-26",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000114554924075269/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-2/A",
+     "date": "2024-11-20",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000157587224001192/es123_n2a.htm"
+    },
+    {
+     "form": "N-CSRS",
+     "date": "2024-09-06",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000139834424017567/fp0089609-2_ncsrs.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2024-08-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000114554924055426/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-2/A",
+     "date": "2024-06-24",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000157587224000694/es112_n2a.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2024-05-28",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000114554924032089/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-2",
+     "date": "2024-04-16",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000157587224000368/es106_n2.htm"
+    },
+    {
+     "form": "N-CSR",
+     "date": "2024-03-08",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000139834424005739/fp0087134-2_ncsr.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2024-02-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000114554924013732/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "EFFECT",
+     "date": "2023-12-22",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/999999999523003722/xslEFFECTX01/primary_doc.xml"
+    },
+    {
+     "form": "N-2/A",
+     "date": "2023-12-20",
+     "url": "https://www.sec.gov/Archives/edgar/data/1843974/000157587223001902/es078_n2a.htm"
+    }
+   ]
+  },
+  "1867090": {
+   "name": "Fundrise Innovation Fund, LLC",
+   "tickers": [
+    "VCX"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001867090",
+   "filings": [
+    {
+     "form": "NPORT-P",
+     "date": "2026-08-28",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000186709026000109/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-CSR",
+     "date": "2026-06-02",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000143510926000093/primary-document.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2026-06-01",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000186709026000054/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2026-03-02",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000186709026000014/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2025-11-24",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000186709025000032/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-CSRS",
+     "date": "2025-11-24",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000186709025000029/primary-document.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2025-08-22",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000186709025000011/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2025-05-22",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000175272425115447/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-CSR",
+     "date": "2025-05-22",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000143510925000163/primary-document.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2025-02-25",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000175272425037940/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2024-11-19",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000175272424257197/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-CSRS",
+     "date": "2024-11-19",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000143510924000442/primary-document.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2024-08-27",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000175272424192907/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-2",
+     "date": "2024-07-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000199937124009179/fundrise-n2_072524.htm"
+    },
+    {
+     "form": "N-CSR",
+     "date": "2024-05-21",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000143510924000177/primary-document.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2024-05-21",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000175272424109704/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2024-02-26",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000175272424037631/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2023-11-16",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000175272423253678/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-CSRS",
+     "date": "2023-11-16",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000143510923000427/primary-document.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2023-08-23",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000175272423185959/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2023-05-26",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000175272423119339/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-CSR",
+     "date": "2023-05-26",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000143510923000097/primary-document.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2023-03-01",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000175272423050012/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-CSRS",
+     "date": "2022-11-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000110465922122859/tm2231222d1_ncsrs.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2022-11-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/1867090/000175272422274513/xslFormNPORT-P_X01/primary_doc.xml"
+    }
+   ]
+  },
+  "2085091": {
+   "name": "Robinhood Ventures Fund I",
+   "tickers": [
+    "RVI"
+   ],
+   "edgar_page": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002085091",
+   "filings": [
+    {
+     "form": "NPORT-P",
+     "date": "2026-08-21",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/000089418926022643/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-CSR",
+     "date": "2026-06-05",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/000208509126000012/ck0002085091-20260331.htm"
+    },
+    {
+     "form": "NPORT-P",
+     "date": "2026-05-29",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/000089418926016653/xslFormNPORT-P_X01/primary_doc.xml"
+    },
+    {
+     "form": "N-2/A",
+     "date": "2026-04-13",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/000162828026024942/ck0002085091-20260413.htm"
+    },
+    {
+     "form": "424B1",
+     "date": "2026-03-09",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/000162828026015785/ck0002085091-20260307.htm"
+    },
+    {
+     "form": "EFFECT",
+     "date": "2026-03-05",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/999999999526000730/xslEFFECTX01/primary_doc.xml"
+    },
+    {
+     "form": "N-2/A",
+     "date": "2026-02-23",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/000162828026010711/ck0002085091-20260223.htm"
+    },
+    {
+     "form": "N-2/A",
+     "date": "2026-02-17",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/000162828026008313/ck0002085091-20260217.htm"
+    },
+    {
+     "form": "N-2",
+     "date": "2026-02-13",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/000162828026008196/robinhoodventuresfundi-she.htm"
+    },
+    {
+     "form": "N-2/A",
+     "date": "2026-01-30",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/000162828026004270/robinhoodventuresfundi-nx2.htm"
+    },
+    {
+     "form": "N-2/A",
+     "date": "2026-01-22",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/000162828026002976/robinhoodventuresfundi-nx2.htm"
+    },
+    {
+     "form": "N-2/A",
+     "date": "2026-01-09",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/000162828026001688/robinhoodventuresfundi-nx2a.htm"
+    },
+    {
+     "form": "N-2",
+     "date": "2025-09-15",
+     "url": "https://www.sec.gov/Archives/edgar/data/2085091/000208509125000009/robinhoodventuresfundi-nx2.htm"
+    }
+   ]
+  }
+ },
  "watch": {
   "anthropic": {
-   "error": "HTTP Error 403: Forbidden"
+   "query": "Anthropic, PBC",
+   "own_filings_found": [],
+   "mentions_in_other_filings": 0
   },
   "openai": {
-   "error": "HTTP Error 403: Forbidden"
+   "query": "OpenAI",
+   "own_filings_found": [],
+   "mentions_in_other_filings": 18
   },
   "databricks": {
-   "error": "HTTP Error 403: Forbidden"
+   "query": "Databricks, Inc.",
+   "own_filings_found": [],
+   "mentions_in_other_filings": 0
   },
   "waymo": {
-   "error": "HTTP Error 403: Forbidden"
+   "query": "Waymo LLC",
+   "own_filings_found": [],
+   "mentions_in_other_filings": 0
   },
   "cohere": {
-   "error": "HTTP Error 403: Forbidden"
+   "query": "Cohere Inc.",
+   "own_filings_found": [],
+   "mentions_in_other_filings": 0
   },
   "lambda": {
-   "error": "HTTP Error 403: Forbidden"
+   "query": "Lambda, Inc.",
+   "own_filings_found": [],
+   "mentions_in_other_filings": 1
   }
  }
 }

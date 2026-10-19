@@ -24,13 +24,29 @@ def ciks():
     return out
 
 def main():
+    out_path = ROOT / "data" / "edgar.json"
+    prev, prev_text = {}, None
+    if out_path.exists():
+        prev_text = out_path.read_text()
+        try:
+            prev = json.loads(prev_text)
+        except Exception:
+            prev = {}
+    prev_companies = prev.get("companies") or {}
+    prev_watch = prev.get("watch") or {}
     result = {"as_of": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
               "source": "https://www.sec.gov/cgi-bin/browse-edgar (submissions API data.sec.gov)", "companies": {}}
+    fetched = 0
     for cik, name in ciks().items():
         try:
             d = get(f"https://data.sec.gov/submissions/CIK{int(cik):010d}.json")
+            fetched += 1
         except Exception as e:
-            print("ERR", cik, name, e, file=sys.stderr); continue
+            print("ERR", cik, name, e, file=sys.stderr)
+            if cik in prev_companies:
+                result["companies"][cik] = prev_companies[cik]
+                print(f"kept previous filings for {name}")
+            continue
         r = d["filings"]["recent"]
         filings = []
         for i, form in enumerate(r["form"]):
@@ -58,8 +74,15 @@ def main():
                f"&dateRange=custom&startdt={since}&enddt={datetime.date.today().isoformat()}")
         try:
             hits = get(url).get("hits", {}).get("hits", [])
+            fetched += 1
         except Exception as e:
-            result["watch"][row["slug"]] = {"error": str(e)}; continue
+            print("ERR watch", row["slug"], e, file=sys.stderr)
+            if row["slug"] in prev_watch:
+                result["watch"][row["slug"]] = prev_watch[row["slug"]]
+                print(f"kept previous watch result for {row['slug']}")
+            else:
+                result["watch"][row["slug"]] = {"error": str(e)}
+            continue
         own = [h["_source"] for h in hits if any(row["name"].lower() in n.lower() for n in h["_source"].get("display_names", []))]
         result["watch"][row["slug"]] = {"query": row["legal_name"], "own_filings_found": [
             {"filer": s_["display_names"][0], "form": s_["form"], "date": s_["file_date"], "adsh": s_["adsh"]} for s_ in own[:5]],
@@ -67,7 +90,14 @@ def main():
         if own:
             print(f"ALERT: {row['name']} appears as a filer of {own[0]['form']} on {own[0]['file_date']} - update pipeline.json")
         time.sleep(0.3)
-    (ROOT / "data" / "edgar.json").write_text(json.dumps(result, indent=1))
+    # A blocked or empty pull (GitHub-hosted runners often get SEC 403s) must not
+    # replace the last good snapshot with an empty companies map.
+    if fetched == 0 and prev_text is not None:
+        print("WARN: EDGAR refresh failed; previous edgar.json kept", file=sys.stderr)
+        sys.exit(1)
+    if fetched and len(result["companies"]) < len(prev_companies):
+        result["as_of"] = prev.get("as_of") or result["as_of"]
+    out_path.write_text(json.dumps(result, indent=1) + "\n")
 
 if __name__ == "__main__":
     main()

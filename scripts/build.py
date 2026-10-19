@@ -141,12 +141,27 @@ def layout(path, title, desc, body, schema=None, og_type="website", priority="0.
     return prefix_root_urls(doc)
 
 def newsletter():
-    action = CFG.get("newsletter_form_action") or ""
-    return f"""<section class="card news" id="newsletter"><div><h2>{e(CFG['newsletter_name'])}</h2>
-<p>One email a week: new AI IPO filings, pricing dates, lock-up expiries and premium/discount moves on DXYZ, VCX and RVI. Written for Canadian investors.</p></div>
-<form class="nl" action="{e(action)}" method="post" data-placeholder="{'1' if not action else '0'}">
+    """Signup control comes from site.config.json.
+    newsletter_form_action: POST endpoint (swap in a beehiiv embed action later).
+    newsletter_url: hosted subscribe page. Beehiiv's /subscribe form does not
+    prefill from a query param, so this is a link, not a prefilled form."""
+    action = (CFG.get("newsletter_form_action") or "").strip()
+    url = (CFG.get("newsletter_url") or "").strip()
+    name = e(CFG["newsletter_name"])
+    if action:
+        control = f"""<form class="nl" action="{e(action)}" method="post">
 <label class="sr" for="nl-email">Email</label><input id="nl-email" type="email" name="email" placeholder="you@example.com" required>
-<button type="submit">Subscribe</button><p class="small nl-msg" aria-live="polite">{'Signup is not live yet (placeholder form).' if not action else ''}</p></form></section>"""
+<button type="submit">Subscribe free</button></form>"""
+    elif url:
+        control = f"""<p class="nl"><a class="btn" href="{e(url)}">Subscribe free</a></p>
+<p class="small nl-msg">Free. Opens the {name} signup.</p>"""
+    else:
+        control = """<form class="nl" action="" method="post" data-placeholder="1">
+<label class="sr" for="nl-email">Email</label><input id="nl-email" type="email" name="email" placeholder="you@example.com" required>
+<button type="submit">Subscribe</button><p class="small nl-msg" aria-live="polite">Signup is not live yet (placeholder form).</p></form>"""
+    return f"""<section class="card news" id="newsletter"><div><h2>{name}</h2>
+<p>One email a week: new AI IPO filings, pricing dates, lock-up expiries and premium/discount moves on DXYZ, VCX and RVI. Written for Canadian investors.</p></div>
+<div>{control}</div></section>"""
 
 def affiliates(context="buy US-listed funds from Canada"):
     btns = ""

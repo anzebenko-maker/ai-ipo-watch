@@ -16,7 +16,7 @@ No dependencies beyond Python 3.9+ (standard library only). Optional: `scripts/s
 (`python3 -m venv .venv && .venv/bin/pip install playwright`) and uses the system Chrome.
 
 ## Change the site name / URL / newsletter / affiliate links
-Everything brand-related is in **`site.config.json`** (site_name, base_url, newsletter_form_action, affiliate URLs).
+Everything brand-related is in **`site.config.json`** (site_name, base_url, newsletter_url, newsletter_form_action, affiliate URLs). `newsletter_url` is the hosted signup page (a "Subscribe free" link). Set `newsletter_form_action` later to swap in an embedded form POST.
 After editing, run `python3 scripts/make_og.py && python3 scripts/build.py` (regenerates the OG image too).
 
 ## Layout

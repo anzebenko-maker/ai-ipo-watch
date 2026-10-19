@@ -45,7 +45,8 @@ a.src:hover{background:#e2e8f0;text-decoration:none}td.srcs{min-width:150px}
 .card.link p{color:var(--muted);margin:0}
 .news{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:center;background:linear-gradient(135deg,#0b1020,#1e1b4b);color:#e2e8f0;border:0}
 .news h2{color:#fff;margin-top:0}.nl{display:flex;flex-wrap:wrap;gap:8px}.nl input{flex:1 1 200px;padding:12px 14px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#fff;font-size:15px}
-.nl button,.btn{padding:12px 16px;border-radius:10px;border:0;background:linear-gradient(135deg,var(--brand),#7c3aed);color:#fff;font-weight:700;font-size:15px;cursor:pointer}
+.nl button,.btn{display:inline-block;padding:12px 16px;border-radius:10px;border:0;background:linear-gradient(135deg,var(--brand),#7c3aed);color:#fff;font-weight:700;font-size:15px;cursor:pointer;text-decoration:none}
+.news a.btn:hover{text-decoration:none;color:#fff}
 .nl-msg{flex-basis:100%;margin:0;color:#a5b4fc}
 .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line);display:inline-flex;gap:8px;align-items:center}
 .btns{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}

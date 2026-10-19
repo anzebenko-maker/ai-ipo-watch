@@ -1,0 +1,420 @@
+{
+  "as_of": "2026-10-19",
+  "status_legend": {
+    "reported": "Media reports only (not confirmed by the company or an SEC filing).",
+    "confidentially_filed": "Company confirmed a confidential draft S-1 (DRS). Not visible on EDGAR until a public filing.",
+    "publicly_filed": "Public S-1/F-1 on SEC EDGAR.",
+    "roadshow": "Price range set in a filed amendment; marketing to investors.",
+    "priced": "Final offer price set (424B4).",
+    "withdrawn": "Registration withdrawn (Form RW on EDGAR).",
+    "pre_ipo": "Private company tracked as a candidate; no filing found."
+  },
+  "items": [
+    {
+      "slug": "anthropic",
+      "name": "Anthropic",
+      "legal_name": "Anthropic, PBC",
+      "status": "confidentially_filed",
+      "status_confirmed": true,
+      "ticker": null,
+      "exchange": null,
+      "sector": "AI model developer",
+      "hq": "San Francisco, CA",
+      "summary": "Confirmed a confidential draft S-1 on June 1, 2026. Media reports (IFR, via Newsquawk) say a public SEC filing is planned for around October 26, 2026, with a mid-November listing targeted; Renaissance Capital notes December is also being considered. None of the timing is confirmed by the company.",
+      "last_private_valuation": {
+        "value": "$965B post-money",
+        "date": "2026-05-28",
+        "label": "Series H ($65B raised)",
+        "source_url": "https://www.anthropic.com/news/series-h",
+        "source_name": "Anthropic"
+      },
+      "key_dates": [
+        {
+          "date": "2026-05-28",
+          "label": "Series H: $65B at $965B post-money",
+          "confirmed": true,
+          "source_url": "https://www.anthropic.com/news/series-h",
+          "source_name": "Anthropic"
+        },
+        {
+          "date": "2026-06-01",
+          "label": "Confidential draft S-1 submitted to SEC (announced)",
+          "confirmed": true,
+          "source_url": "https://www.anthropic.com/news/confidential-draft-s1-sec",
+          "source_name": "Anthropic"
+        },
+        {
+          "date": "2026-10-14",
+          "label": "Pre-IPO investor day; Q3 revenue $16.8B reported by attendees",
+          "confirmed": false,
+          "source_url": "https://www.investing.com/news/stock-market-news/exclusiveinvestors-temper-anthropic-ipo-valuation-expectations-over-revenue-growth-slowdown-sources-say-4952698",
+          "source_name": "Reuters (via Investing.com)"
+        },
+        {
+          "date": "2026-10-26",
+          "label": "Public S-1 filing planned (reported)",
+          "confirmed": false,
+          "source_url": "https://www.newsquawk.com/headlines/anthropic-plans-to-file-documents-with-the-sec-for-its-blockbuster-ipo-on-october-26th-in-hopes-of-going-public-in-mid-november-according-to-ifr-citing-a-person-familiar-with-the-matter",
+          "source_name": "IFR via Newsquawk"
+        },
+        {
+          "date": "2026-11-09",
+          "label": "Roadshow / marketing could begin week of Nov 9 (reported)",
+          "confirmed": false,
+          "source_url": "https://finance.yahoo.com/technology/article/anthropic-reportedly-looking-to-ipo-as-early-as-mid-november-180315768.html",
+          "source_name": "Yahoo Finance"
+        },
+        {
+          "date": "2026-11",
+          "label": "Listing targeted mid-November; December also considered (reported)",
+          "confirmed": false,
+          "source_url": "https://www.renaissancecapital.com/IPO-Center/Winners-Losers/1555",
+          "source_name": "Renaissance Capital"
+        }
+      ],
+      "reported_valuation_talk": {
+        "value": "~$1.5T discussed by some investors (down from ~$2T expected)",
+        "date": "2026-10-15",
+        "confirmed": false,
+        "source_url": "https://www.investing.com/news/stock-market-news/exclusiveinvestors-temper-anthropic-ipo-valuation-expectations-over-revenue-growth-slowdown-sources-say-4952698",
+        "source_name": "Reuters (via Investing.com)"
+      },
+      "edgar_note": "No public S-1 found on EDGAR full-text search as of 2026-10-19.",
+      "cik": null,
+      "listed_fund_exposure": [
+        "DXYZ",
+        "VCX",
+        "ARKVX"
+      ],
+      "faq_extra": []
+    },
+    {
+      "slug": "openai",
+      "name": "OpenAI",
+      "legal_name": "OpenAI",
+      "status": "confidentially_filed",
+      "status_confirmed": true,
+      "ticker": null,
+      "exchange": null,
+      "sector": "AI model developer",
+      "hq": "San Francisco, CA",
+      "summary": "OpenAI announced on June 8, 2026 that it had submitted a confidential draft S-1 and that timing was undecided. Reuters, citing the New York Times, reported on June 25, 2026 that it was leaning toward waiting until 2027, and that its CFO had told associates the company was aiming for a 2027 listing.",
+      "last_private_valuation": {
+        "value": "$852B post-money",
+        "date": "2026-04",
+        "label": "Latest round (per CNBC)",
+        "source_url": "https://www.cnbc.com/2026/06/08/openai-confidentially-files-for-ipo-prepping-wall-street-for-ai-debut.html",
+        "source_name": "CNBC"
+      },
+      "key_dates": [
+        {
+          "date": "2026-06-08",
+          "label": "Confidential draft S-1 submitted (announced under Rule 135)",
+          "confirmed": true,
+          "source_url": "https://openai.com/index/openai-submits-confidential-s-1/",
+          "source_name": "OpenAI"
+        },
+        {
+          "date": "2026-06-08",
+          "label": "Reuters: targeting up to $1T valuation; listing could come as early as September (reported)",
+          "confirmed": false,
+          "source_url": "https://www.reuters.com/technology/openai-files-us-ipo-after-anthropic-ai-giants-head-public-markets-2026-06-08/",
+          "source_name": "Reuters"
+        },
+        {
+          "date": "2026-06-25",
+          "label": "Leaning toward waiting until 2027 (reported)",
+          "confirmed": false,
+          "source_url": "https://www.reuters.com/business/trump-administration-asks-openai-stagger-release-new-model-information-reports-2026-06-25/",
+          "source_name": "Reuters / NYT"
+        },
+        {
+          "date": "2027",
+          "label": "Target listing year (reported)",
+          "confirmed": false,
+          "source_url": "https://www.reuters.com/business/trump-administration-asks-openai-stagger-release-new-model-information-reports-2026-06-25/",
+          "source_name": "Reuters / NYT"
+        }
+      ],
+      "edgar_note": "No public S-1 found on EDGAR full-text search as of 2026-10-19.",
+      "cik": null,
+      "listed_fund_exposure": [
+        "DXYZ",
+        "VCX",
+        "RVI",
+        "ARKVX"
+      ]
+    },
+    {
+      "slug": "nscale",
+      "name": "Nscale",
+      "legal_name": "NSCALE Ltd",
+      "status": "publicly_filed",
+      "status_confirmed": true,
+      "ticker": "NSCL",
+      "exchange": "NYSE (per S-1 cover)",
+      "sector": "AI infrastructure (GPU cloud)",
+      "hq": "London, UK",
+      "summary": "Filed a public Form S-1 on September 18, 2026. Share count and price range not yet set.",
+      "last_private_valuation": null,
+      "key_dates": [
+        {
+          "date": "2026-09-18",
+          "label": "Public S-1 filed",
+          "confirmed": true,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2110365/000119312526395475/ck0002110365-20260918.htm",
+          "source_name": "SEC EDGAR"
+        }
+      ],
+      "cik": 2110365
+    },
+    {
+      "slug": "sb-energy",
+      "name": "SB Energy",
+      "legal_name": "SB Energy, Inc.",
+      "status": "publicly_filed",
+      "status_confirmed": true,
+      "ticker": "SBE",
+      "exchange": null,
+      "sector": "AI infrastructure (power)",
+      "hq": null,
+      "summary": "Public S-1 filed September 1, 2026; S-1/A filed September 21, 2026. Classified by Renaissance Capital as AI Infrastructure & Equipment (AI dependence: Significant).",
+      "last_private_valuation": null,
+      "key_dates": [
+        {
+          "date": "2026-09-01",
+          "label": "Public S-1 filed",
+          "confirmed": true,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2133037/000162828026059639/sbenergy-sx1.htm",
+          "source_name": "SEC EDGAR"
+        },
+        {
+          "date": "2026-09-21",
+          "label": "S-1/A amendment filed",
+          "confirmed": true,
+          "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002133037",
+          "source_name": "SEC EDGAR"
+        }
+      ],
+      "cik": 2133037
+    },
+    {
+      "slug": "oura",
+      "name": "Oura",
+      "legal_name": "Oura Inc.",
+      "status": "publicly_filed",
+      "status_confirmed": true,
+      "ticker": "OURA",
+      "exchange": null,
+      "sector": "AI applications (consumer health wearables)",
+      "hq": null,
+      "summary": "Public S-1 filed September 3, 2026; S-1/A filed September 21, 2026. Renaissance Capital lists AI dependence as Moderate. Also an RVI holding (RVI Q2 2026 update).",
+      "last_private_valuation": null,
+      "key_dates": [
+        {
+          "date": "2026-09-03",
+          "label": "Public S-1 filed",
+          "confirmed": true,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2133022/000119312526381855/d119865ds1.htm",
+          "source_name": "SEC EDGAR"
+        },
+        {
+          "date": "2026-09-21",
+          "label": "S-1/A amendment filed",
+          "confirmed": true,
+          "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002133022",
+          "source_name": "SEC EDGAR"
+        }
+      ],
+      "cik": 2133022,
+      "listed_fund_exposure": [
+        "RVI"
+      ]
+    },
+    {
+      "slug": "syntiant",
+      "name": "Syntiant",
+      "legal_name": "Syntiant Corp.",
+      "status": "publicly_filed",
+      "status_confirmed": true,
+      "ticker": "SYTN",
+      "exchange": null,
+      "sector": "AI chips (edge AI)",
+      "hq": null,
+      "summary": "Public S-1 filed July 6, 2026; latest S-1/A seen August 31, 2026.",
+      "last_private_valuation": null,
+      "key_dates": [
+        {
+          "date": "2026-07-06",
+          "label": "Public S-1 filed",
+          "confirmed": true,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1718728/000119312526296426/ck0001718728-20260706.htm",
+          "source_name": "SEC EDGAR"
+        },
+        {
+          "date": "2026-08-31",
+          "label": "S-1/A amendment filed",
+          "confirmed": true,
+          "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001718728",
+          "source_name": "SEC EDGAR"
+        }
+      ],
+      "cik": 1718728
+    },
+    {
+      "slug": "holtec-nuclear",
+      "name": "Holtec Nuclear",
+      "legal_name": "Holtec Nuclear Corp",
+      "status": "withdrawn",
+      "status_confirmed": true,
+      "ticker": "HNUC",
+      "exchange": null,
+      "sector": "AI infrastructure (power)",
+      "hq": null,
+      "summary": "Public S-1 filed July 10, 2026; registration withdrawal (Form RW) filed September 25, 2026.",
+      "last_private_valuation": null,
+      "key_dates": [
+        {
+          "date": "2026-07-10",
+          "label": "Public S-1 filed",
+          "confirmed": true,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2104277/000119312526301023/d40440ds1.htm",
+          "source_name": "SEC EDGAR"
+        },
+        {
+          "date": "2026-09-25",
+          "label": "Form RW (withdrawal) filed",
+          "confirmed": true,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2104277/000119312526402799/d40440drw.htm",
+          "source_name": "SEC EDGAR"
+        }
+      ],
+      "cik": 2104277
+    },
+    {
+      "slug": "databricks",
+      "name": "Databricks",
+      "legal_name": "Databricks, Inc.",
+      "status": "pre_ipo",
+      "status_confirmed": false,
+      "ticker": null,
+      "exchange": null,
+      "sector": "Data + AI platform",
+      "hq": "San Francisco, CA",
+      "summary": "No IPO filing found. Bloomberg reported (June 4, 2026) the CEO plans to avoid an IPO during 2026; the San Francisco Business Times reported (July 17, 2026) another private round instead. Held by RVI, VCX and DXYZ.",
+      "last_private_valuation": {
+        "value": "$190B (tracker estimate)",
+        "date": "2026-10-19",
+        "label": "Renaissance Capital AI IPO tracker valuation, as shown Oct 19, 2026",
+        "source_url": "https://www.renaissancecapital.com/IPO-Center/Track-AI-IPOs",
+        "source_name": "Renaissance Capital"
+      },
+      "key_dates": [
+        {
+          "date": "2026-06-04",
+          "label": "CEO plans to avoid an IPO in 2026 (reported)",
+          "confirmed": false,
+          "source_url": "https://www.bloomberg.com/news/articles/2026-06-04/databricks-ceo-plans-to-avoid-ipo-during-year-of-huge-offerings",
+          "source_name": "Bloomberg"
+        },
+        {
+          "date": "2026-07-17",
+          "label": "Heads for another private round instead of IPO (reported)",
+          "confirmed": false,
+          "source_url": "https://www.bizjournals.com/sanfrancisco/news/2026/07/17/databricks-funding-round-valuation-ipo.html",
+          "source_name": "San Francisco Business Times"
+        }
+      ],
+      "cik": null,
+      "listed_fund_exposure": [
+        "DXYZ",
+        "VCX",
+        "RVI"
+      ]
+    },
+    {
+      "slug": "waymo",
+      "name": "Waymo",
+      "legal_name": "Waymo LLC",
+      "parent": "Alphabet",
+      "status": "pre_ipo",
+      "status_confirmed": false,
+      "ticker": null,
+      "exchange": null,
+      "sector": "Autonomous driving",
+      "hq": "Mountain View, CA",
+      "summary": "Listed as a pre-IPO candidate on Renaissance Capital's AI tracker. No IPO filing or announced listing plan found. Raised $16B in February 2026.",
+      "last_private_valuation": {
+        "value": "$126B post-money",
+        "date": "2026-02",
+        "label": "$16B investment round",
+        "source_url": "https://waymo.com/blog/2026/02/waymo-raises-usd16-billion-investment-round",
+        "source_name": "Waymo"
+      },
+      "key_dates": [
+        {
+          "date": "2026-02",
+          "label": "$16B investment round",
+          "confirmed": true,
+          "source_url": "https://waymo.com/blog/2026/02/waymo-raises-usd16-billion-investment-round",
+          "source_name": "Waymo"
+        }
+      ],
+      "cik": null
+    },
+    {
+      "slug": "cohere",
+      "name": "Cohere",
+      "legal_name": "Cohere Inc.",
+      "status": "reported",
+      "status_confirmed": false,
+      "ticker": null,
+      "exchange": null,
+      "sector": "AI model developer (enterprise)",
+      "hq": "Toronto, ON, Canada",
+      "canadian": true,
+      "summary": "Canada's best-known frontier-model company. CEO Aidan Gomez has said Cohere is looking to IPO 'soon' (Bloomberg Law). No filing or date found.",
+      "last_private_valuation": null,
+      "key_dates": [
+        {
+          "date": "2025-10",
+          "label": "CEO says Cohere looking to IPO 'soon' (reported)",
+          "confirmed": false,
+          "source_url": "https://news.bloomberglaw.com/private-equity/openai-rival-cohere-looking-to-ipo-soon-ceo-gomez-says",
+          "source_name": "Bloomberg Law"
+        },
+        {
+          "date": "2026-02-13",
+          "label": "Tops revenue target as momentum builds toward IPO (reported)",
+          "confirmed": false,
+          "source_url": "https://www.cnbc.com/2026/02/13/ai-startup-cohere-revenue-ipo.html",
+          "source_name": "CNBC"
+        }
+      ],
+      "cik": null
+    },
+    {
+      "slug": "lambda",
+      "name": "Lambda",
+      "legal_name": "Lambda, Inc.",
+      "status": "reported",
+      "status_confirmed": false,
+      "ticker": null,
+      "exchange": null,
+      "sector": "AI infrastructure (GPU cloud)",
+      "hq": "San Jose, CA",
+      "summary": "Reported to be raising a pre-IPO round ahead of a planned IPO. EDGAR shows exempt-offering notices only, no S-1.",
+      "last_private_valuation": null,
+      "key_dates": [
+        {
+          "date": "2026",
+          "label": "Seeking ~$4B funding round ahead of planned IPO (reported)",
+          "confirmed": false,
+          "source_url": "https://www.datacenterdynamics.com/en/news/lambda-seeks-4bn-funding-round-ahead-of-planned-ipo-report/",
+          "source_name": "DatacenterDynamics"
+        }
+      ],
+      "cik": null
+    }
+  ]
+}

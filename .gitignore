@@ -1,0 +1,15 @@
+# GitHub Actions builds public/ and deploys it; don't commit the output.
+public/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# OS / editor
+.DS_Store

@@ -1,0 +1,86 @@
+# Refresh market data, rebuild the static site, and deploy to GitHub Pages.
+# Source must be "GitHub Actions" (Settings → Pages). enablement: true asks the
+# API to turn that on; the workflow GITHUB_TOKEN usually cannot create a Pages
+# site, so the first run may fail at configure-pages until an owner sets the
+# source by hand and re-runs.
+name: refresh-and-deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Daily, after the US cash close (22:30 UTC).
+    - cron: "30 22 * * *"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: refresh-and-deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Refresh prices, ARK NAV, and EDGAR
+        # continue-on-error plus the per-script fallbacks: a dead source must
+        # not stop the deploy of the last good data/*.json.
+        continue-on-error: true
+        env:
+          EDGAR_UA: ${{ vars.EDGAR_UA || 'AI IPO Watch anzebenko-maker@users.noreply.github.com' }}
+        run: |
+          python3 scripts/refresh_prices.py || echo "WARN: price refresh failed (previous prices kept)"
+          python3 scripts/refresh_funds.py || echo "WARN: fund refresh failed (previous fund data kept)"
+          python3 scripts/refresh_edgar.py || echo "WARN: EDGAR refresh failed (previous EDGAR data kept)"
+
+      - name: Build site
+        run: python3 scripts/build.py
+
+      - name: Commit refreshed data
+        continue-on-error: true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/*.json
+          if git diff --cached --quiet; then
+            echo "No data changes to commit"
+            exit 0
+          fi
+          git commit -m "data refresh $(date -u +%F) [skip ci]"
+          git push origin HEAD:main
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+        with:
+          enablement: true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: public
+          include-hidden-files: true
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

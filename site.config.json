@@ -1,0 +1,16 @@
+{
+  "site_name": "AI IPO Watch",
+  "tagline": "AI IPOs, lock-ups and pre-IPO exposure, with a Canadian angle",
+  "base_url": "https://anzebenko-maker.github.io/ai-ipo-watch",
+  "owner": "Anze Benko",
+  "location": "Edmonton, Alberta, Canada",
+  "newsletter_name": "AI Float Weekly",
+  "newsletter_form_action": "",
+  "contact_email": "",
+  "affiliates": {
+    "wealthsimple": {"label": "Wealthsimple", "url": "", "placeholder": true},
+    "questrade": {"label": "Questrade", "url": "", "placeholder": true}
+  },
+  "twitter_handle": "",
+  "theme_color": "#0b1020"
+}

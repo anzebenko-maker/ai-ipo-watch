@@ -1,0 +1,273 @@
+{
+  "as_of": "2026-10-19",
+  "premium_method": "Premium/discount = latest market price / last reported NAV per share - 1. The NAV is often months old (quarterly marks of private holdings), so this is 'vs last reported NAV', not vs. a live value.",
+  "broker_method": "Availability was NOT verifiable from public pages (Questrade, Wealthsimple, IBKR and Qtrade symbol search requires a logged-in account). Every broker cell stays 'unverified' until someone confirms it inside the broker's own symbol search and records the date here.",
+  "items": [
+    {
+      "ticker": "DXYZ",
+      "slug": "dxyz",
+      "name": "Destiny Tech100",
+      "exchange": "NYSE",
+      "structure": "Listed closed-end fund",
+      "cik": 1843974,
+      "website": "https://destiny.xyz",
+      "nav": {
+        "value": 34.3,
+        "date": "2026-06-30",
+        "source_name": "Form N-CSRS (semi-annual report), filed 2026-08-28",
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1843974/000121390026095201/ea0302101-01_ncsrs.htm",
+        "verified": true
+      },
+      "ai_holdings": [
+        {
+          "name": "Anthropic",
+          "weight": "14.4%"
+        },
+        {
+          "name": "SpaceX (incl. xAI)",
+          "weight": "10.6%"
+        },
+        {
+          "name": "OpenAI",
+          "weight": "2.6%"
+        },
+        {
+          "name": "OpenEvidence",
+          "weight": "2.1%"
+        },
+        {
+          "name": "Shield AI",
+          "weight": "1.8%"
+        },
+        {
+          "name": "Databricks",
+          "weight": "1.2%"
+        }
+      ],
+      "holdings_as_of": "2026-06-30",
+      "holdings_source_url": "https://destiny.xyz",
+      "holdings_source_name": "Destiny Tech100 website (economic exposure, % of portfolio)",
+      "brokers": {
+        "questrade": {
+          "status": "unverified"
+        },
+        "wealthsimple": {
+          "status": "unverified"
+        },
+        "ibkr": {
+          "status": "unverified"
+        },
+        "qtrade": {
+          "status": "unverified"
+        }
+      },
+      "broker_note": "NYSE-listed, so it is technically eligible at Canadian brokers that offer US equities. Wealthsimple applies its own eligibility rules (https://help.wealthsimple.com/hc/en-ca/articles/360056580834-Eligibility-criteria-for-stocks-ETFs-and-futures).",
+      "nav_history": [
+        {
+          "date": "2023-12-31",
+          "value": 4.84,
+          "source_name": "N-CSRS financial highlights (filed 2026-08-28)",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1843974/000121390026095201/ea0302101-01_ncsrs.htm"
+        },
+        {
+          "date": "2024-12-31",
+          "value": 6.44,
+          "source_name": "N-CSRS financial highlights (filed 2026-08-28)",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1843974/000121390026095201/ea0302101-01_ncsrs.htm"
+        },
+        {
+          "date": "2025-12-31",
+          "value": 19.93,
+          "source_name": "N-CSRS financial highlights (filed 2026-08-28)",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1843974/000121390026095201/ea0302101-01_ncsrs.htm"
+        },
+        {
+          "date": "2026-03-31",
+          "value": 24.56,
+          "source_name": "Destiny Tech100 Q2 2026 results press release (Business Wire via StockTitan)",
+          "source_url": "https://www.stocktitan.net/news/DXYZ/destiny-tech100-inc-reports-second-quarter-2026-bh7nnwi72cj7.html"
+        },
+        {
+          "date": "2026-06-30",
+          "value": 34.3,
+          "source_name": "N-CSRS (filed 2026-08-28)",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1843974/000121390026095201/ea0302101-01_ncsrs.htm"
+        }
+      ]
+    },
+    {
+      "ticker": "VCX",
+      "slug": "vcx",
+      "name": "Fundrise Innovation Fund",
+      "exchange": "NYSE",
+      "structure": "Listed closed-end fund (direct listing, Mar 19 2026)",
+      "cik": 1867090,
+      "website": "https://fundrise.com/innovation",
+      "nav": {
+        "value": 21.7,
+        "date": "2026-06-30",
+        "source_name": "Fund prospectus supplement (424B2, filed 2026-09-10) states NAV $21.70 at close Sep 8, 2026; N-PORT net assets $776,968,362 at Jun 30, 2026 on 35,797,138 shares",
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1867090/000121390026098534/ea0303702-01_424b2.htm",
+        "verified": true
+      },
+      "ai_holdings": [
+        {
+          "name": "Anthropic",
+          "weight": ">20% of net assets"
+        },
+        {
+          "name": "OpenAI",
+          "weight": "10–20%"
+        },
+        {
+          "name": "Databricks",
+          "weight": "10–20%"
+        },
+        {
+          "name": "Anduril",
+          "weight": "2–5%"
+        },
+        {
+          "name": "SpaceX (incl. xAI)",
+          "weight": "2–5%"
+        }
+      ],
+      "holdings_as_of": "2026-06-30",
+      "holdings_source_url": "https://www.crowdfundedwealth.com/articles/fundrise-vcx-review",
+      "holdings_source_name": "Weight bands from the fund's June 30, 2026 schedule of investments, as summarized by CrowdfundedWealth (secondary)",
+      "holdings_verified": false,
+      "brokers": {
+        "questrade": {
+          "status": "unverified"
+        },
+        "wealthsimple": {
+          "status": "unverified"
+        },
+        "ibkr": {
+          "status": "unverified"
+        },
+        "qtrade": {
+          "status": "unverified"
+        }
+      },
+      "broker_note": "Forum posts (unverified; not read in full) suggest Questrade and IBKR offer VCX and that Wealthsimple did not list it at least as of spring 2026. Confirm in each broker's symbol search."
+    },
+    {
+      "ticker": "RVI",
+      "slug": "rvi",
+      "name": "Robinhood Ventures Fund I",
+      "exchange": "NYSE",
+      "structure": "Listed closed-end fund (IPO Mar 2026 at $25.00)",
+      "cik": 2085091,
+      "website": "https://robinhood.com/us/en/ventures/rvi/",
+      "nav": {
+        "value": 25.02,
+        "date": "2026-06-30",
+        "source_name": "Robinhood Ventures fund page",
+        "source_url": "https://robinhood.com/us/en/ventures/rvi/",
+        "verified": true
+      },
+      "ai_holdings": [
+        {
+          "name": "Databricks",
+          "weight": "$87M fair value"
+        },
+        {
+          "name": "OpenAI",
+          "weight": "$75M"
+        },
+        {
+          "name": "Mercor",
+          "weight": "$53M"
+        },
+        {
+          "name": "ElevenLabs",
+          "weight": "$20M"
+        },
+        {
+          "name": "SpaceX (incl. xAI)",
+          "weight": "$9M"
+        }
+      ],
+      "holdings_as_of": "2026-06-30",
+      "holdings_source_url": "https://cdn.robinhood.com/app_assets/rhv/updates/rvi_q2_26_update.pdf",
+      "holdings_source_name": "RVI Q2 2026 update (Robinhood)",
+      "brokers": {
+        "questrade": {
+          "status": "unverified"
+        },
+        "wealthsimple": {
+          "status": "unverified"
+        },
+        "ibkr": {
+          "status": "unverified"
+        },
+        "qtrade": {
+          "status": "unverified"
+        }
+      },
+      "broker_note": "NYSE-listed. Robinhood itself does not serve Canadian residents for this product; use a Canadian broker that offers US-listed closed-end funds."
+    },
+    {
+      "ticker": "ARKVX",
+      "slug": "arkvx",
+      "name": "ARK Venture Fund",
+      "exchange": "Not exchange-listed",
+      "structure": "Interval fund (buy/redeem at NAV; no market premium)",
+      "cik": null,
+      "website": "https://www.ark-funds.com/funds/arkvx",
+      "nav_is_daily": true,
+      "nav": {
+        "value": 60.41,
+        "date": "2026-10-16",
+        "source_name": "ARK Funds (fund page NAV)",
+        "source_url": "https://www.ark-funds.com/funds/arkvx",
+        "verified": true
+      },
+      "ai_holdings": [
+        {
+          "name": "SpaceX (incl. xAI)",
+          "weight": "7.14%"
+        },
+        {
+          "name": "Ayar Labs",
+          "weight": "5.67%"
+        },
+        {
+          "name": "OpenAI",
+          "weight": "5.41%"
+        },
+        {
+          "name": "Anthropic",
+          "weight": "4.41%"
+        },
+        {
+          "name": "Tenstorrent",
+          "weight": "4.18%"
+        },
+        {
+          "name": "Crusoe",
+          "weight": "3.48%"
+        }
+      ],
+      "holdings_as_of": "2026-09-30",
+      "holdings_source_url": "https://assets.ark-funds.com/fund-documents/funds-etf-csv/ARK_VENTURE_FUND_ARKVX_HOLDINGS.csv",
+      "holdings_source_name": "ARK Funds top holdings",
+      "brokers": {
+        "questrade": {
+          "status": "unverified"
+        },
+        "wealthsimple": {
+          "status": "unverified"
+        },
+        "ibkr": {
+          "status": "unverified"
+        },
+        "qtrade": {
+          "status": "unverified"
+        }
+      },
+      "broker_note": "Not exchange-listed. ARK names Titan, SoFi and Securitize (tokenized) as retail channels; none of these is a Canadian broker. Likely not available through Canadian brokers, but unverified."
+    }
+  ]
+}

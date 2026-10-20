@@ -346,7 +346,7 @@ def vcx_canada_page():
     f = fund_by("VCX"); n = f["nav"]
     brows = "".join(f"<tr><td>{nm}</td><td>{broker_cell(f['brokers'].get(k))}</td></tr>" for k, nm in BROKER_NAMES)
     faq, fs = faq_block([
-        ("Can you buy VCX in Canada?", "VCX trades on the NYSE, so in principle any Canadian broker that offers US-listed closed-end funds can carry it. Questrade offered it in its symbol search when checked on Oct 20, 2026; Wealthsimple did not. We have not verified IBKR or Qtrade, so check the symbol search in your account."),
+        ("Can you buy VCX in Canada?", "VCX trades on the NYSE, so in principle any Canadian broker that offers US-listed closed-end funds can carry it. Questrade and IBKR offered it in their symbol search when checked on Oct 20, 2026; Wealthsimple did not. We have not verified Qtrade, so check the symbol search in your account."),
         ("Can I hold VCX in a TFSA or RRSP?", "US-listed securities are commonly held in TFSAs and RRSPs at Canadian brokers. Whether VCX is eligible at your broker, and how US withholding tax applies to any distributions, are questions to confirm with your broker or a tax professional."),
         ("Is VCX trading at a premium to NAV?", f"At the latest price ({money(f['price'])}) VCX is {pct(f['premium'], neutral=True)} vs its last reported NAV of {money(n['value'])} (NAV as of {fmt_date(n['date'])})."),
         ("What does VCX hold?", "Per its June 30, 2026 schedule of investments (as summarized by a secondary source): Anthropic above 20% of net assets, OpenAI and Databricks 10–20% each, plus Anduril and SpaceX."),
@@ -376,7 +376,7 @@ def dxyz_page():
         ("What is DXYZ's premium to NAV?", f"At {money(f['price'])} (latest delayed price) vs the last reported NAV of {money(n['value'])} (as of {fmt_date(n['date'])}), DXYZ is at {pct(f['premium'], neutral=True)}. A negative number is a discount."),
         ("How often does DXYZ report NAV?", "Destiny Tech100 reports NAV in its periodic SEC filings (N-CSR / N-CSRS) and quarterly results releases, so the last reported NAV is often weeks or months old."),
         ("What AI companies does DXYZ hold?", "Per its website (as of June 30, 2026): Anthropic 14.4%, SpaceX 10.6% (which now includes xAI), OpenAI 2.6%, OpenEvidence 2.1%, Shield AI 1.8%, Databricks 1.2%."),
-        ("Can I buy DXYZ in Canada?", "DXYZ is NYSE-listed. It was available in both Questrade's and Wealthsimple's symbol search when checked on Oct 20, 2026. Availability at IBKR and Qtrade is unverified on our side; check your broker's symbol search."),
+        ("Can I buy DXYZ in Canada?", "DXYZ is NYSE-listed. It was available in Questrade's, Wealthsimple's, and IBKR's symbol search when checked on Oct 20, 2026. Availability at Qtrade is unverified on our side; check your broker's symbol search."),
     ])
     body = f"""<article><h1>DXYZ premium to NAV (Destiny Tech100)</h1>{asof_line()}
 <div class="stats"><div class="stat"><span class="k">Latest price</span><span class="v">{money(f['price'])}</span><span class="muted small">{e(fmt_ts(f.get('price_time')))}</span></div>

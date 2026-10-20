@@ -1,7 +1,7 @@
 {
   "as_of": "2026-10-20",
   "premium_method": "Premium/discount = latest market price / last reported NAV per share - 1. The NAV is often months old (quarterly marks of private holdings), so this is 'vs last reported NAV', not vs. a live value.",
-  "broker_method": "Broker availability can't be checked from public pages (Questrade, Wealthsimple, IBKR and Qtrade symbol search requires a logged-in account). A cell shows 'available' or 'not available' only after someone confirmed it in that broker's own symbol search, with the check date. Wealthsimple and Questrade were checked this way on Oct 20, 2026. IBKR and Qtrade stay 'unverified'.",
+  "broker_method": "Broker availability can't be checked from public pages (Questrade, Wealthsimple, IBKR and Qtrade symbol search requires a logged-in account). A cell shows 'available' or 'not available' only after someone confirmed it in that broker's own symbol search, with the check date. Wealthsimple, Questrade, and IBKR were checked this way on Oct 20, 2026. Qtrade stays 'unverified'.",
   "items": [
     {
       "ticker": "DXYZ",
@@ -59,7 +59,9 @@
           "how": "Owner checked Wealthsimple symbol search while logged in"
         },
         "ibkr": {
-          "status": "unverified"
+          "status": "available",
+          "checked": "2026-10-20",
+          "how": "Owner checked IBKR symbol search while logged in"
         },
         "qtrade": {
           "status": "unverified"
@@ -152,13 +154,15 @@
           "how": "Owner checked Wealthsimple symbol search while logged in"
         },
         "ibkr": {
-          "status": "unverified"
+          "status": "available",
+          "checked": "2026-10-20",
+          "how": "Owner checked IBKR symbol search while logged in"
         },
         "qtrade": {
           "status": "unverified"
         }
       },
-      "broker_note": "Wealthsimple: not available in its symbol search (checked Oct 20, 2026). Questrade: available in its symbol search (checked Oct 20, 2026). Forum posts (unverified; not read in full) suggest IBKR offers VCX. Confirm IBKR and Qtrade in each broker's symbol search."
+      "broker_note": "Wealthsimple: not available in its symbol search (checked Oct 20, 2026). Questrade and IBKR: available in their symbol search (checked Oct 20, 2026). Qtrade is unverified."
     },
     {
       "ticker": "RVI",
@@ -212,7 +216,9 @@
           "how": "Owner checked Wealthsimple symbol search while logged in"
         },
         "ibkr": {
-          "status": "unverified"
+          "status": "available",
+          "checked": "2026-10-20",
+          "how": "Owner checked IBKR symbol search while logged in"
         },
         "qtrade": {
           "status": "unverified"
@@ -277,13 +283,15 @@
           "how": "Owner checked Wealthsimple symbol search while logged in"
         },
         "ibkr": {
-          "status": "unverified"
+          "status": "not_available",
+          "checked": "2026-10-20",
+          "how": "Owner checked IBKR symbol search while logged in"
         },
         "qtrade": {
           "status": "unverified"
         }
       },
-      "broker_note": "Not exchange-listed. ARK names Titan, SoFi and Securitize (tokenized) as retail channels; none of these is a Canadian broker. Wealthsimple and Questrade: not available in their symbol search (both checked Oct 20, 2026). IBKR and Qtrade are unverified."
+      "broker_note": "Not exchange-listed. ARK names Titan, SoFi and Securitize (tokenized) as retail channels; none of these is a Canadian broker. Wealthsimple, Questrade, and IBKR: not available in their symbol search (all checked Oct 20, 2026). Qtrade is unverified."
     }
   ]
 }

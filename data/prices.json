@@ -1,11 +1,11 @@
 {
- "as_of": "2026-10-20T19:24Z",
+ "as_of": "2026-10-20T20:18Z",
  "note": "Delayed quotes from free public endpoints. Not for trading.",
  "prices": {
   "CRWV": {
-   "price": 62.04,
+   "price": 62.13,
    "currency": "USD",
-   "price_time": "2026-10-20T19:24Z",
+   "price_time": "2026-10-20T20:00Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/CRWV"
@@ -19,33 +19,33 @@
    "source_url": "https://finance.yahoo.com/quote/0100.HK"
   },
   "CBRS": {
-   "price": 119.84,
+   "price": 118.24,
    "currency": "USD",
-   "price_time": "2026-10-20T19:24Z",
+   "price_time": "2026-10-20T20:00Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/CBRS"
   },
   "SPCX": {
-   "price": 146.945,
+   "price": 147.79,
    "currency": "USD",
-   "price_time": "2026-10-20T19:24Z",
+   "price_time": "2026-10-20T20:00Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/SPCX"
   },
   "CSQR": {
-   "price": 16.695,
+   "price": 16.71,
    "currency": "USD",
-   "price_time": "2026-10-20T19:24Z",
+   "price_time": "2026-10-20T20:00Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/CSQR"
   },
   "STDN": {
-   "price": 11.945,
+   "price": 12.24,
    "currency": "USD",
-   "price_time": "2026-10-20T19:21Z",
+   "price_time": "2026-10-20T20:00Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/STDN"
@@ -53,7 +53,7 @@
   "QMLS": {
    "price": 3.56,
    "currency": "USD",
-   "price_time": "2026-10-20T19:22Z",
+   "price_time": "2026-10-20T20:00Z",
    "exchange": "NasdaqGM",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/QMLS",
@@ -61,9 +61,9 @@
    "first_trade_date": "2026-07-16"
   },
   "IOND": {
-   "price": 65.01,
+   "price": 65.62,
    "currency": "USD",
-   "price_time": "2026-10-20T19:22Z",
+   "price_time": "2026-10-20T20:00Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/IOND",
@@ -71,9 +71,9 @@
    "first_trade_date": "2026-07-28"
   },
   "RZAI": {
-   "price": 10.2,
+   "price": 10.28,
    "currency": "USD",
-   "price_time": "2026-10-20T19:24Z",
+   "price_time": "2026-10-20T20:00Z",
    "exchange": "NasdaqCM",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/RZAI",
@@ -81,41 +81,41 @@
    "first_trade_date": "2026-09-30"
   },
   "ACCV": {
-   "price": 12.135,
+   "price": 12.31,
    "currency": "USD",
-   "price_time": "2026-10-20T19:24Z",
+   "price_time": "2026-10-20T20:00Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/ACCV"
   },
   "IAM": {
-   "price": 15.67,
+   "price": 16.01,
    "currency": "USD",
-   "price_time": "2026-10-20T19:24Z",
+   "price_time": "2026-10-20T20:00Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/IAM"
   },
   "DXYZ": {
-   "price": 28.22,
+   "price": 28.55,
    "currency": "USD",
-   "price_time": "2026-10-20T19:23Z",
+   "price_time": "2026-10-20T20:02Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/DXYZ"
   },
   "VCX": {
-   "price": 23.48,
+   "price": 23.96,
    "currency": "USD",
-   "price_time": "2026-10-20T19:24Z",
+   "price_time": "2026-10-20T20:00Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/VCX"
   },
   "RVI": {
-   "price": 23.905,
+   "price": 24.07,
    "currency": "USD",
-   "price_time": "2026-10-20T19:22Z",
+   "price_time": "2026-10-20T20:00Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/RVI"

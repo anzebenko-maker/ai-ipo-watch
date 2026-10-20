@@ -237,7 +237,7 @@ def funds_table():
 <td data-v="{f['premium'] if f['premium'] is not None else ''}">{prem}<br><span class="muted small">vs last reported NAV</span></td>
 <td class="small brk">{''.join(f'<div>{nm}: {broker_cell(f["brokers"].get(k))}</div>' for k, nm in BROKER_NAMES)}</td></tr>"""
     return f"""<div class="tw"><table class="sortable"><thead><tr><th>Fund</th><th>Key AI holdings</th><th>Latest price</th><th>Last reported NAV</th><th>Premium / discount</th><th>Canadian brokers</th></tr></thead><tbody>{rows}</tbody></table></div>
-<p class="small muted">Premium/discount is computed against the <em>last reported</em> NAV, which can be months old. Broker availability: "unverified" means we could not confirm it from a public page; confirm in your broker's symbol search.</p>"""
+<p class="small muted">Premium/discount is computed against the <em>last reported</em> NAV, which can be months old. Broker availability: "available" / "not available" were confirmed in that broker's own symbol search on the date shown; "unverified" means we could not confirm it; confirm in your broker's symbol search.</p>"""
 
 def faq_block(qas):
     body = "".join(f"<details class='faq'><summary>{e(q)}</summary><div>{a}</div></details>" for q, a in qas)
@@ -346,7 +346,7 @@ def vcx_canada_page():
     f = fund_by("VCX"); n = f["nav"]
     brows = "".join(f"<tr><td>{nm}</td><td>{broker_cell(f['brokers'].get(k))}</td></tr>" for k, nm in BROKER_NAMES)
     faq, fs = faq_block([
-        ("Can you buy VCX in Canada?", "VCX trades on the NYSE, so in principle any Canadian broker that offers US-listed closed-end funds can carry it. We have not been able to verify availability at Questrade, Wealthsimple, IBKR or Qtrade from public pages, so check the symbol search in your account."),
+        ("Can you buy VCX in Canada?", "VCX trades on the NYSE, so in principle any Canadian broker that offers US-listed closed-end funds can carry it. Wealthsimple did not offer it in its symbol search when checked on Oct 20, 2026. We have not verified Questrade, IBKR or Qtrade, so check the symbol search in your account."),
         ("Can I hold VCX in a TFSA or RRSP?", "US-listed securities are commonly held in TFSAs and RRSPs at Canadian brokers. Whether VCX is eligible at your broker, and how US withholding tax applies to any distributions, are questions to confirm with your broker or a tax professional."),
         ("Is VCX trading at a premium to NAV?", f"At the latest price ({money(f['price'])}) VCX is {pct(f['premium'], neutral=True)} vs its last reported NAV of {money(n['value'])} (NAV as of {fmt_date(n['date'])})."),
         ("What does VCX hold?", "Per its June 30, 2026 schedule of investments (as summarized by a secondary source): Anthropic above 20% of net assets, OpenAI and Databricks 10–20% each, plus Anduril and SpaceX."),
@@ -376,7 +376,7 @@ def dxyz_page():
         ("What is DXYZ's premium to NAV?", f"At {money(f['price'])} (latest delayed price) vs the last reported NAV of {money(n['value'])} (as of {fmt_date(n['date'])}), DXYZ is at {pct(f['premium'], neutral=True)}. A negative number is a discount."),
         ("How often does DXYZ report NAV?", "Destiny Tech100 reports NAV in its periodic SEC filings (N-CSR / N-CSRS) and quarterly results releases, so the last reported NAV is often weeks or months old."),
         ("What AI companies does DXYZ hold?", "Per its website (as of June 30, 2026): Anthropic 14.4%, SpaceX 10.6% (which now includes xAI), OpenAI 2.6%, OpenEvidence 2.1%, Shield AI 1.8%, Databricks 1.2%."),
-        ("Can I buy DXYZ in Canada?", "DXYZ is NYSE-listed. Availability at Questrade, Wealthsimple, IBKR and Qtrade is unverified on our side; check your broker's symbol search."),
+        ("Can I buy DXYZ in Canada?", "DXYZ is NYSE-listed. It was available in Wealthsimple's symbol search when checked on Oct 20, 2026. Availability at Questrade, IBKR and Qtrade is unverified on our side; check your broker's symbol search."),
     ])
     body = f"""<article><h1>DXYZ premium to NAV (Destiny Tech100)</h1>{asof_line()}
 <div class="stats"><div class="stat"><span class="k">Latest price</span><span class="v">{money(f['price'])}</span><span class="muted small">{e(fmt_ts(f.get('price_time')))}</span></div>

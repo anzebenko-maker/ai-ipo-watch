@@ -1,7 +1,7 @@
 {
   "as_of": "2026-10-20",
   "premium_method": "Premium/discount = latest market price / last reported NAV per share - 1. The NAV is often months old (quarterly marks of private holdings), so this is 'vs last reported NAV', not vs. a live value.",
-  "broker_method": "Availability was NOT verifiable from public pages (Questrade, Wealthsimple, IBKR and Qtrade symbol search requires a logged-in account). Every broker cell stays 'unverified' until someone confirms it inside the broker's own symbol search and records the date here.",
+  "broker_method": "Broker availability can't be checked from public pages (Questrade, Wealthsimple, IBKR and Qtrade symbol search requires a logged-in account). A cell shows 'available' or 'not available' only after someone confirmed it in that broker's own symbol search, with the check date; Wealthsimple was checked this way on Oct 20, 2026. Every other cell stays 'unverified'.",
   "items": [
     {
       "ticker": "DXYZ",
@@ -52,7 +52,9 @@
           "status": "unverified"
         },
         "wealthsimple": {
-          "status": "unverified"
+          "status": "available",
+          "checked": "2026-10-20",
+          "how": "Owner checked Wealthsimple symbol search while logged in"
         },
         "ibkr": {
           "status": "unverified"
@@ -141,7 +143,9 @@
           "status": "unverified"
         },
         "wealthsimple": {
-          "status": "unverified"
+          "status": "not_available",
+          "checked": "2026-10-20",
+          "how": "Owner checked Wealthsimple symbol search while logged in"
         },
         "ibkr": {
           "status": "unverified"
@@ -150,7 +154,7 @@
           "status": "unverified"
         }
       },
-      "broker_note": "Forum posts (unverified; not read in full) suggest Questrade and IBKR offer VCX and that Wealthsimple did not list it at least as of spring 2026. Confirm in each broker's symbol search."
+      "broker_note": "Wealthsimple: not available in its symbol search (checked Oct 20, 2026). Forum posts (unverified; not read in full) suggest Questrade and IBKR offer VCX. Confirm in each broker's symbol search."
     },
     {
       "ticker": "RVI",
@@ -197,7 +201,9 @@
           "status": "unverified"
         },
         "wealthsimple": {
-          "status": "unverified"
+          "status": "available",
+          "checked": "2026-10-20",
+          "how": "Owner checked Wealthsimple symbol search while logged in"
         },
         "ibkr": {
           "status": "unverified"
@@ -258,7 +264,9 @@
           "status": "unverified"
         },
         "wealthsimple": {
-          "status": "unverified"
+          "status": "not_available",
+          "checked": "2026-10-20",
+          "how": "Owner checked Wealthsimple symbol search while logged in"
         },
         "ibkr": {
           "status": "unverified"
@@ -267,7 +275,7 @@
           "status": "unverified"
         }
       },
-      "broker_note": "Not exchange-listed. ARK names Titan, SoFi and Securitize (tokenized) as retail channels; none of these is a Canadian broker. Likely not available through Canadian brokers, but unverified."
+      "broker_note": "Not exchange-listed. ARK names Titan, SoFi and Securitize (tokenized) as retail channels; none of these is a Canadian broker. Wealthsimple: not available in its symbol search (checked Oct 20, 2026). Other Canadian brokers are likely not to offer it either, but that is unverified."
     }
   ]
 }

@@ -14,9 +14,9 @@ PIPE, IPOS, LOCK, FUNDS = load("pipeline.json"), load("ipos.json"), load("lockup
 PRICES, EDGAR = load("prices.json"), load("edgar.json")
 TODAY = datetime.date.today()
 SITE = CFG["site_name"]; BASE = CFG["base_url"].rstrip("/")
-# Project Pages lives at /<repo>/, not the domain root. Root-absolute links
-# like href="/assets/style.css" would be fetched from github.io/ and 404.
-PREFIX = urlparse(BASE).path.rstrip("/")  # "/ai-ipo-watch", or "" on a custom domain
+# A project-Pages URL has a path (/ai-ipo-watch); a custom domain is the root.
+# Root-absolute links are prefixed only when that path is set.
+PREFIX = urlparse(BASE).path.rstrip("/")  # "" for https://ipowatch.ca
 
 def prefix_root_urls(text):
     """Rewrite internal href/src="/…" to the Pages subpath. Leaves https:// and protocol-relative URLs alone."""
@@ -447,6 +447,9 @@ def assets_and_seo():
     (OUT / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {BASE}/sitemap.xml\n")
     (OUT / ".nojekyll").write_text("")
+    # Apex custom domain. www is a DNS CNAME to the GitHub Pages host.
+    # Actions deploys only keep the custom domain if this file is in the artifact.
+    (OUT / "CNAME").write_text("ipowatch.ca\n")
 
 def assert_subpath():
     """Fail the build if a root-absolute link would miss the GitHub Pages subpath."""
@@ -476,6 +479,14 @@ def assert_subpath():
         bad.append("homepage stylesheet")
     if not (OUT / "assets" / "style.css").is_file():
         bad.append("missing assets/style.css")
+    if urlparse(BASE).hostname == "ipowatch.ca":
+        published = [home, (OUT / "sitemap.xml").read_text(), robots]
+        published += [p.read_text() for p in OUT.rglob("*.html")]
+        blob = "\n".join(published)
+        if "/ai-ipo-watch/" in blob or "github.io" in blob:
+            bad.append("old github.io /ai-ipo-watch URL still in published HTML, sitemap, or robots.txt")
+        if (OUT / "CNAME").read_text().strip() != "ipowatch.ca":
+            bad.append("CNAME must be ipowatch.ca")
     if bad:
         raise SystemExit("subpath check failed:\n" + "\n".join(bad))
 

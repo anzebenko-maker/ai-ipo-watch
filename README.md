@@ -6,11 +6,8 @@ Owner: Anze Benko (Edmonton, AB). Newsletter working name: **AI Float Weekly**.
 ## Quick start
 ```bash
 ./scripts/refresh_all.sh                 # refresh prices + fund NAV checks + EDGAR, then build
-# Links are rooted at /ai-ipo-watch/ so the preview host must serve that prefix:
-mkdir -p /tmp/ai-ipo-watch-preview
-ln -sfn "$(pwd)/public" /tmp/ai-ipo-watch-preview/ai-ipo-watch
-python3 -m http.server 8080 --directory /tmp/ai-ipo-watch-preview
-# preview at http://localhost:8080/ai-ipo-watch/
+python3 -m http.server 8080 --directory public
+# preview at http://localhost:8080/
 ```
 No dependencies beyond Python 3.9+ (standard library only). Optional: `scripts/screenshot.py` needs Playwright
 (`python3 -m venv .venv && .venv/bin/pip install playwright`) and uses the system Chrome.
@@ -42,7 +39,7 @@ AGENTS.md                   rules for the AI agent that maintains the data
 ```
 
 ## Deploy
-GitHub Pages: https://anzebenko-maker.github.io/ai-ipo-watch/ via `.github/workflows/refresh.yml`.
+Live site: https://ipowatch.ca via GitHub Pages (`.github/workflows/refresh.yml`). `base_url` in `site.config.json` is that apex domain, so canonical URLs, the sitemap, and Open Graph tags use it, and internal links are root-absolute (`/assets/style.css`). The build writes `public/CNAME` containing `ipowatch.ca`. www is a DNS CNAME to `anzebenko-maker.github.io`; the registrar 301s tickerhottakes.com to the apex.
 
 The workflow runs on every push to `main`, on manual dispatch, and daily at 22:30 UTC. Each run refreshes prices, ARK Venture NAV, and the SEC EDGAR watch, rebuilds `public/`, commits any changed `data/*.json` back to `main`, and deploys. A failed refresh does not block deploying the last good data. `public/` is gitignored; Actions builds it.
 

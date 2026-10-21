@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-20T20:18Z",
+ "as_of": "2026-10-21T00:42Z",
  "note": "Delayed quotes from free public endpoints. Not for trading.",
  "prices": {
   "CRWV": {
@@ -121,9 +121,9 @@
    "source_url": "https://finance.yahoo.com/quote/RVI"
   },
   "ARKVX": {
-   "price": 60.37,
+   "price": 60.62,
    "currency": "USD",
-   "price_time": "2026-10-20T12:05Z",
+   "price_time": "2026-10-21T00:00Z",
    "exchange": "Nasdaq",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/ARKVX"

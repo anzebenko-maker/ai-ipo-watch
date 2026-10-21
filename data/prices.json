@@ -1,11 +1,11 @@
 {
- "as_of": "2026-10-21T16:07Z",
+ "as_of": "2026-10-21T16:51Z",
  "note": "Delayed quotes from free public endpoints. Not for trading.",
  "prices": {
   "CRWV": {
-   "price": 61.629,
+   "price": 61.598,
    "currency": "USD",
-   "price_time": "2026-10-21T16:07Z",
+   "price_time": "2026-10-21T16:51Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/CRWV"
@@ -19,41 +19,41 @@
    "source_url": "https://finance.yahoo.com/quote/0100.HK"
   },
   "CBRS": {
-   "price": 117.485,
+   "price": 117.6,
    "currency": "USD",
-   "price_time": "2026-10-21T16:07Z",
+   "price_time": "2026-10-21T16:50Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/CBRS"
   },
   "SPCX": {
-   "price": 163.135,
+   "price": 162.22,
    "currency": "USD",
-   "price_time": "2026-10-21T16:07Z",
+   "price_time": "2026-10-21T16:51Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/SPCX"
   },
   "CSQR": {
-   "price": 16.955,
+   "price": 17.07,
    "currency": "USD",
-   "price_time": "2026-10-21T16:07Z",
+   "price_time": "2026-10-21T16:50Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/CSQR"
   },
   "STDN": {
-   "price": 12.57,
+   "price": 12.66,
    "currency": "USD",
-   "price_time": "2026-10-21T16:02Z",
+   "price_time": "2026-10-21T16:48Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/STDN"
   },
   "QMLS": {
-   "price": 3.68,
+   "price": 3.695,
    "currency": "USD",
-   "price_time": "2026-10-21T16:00Z",
+   "price_time": "2026-10-21T16:48Z",
    "exchange": "NasdaqGM",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/QMLS",
@@ -61,9 +61,9 @@
    "first_trade_date": "2026-07-16"
   },
   "IOND": {
-   "price": 67.135,
+   "price": 66.7,
    "currency": "USD",
-   "price_time": "2026-10-21T16:07Z",
+   "price_time": "2026-10-21T16:50Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/IOND",
@@ -71,9 +71,9 @@
    "first_trade_date": "2026-07-28"
   },
   "RZAI": {
-   "price": 10.815,
+   "price": 10.845,
    "currency": "USD",
-   "price_time": "2026-10-21T16:06Z",
+   "price_time": "2026-10-21T16:49Z",
    "exchange": "NasdaqCM",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/RZAI",
@@ -81,42 +81,42 @@
    "first_trade_date": "2026-09-30"
   },
   "ACCV": {
-   "price": 12.89,
+   "price": 13.28,
    "currency": "USD",
-   "price_time": "2026-10-21T16:05Z",
+   "price_time": "2026-10-21T16:50Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/ACCV"
   },
   "IAM": {
-   "price": 16.794,
+   "price": 16.575,
    "currency": "USD",
-   "price_time": "2026-10-21T16:03Z",
+   "price_time": "2026-10-21T16:47Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/IAM"
   },
   "DXYZ": {
-   "price": 29.15,
+   "price": 29.07,
    "currency": "USD",
-   "price_time": "2026-10-21T16:07Z",
+   "price_time": "2026-10-21T16:48Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/DXYZ"
   },
   "VCX": {
-   "price": 24.115,
+   "price": 24.39,
    "currency": "USD",
-   "price_time": "2026-10-21T16:06Z",
+   "price_time": "2026-10-21T16:46Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/VCX"
   },
   "RVI": {
-   "price": 24.67,
+   "price": 24.81,
    "currency": "USD",
-   "price_time": "2026-10-21T16:02Z",
-   "exchange": "NYSE",
+   "price_time": "2026-10-21T16:50Z",
+   "exchange": "OTC Markets OTCPK",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/RVI"
   },

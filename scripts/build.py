@@ -143,7 +143,8 @@ def layout(path, title, desc, body, schema=None, og_type="website", priority="0.
 <p class="small">Updated {e(updated_label())}.</p>
 <p class="small">Data: SEC EDGAR, company announcements, fund websites, Renaissance Capital, Yahoo Finance (delayed quotes). Prices as of {e(fmt_ts(asof))}. <a href="/methodology/">Methodology &amp; sources</a> · <a href="/about/">About</a> · <a href="/disclaimer/">Disclaimer</a> · <a href="/disclosure/">How we make money</a> · <a href="/data/">Data (JSON)</a></p>
 <p class="small">© {TODAY.year} {e(SITE)} · Made in {e(CFG.get('location','Canada'))}</p></div></footer>
-<script src="/assets/app.js" defer></script></body></html>"""
+<script src="/assets/app.js" defer></script>
+<script data-goatcounter="https://ipowatch.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script></body></html>"""
     return prefix_root_urls(doc)
 
 def newsletter():
@@ -752,7 +753,10 @@ def static_pages():
 <li>Everything here is general information only, not investment advice.</li>
 <li>We are not registered with any securities regulator.</li></ul>
 <p>Affiliate links are off until a real URL is set in the site config. Pages that show one also show a short commission note.</p>
-<p>See also the <a href="/disclaimer/">disclaimer</a>.</p>{newsletter()}</article>""", priority="0.2"))
+<p>See also the <a href="/disclaimer/">disclaimer</a>.</p>
+<h2>Privacy</h2>
+<p>We use GoatCounter, a privacy-friendly analytics tool that doesn't use cookies or track you across sites, to count page views.</p>
+{newsletter()}</article>""", priority="0.2"))
     (OUT / "404.html").write_text(layout("/404.html", "Page not found", "Page not found", "<h1>Page not found</h1><p><a href='/'>Back to the tracker</a></p>" + newsletter()))
     PAGES.pop()  # don't list 404 in sitemap
 
@@ -824,6 +828,8 @@ def assert_subpath():
         "article dates": '"datePublished"' in anth and '"dateModified"' in anth,
         "updated": "Updated " in home and " MT" in home,
         "impact verification": "<meta name='impact-site-verification' value='0bb4882c-bc98-4a99-8bdc-d1fdd926ec95'>" in home,
+        "goatcounter": '<script data-goatcounter="https://ipowatch.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>' in home and '<script data-goatcounter="https://ipowatch.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>' in anth,
+        "privacy note": "We use GoatCounter, a privacy-friendly analytics tool that doesn't use cookies or track you across sites, to count page views." in disc,
     }
     for name in ("methodology", "data", "disclaimer"):
         checks[f"newsletter {name}"] = 'id="newsletter"' in (OUT / name / "index.html").read_text()

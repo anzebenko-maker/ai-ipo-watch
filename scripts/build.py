@@ -125,6 +125,7 @@ def layout(path, title, desc, body, schema=None, og_type="website", priority="0.
     asof = PRICES.get("as_of", "")
     doc = f"""<!doctype html><html lang="en-CA"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name='impact-site-verification' value='0bb4882c-bc98-4a99-8bdc-d1fdd926ec95'>
 <title>{e(full_title)}</title><meta name="description" content="{e(desc)}">
 <link rel="canonical" href="{e(url)}"><meta name="theme-color" content="{e(CFG.get('theme_color','#0b1020'))}">
 <meta property="og:type" content="{og_type}"><meta property="og:site_name" content="{e(SITE)}"><meta property="og:title" content="{e(full_title)}">
@@ -822,6 +823,7 @@ def assert_subpath():
         "ws hidden unless linked": (WS_OPINION in anth) == ("data-affiliate=\"wealthsimple\"" in anth),
         "article dates": '"datePublished"' in anth and '"dateModified"' in anth,
         "updated": "Updated " in home and " MT" in home,
+        "impact verification": "<meta name='impact-site-verification' value='0bb4882c-bc98-4a99-8bdc-d1fdd926ec95'>" in home,
     }
     for name in ("methodology", "data", "disclaimer"):
         checks[f"newsletter {name}"] = 'id="newsletter"' in (OUT / name / "index.html").read_text()

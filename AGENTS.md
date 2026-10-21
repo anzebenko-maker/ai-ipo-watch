@@ -19,5 +19,4 @@
 ./scripts/refresh_all.sh
 # then: read ALERTs / fund_alerts.json, open the linked filings, update the curated JSON, rebuild
 ```
-Watch items right now (Oct 19, 2026): Anthropic public S-1 (reported for ~Oct 26), SpaceX Q3 results date
-(earnings-linked lock-up release), Cerebras Q3 earnings date (lock-up end), Sep 30 NAVs for DXYZ/VCX/RVI.
+Watch items right now (Oct 21, 2026): Anthropic public S-1 (reported as early as Oct 23, Yahoo, or Oct 26, IFR). When it lands, set Anthropic `status` to `publicly_filed`, add `cik` and `public_s1_url`, and set `edgar_checked_at`. SpaceX Q3 results date (earnings-linked lock-up release), Cerebras Q3 earnings date (lock-up end), Sep 30 NAVs for DXYZ/VCX/RVI.

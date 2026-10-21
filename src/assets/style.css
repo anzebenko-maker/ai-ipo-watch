@@ -23,6 +23,9 @@ h2{font-size:22px;letter-spacing:-.01em;margin:1.6em 0 .5em}h3{margin:.2em 0 .4e
 section{margin-top:8px}.sh{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.sh a{font-size:14px;white-space:nowrap}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin:18px 0}
 .card.status p{margin:.6em 0 0}
+.s1 h2{margin-top:0}.s1 p{margin:.4em 0}.s1 ul{margin:.3em 0 .4em;padding-left:1.1em}
+.nl-cta{margin:.2em 0 1em}.nl-cta .btn{white-space:normal;text-align:center;line-height:1.35}
+.aff-note{margin:.6em 0 0}
 .tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--r);-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:720px}
 th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}

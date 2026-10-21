@@ -4,6 +4,7 @@ Reads site.config.json + data/*.json, writes the full site to public/.
 Run: python3 scripts/build.py"""
 import json, html, shutil, datetime, pathlib, re
 from urllib.parse import urlparse
+from zoneinfo import ZoneInfo
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "public"
 CFG = json.loads((ROOT / "site.config.json").read_text())
@@ -118,6 +119,9 @@ def layout(path, title, desc, body, schema=None, og_type="website", priority="0.
     url = BASE + path; full_title = title if SITE in title else f"{title} | {SITE}"
     ld = "".join(f'<script type="application/ld+json">{json.dumps(s, ensure_ascii=False)}</script>' for s in (schema or []))
     nav = "".join(f'<a href="{h}"{" aria-current=page" if h == path else ""}>{e(t)}</a>' for h, t in NAV)
+    sub = (CFG.get("newsletter_url") or "").strip()
+    if sub:
+        nav += f'<a href="{e(sub)}">Subscribe</a>'
     asof = PRICES.get("as_of", "")
     doc = f"""<!doctype html><html lang="en-CA"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -134,8 +138,9 @@ def layout(path, title, desc, body, schema=None, og_type="website", priority="0.
 <main class="wrap">{body}</main>
 <footer class="foot"><div class="wrap">
 <p class="disc"><strong>Not financial advice.</strong> {e(SITE)} is an independent information site. Nothing here is a recommendation to buy or sell any security. IPO dates and terms change; reported items are not confirmed. Prices are delayed and may be wrong. Do your own research or talk to a registered advisor.</p>
-<p class="disc"><strong>Affiliate disclosure:</strong> Some links on this site may be affiliate links (marked "partner link"). If you open an account through one, we may earn a commission at no cost to you. This never changes the data we show. Affiliate links are currently placeholders.</p>
-<p class="small">Data: SEC EDGAR, company announcements, fund websites, Renaissance Capital, Yahoo Finance (delayed quotes). Prices as of {e(fmt_ts(asof))}. <a href="/methodology/">Methodology &amp; sources</a> · <a href="/about/">About</a> · <a href="/disclaimer/">Disclaimer</a> · <a href="/data/">Data (JSON)</a></p>
+<p class="disc"><strong>Affiliate disclosure:</strong> Some links on this site may be affiliate links. If you open an account through one, we may earn a commission at no cost to you. This never changes the data we show. <a href="/disclosure/">How we make money</a>.</p>
+<p class="small">Updated {e(updated_label())}.</p>
+<p class="small">Data: SEC EDGAR, company announcements, fund websites, Renaissance Capital, Yahoo Finance (delayed quotes). Prices as of {e(fmt_ts(asof))}. <a href="/methodology/">Methodology &amp; sources</a> · <a href="/about/">About</a> · <a href="/disclaimer/">Disclaimer</a> · <a href="/disclosure/">How we make money</a> · <a href="/data/">Data (JSON)</a></p>
 <p class="small">© {TODAY.year} {e(SITE)} · Made in {e(CFG.get('location','Canada'))}</p></div></footer>
 <script src="/assets/app.js" defer></script></body></html>"""
     return prefix_root_urls(doc)
@@ -163,14 +168,40 @@ def newsletter():
 <p>One email a week: new AI IPO filings, pricing dates, lock-up expiries and premium/discount moves on DXYZ, VCX and RVI. Written for Canadian investors.</p></div>
 <div>{control}</div></section>"""
 
-def affiliates(context="buy US-listed funds from Canada"):
-    btns = ""
+def newsletter_cta():
+    """Compact hero CTA. Shown on the home page and the Anthropic page."""
+    url = (CFG.get("newsletter_url") or CFG.get("newsletter_form_action") or "").strip()
+    if not url:
+        return ""
+    return f'<p class="nl-cta"><a class="btn" href="{e(url)}">Get the S-1 breakdown the day it\'s filed - Subscribe free</a></p>'
+
+def live_affiliates():
+    """Real affiliate links only. Empty or placeholder URLs stay hidden."""
+    out = []
     for k, a in CFG.get("affiliates", {}).items():
-        href = a.get("url") or "#"
-        ph = ' <span class="tag rep">placeholder</span>' if a.get("placeholder") or not a.get("url") else ""
-        btns += f'<a class="btn ghost" href="{e(href)}" rel="sponsored nofollow noopener" data-affiliate="{e(k)}">Open a {e(a["label"])} account{ph}</a>'
+        url = (a.get("url") or "").strip()
+        if not url or a.get("placeholder"):
+            continue
+        out.append((k, a, url))
+    return out
+
+def affiliate_disclosure(items):
+    """Short line next to affiliate links. Rendered only when a page actually links one."""
+    if not items:
+        return ""
+    extra = f"<p>{WS_OPINION}</p>" if any(k == "wealthsimple" for k, _, _ in items) else ""
+    return f'<p class="small aff-note">Some links on this page may earn us a commission. <a href="/disclosure/">See how we make money.</a></p>{extra}'
+
+def affiliates(context="buy US-listed funds from Canada"):
+    items = live_affiliates()
+    if not items:
+        return ""
+    btns = "".join(
+        f'<a class="btn ghost" href="{e(url)}" rel="sponsored nofollow noopener" data-affiliate="{e(k)}">Open a {e(a["label"])} account</a>'
+        for k, a, url in items)
     return f"""<aside class="card aff"><h3>Brokers Canadians use to {e(context)}</h3><div class="btns">{btns}</div>
-<p class="small">Partner links (placeholders, not yet active). We may earn a commission if you sign up. Check that your broker actually offers the ticker before funding an account. Availability below is unverified unless marked otherwise.</p></aside>"""
+{affiliate_disclosure(items)}
+<p class="small">Check that your broker actually offers the ticker before funding an account.</p></aside>"""
 
 # ---------- tables ----------
 def pipeline_table(limit=None):
@@ -247,6 +278,281 @@ def faq_block(qas):
 def asof_line(extra=""):
     return f'<p class="asof">Data as of {fmt_date(PIPE.get("as_of"))} · prices {e(fmt_ts(PRICES.get("as_of","")))} {extra}</p>'
 
+MT = ZoneInfo("America/Edmonton")
+STAMP_KEYS = {"as_of", "edgar_checked_at", "price_time"}
+WS_OPINION = "Any opinions expressed in this content are solely my own and not the views or opinions of Wealthsimple. If you click on referral links in this piece and sign up for a Wealthsimple account I may receive a commission."
+
+def _parse_stamp(s):
+    """Parse a data timestamp. Date-only strings are not clocks."""
+    if not isinstance(s, str) or "T" not in s:
+        return None
+    s = s.strip()
+    m = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})Z", s)
+    if m:
+        y, mo, da, hh, mm = (int(x) for x in m.groups())
+        return datetime.datetime(y, mo, da, hh, mm, tzinfo=datetime.timezone.utc)
+    m = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})\s*MT", s)
+    if m:
+        y, mo, da, hh, mm = (int(x) for x in m.groups())
+        return datetime.datetime(y, mo, da, hh, mm, tzinfo=MT)
+    return None
+
+def _walk_stamps(obj, acc):
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if k in STAMP_KEYS:
+                dt = _parse_stamp(v)
+                if dt:
+                    acc.append(dt)
+            _walk_stamps(v, acc)
+    elif isinstance(obj, list):
+        for v in obj:
+            _walk_stamps(v, acc)
+
+def newest_dt():
+    acc = []
+    for p in sorted((ROOT / "data").glob("*.json")):
+        try:
+            _walk_stamps(json.loads(p.read_text()), acc)
+        except Exception:
+            continue
+    return max(acc) if acc else None
+
+def updated_label():
+    dt = newest_dt()
+    if not dt:
+        return fmt_date(PIPE.get("as_of"))
+    local = dt.astimezone(MT)
+    clock = local.strftime("%-I:%M %p")
+    return f"{local.strftime('%b %-d, %Y')} {clock} MT"
+
+def newest_iso():
+    dt = newest_dt()
+    if not dt:
+        return PIPE.get("as_of")
+    return dt.astimezone(MT).isoformat(timespec="minutes")
+
+def article_ld(headline):
+    return {"@context": "https://schema.org", "@type": "Article", "headline": headline,
+            "datePublished": PIPE.get("as_of"), "dateModified": newest_iso(),
+            "author": {"@type": "Person", "name": CFG["owner"]}}
+
+def linkify(text):
+    parts = re.split(r"(https?://[^\s)]+)", text or "")
+    out = ""
+    for p in parts:
+        if p.startswith("http"):
+            out += f'<a href="{e(p)}" rel="noopener nofollow" target="_blank">{e(p)}</a>'
+        else:
+            out += e(p)
+    return out
+
+def fmt_md(s):
+    x = d(s) if s and re.fullmatch(r"\d{4}-\d{2}-\d{2}", s) else None
+    return x.strftime("%b %-d") if x else fmt_date(s)
+
+def short_source(name):
+    name = name or ""
+    if name.lower().startswith("yahoo"):
+        return "Yahoo"
+    return name
+
+def anthropic_item():
+    return next(x for x in PIPE["items"] if x["slug"] == "anthropic")
+
+def format_checked(raw):
+    raw = (raw or "").strip()
+    m = re.fullmatch(r"(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})\s*MT", raw)
+    if m:
+        return f"{fmt_date(m.group(1))} {m.group(2)} MT"
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw):
+        return fmt_date(raw)
+    return raw
+
+def edgar_note_for(a):
+    """Generated from edgar_checked_at so a filing-day edit does not touch this sentence."""
+    if a.get("status") == "publicly_filed":
+        return "Public S-1 is on EDGAR."
+    day = (a.get("edgar_checked_at") or "")[:10]
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+        return f"No public S-1 found on EDGAR as of {day}."
+    return a.get("edgar_note") or "No public S-1 found on EDGAR."
+
+def s1_edgar_url(a):
+    url = (a.get("public_s1_url") or "").strip()
+    if url:
+        return url
+    if a.get("status") == "publicly_filed" and a.get("cik"):
+        return f"https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK={str(a['cik']).zfill(10)}&type=S-1"
+    return ""
+
+def _unconfirmed(a):
+    return [k for k in a.get("key_dates", []) if not k.get("confirmed")]
+
+def filing_key_dates(a):
+    out = []
+    for k in _unconfirmed(a):
+        lab = (k.get("label") or "").lower()
+        if "confidential" in lab:
+            continue
+        if "s-1" in lab or "filing" in lab:
+            out.append(k)
+    return out
+
+def filing_blurb(a):
+    dates = filing_key_dates(a)
+    if not dates:
+        return "No reported public S-1 date"
+    bits = []
+    for k in dates:
+        who = short_source(k.get("source_name"))
+        when = fmt_md(k.get("date"))
+        bits.append(f"{when} ({who})" if who else when)
+    if len(bits) == 1:
+        return f"Public S-1 reported as early as {bits[0]}"
+    return "Public S-1 reported as early as " + " or ".join(bits)
+
+def timing_extra(a):
+    lines = []
+    for k in _unconfirmed(a):
+        lab = k.get("label") or ""
+        low = lab.lower()
+        if "s-1" in low or "filing" in low or "confidential" in low:
+            continue
+        if any(w in low for w in ("roadshow", "listing", "pricing")):
+            lines.append(f"{e(lab)} {src(k.get('source_url'), k.get('source_name'))}")
+    return "<br>".join(lines)
+
+def s1_box(a):
+    filed = a.get("status") == "publicly_filed"
+    link = s1_edgar_url(a)
+    if filed and link:
+        yn = f'Yes (<a href="{e(link)}" rel="noopener nofollow" target="_blank">view on EDGAR</a>)'
+    elif filed:
+        yn = "Yes"
+    else:
+        yn = "No"
+    extra = timing_extra(a)
+    extra_html = f"<p>{extra}</p>" if extra else ""
+    checked = format_checked(a.get("edgar_checked_at"))
+    blurb = filing_blurb(a)
+    return f"""<aside class="card s1" id="s1-status"><h2>S-1 filed?</h2>
+<p><strong>Public S-1 on EDGAR:</strong> {yn}</p>
+<p>{e(blurb)}.</p>
+{extra_html}
+<p class="small muted">Last checked {e(checked)}. None of this timing is confirmed by the company.</p></aside>"""
+
+def financials_table(a):
+    rows = a.get("reported_financials") or []
+    if not rows:
+        return ""
+    body = ""
+    for r in rows:
+        loss = e(r["net_loss"]) if r.get("net_loss") else NA
+        note = f'<br><span class="muted small">{e(r["note"])}</span>' if r.get("note") else ""
+        sources = " ".join(src(s.get("source_url"), s.get("source_name")) for s in r.get("sources") or [])
+        body += f"<tr><td>{e(r.get('period'))}</td><td>{e(r.get('revenue') or NA)}</td><td>{loss}{note}</td><td class='srcs'>{sources}</td></tr>"
+    return f"""<h2>Financials (reported)</h2>
+<p class="muted">These figures come from news reports, not from a public S-1.</p>
+<div class="tw"><table><thead><tr><th>Period</th><th>Revenue</th><th>Net loss</th><th>Sources</th></tr></thead><tbody>{body}</tbody></table></div>"""
+
+def valuation_html(a):
+    v = a.get("last_private_valuation") or {}
+    html_ = ""
+    if v:
+        html_ += f"<p>Last confirmed private valuation: <strong>{e(v.get('value'))}</strong> ({e(v.get('label'))}, {fmt_date(v.get('date'))}) {src(v.get('source_url'), v.get('source_name'))}.</p>"
+    talks = a.get("reported_valuations") or ([a["reported_valuation_talk"]] if a.get("reported_valuation_talk") else [])
+    for rv in talks:
+        html_ += f"<p>{e(rv.get('value'))} {dated_badge(False)} {src(rv.get('source_url'), rv.get('source_name'))}</p>"
+    return f"<h2>Valuation</h2>{html_}" if html_ else ""
+
+def canadians_exposure(a):
+    rows = ""
+    for tk in ("DXYZ", "VCX"):
+        f = fund_by(tk)
+        if not f:
+            continue
+        prem = pct(f["premium"], neutral=True) if f["premium"] is not None else NA
+        brokers = "".join(f"<div>{nm}: {broker_cell(f['brokers'].get(k))}</div>" for k, nm in BROKER_NAMES)
+        rows += f"<tr><td><a href='/company/{e(f['slug'])}/'><strong>{e(f['ticker'])}</strong></a><br><span class='muted small'>{e(f['name'])}</span></td><td>{money(f['price'])}</td><td>{prem}<br><span class='muted small'>vs last reported NAV</span></td><td class='small brk'>{brokers}</td></tr>"
+    return f"""<h2>How Canadians can get exposure</h2>
+<p>General information only. This is not a recommendation and not personalized advice.</p>
+<h3>After a listing</h3>
+<ol class="steps"><li><strong>Buy through a broker that offers US stocks.</strong> After Anthropic lists, confirm the ticker in that broker's symbol search before funding an account.</li>
+<li><strong>TFSA or RRSP.</strong> US-listed shares are commonly held in those accounts. Confirm eligibility, and how US withholding tax applies, with your broker or a tax professional.</li>
+<li><strong>USD account and W-8BEN.</strong> A US listing trades in US dollars. A USD account avoids converting twice. Brokers usually ask for a W-8BEN.</li>
+<li><strong>Use a limit order.</strong> The first sessions after a listing can move quickly.</li></ol>
+<h3>Do not count on an IPO allocation</h3>
+<p>Retail allocations at the IPO price are limited, and Canadians should not plan on getting one. As US context only, Fidelity cut its US retail IPO minimum to $25,000 effective Oct 19, 2026 ({src('https://www.fidelity.com/stock-trading/ipos', 'Fidelity')}). That is a US Fidelity program, not something Canadians can use.</p>
+<h3>Indirect route today: DXYZ and VCX</h3>
+<p>Two NYSE-listed funds report Anthropic holdings. Their shares can trade at a large premium or discount to the last reported NAV, so the price is not the value of the private stake.</p>
+<div class="tw"><table><thead><tr><th>Fund</th><th>Latest price</th><th>Premium / discount</th><th>Canadian brokers</th></tr></thead><tbody>{rows}</tbody></table></div>
+<p class="small muted">Broker cells use the same checks as the funds table.</p>"""
+
+def sec_block(a):
+    note = edgar_note_for(a)
+    checked = format_checked(a.get("edgar_checked_at"))
+    if a.get("status") == "publicly_filed":
+        link = s1_edgar_url(a)
+        linked = f' <a href="{e(link)}" rel="noopener nofollow" target="_blank">Public S-1 on EDGAR</a>.' if link else ""
+        return f"<h2>SEC filings</h2><p>{e(note)}{linked} Last checked {e(checked)}.</p>{edgar_list(a.get('cik'))}"
+    return f"<h2>SEC filings</h2><p>{e(note)} Last checked {e(checked)}.</p>"
+
+def anth_faq_when(a):
+    parts = ["No date is confirmed by the company."]
+    for k in a.get("key_dates", []):
+        lab = (k.get("label") or "").lower()
+        if k.get("confirmed") and "confidential" in lab and "s-1" in lab:
+            parts.append(f"Anthropic confirmed a confidential draft S-1 on {fmt_date(k['date'])}.")
+            break
+    bits = []
+    for k in _unconfirmed(a):
+        lab = k.get("label") or ""
+        low = lab.lower()
+        if any(w in low for w in ("s-1", "filing", "roadshow", "listing", "pricing")) and "confidential" not in low:
+            bits.append(f"{e(k.get('source_name') or 'Report')} ({fmt_date(k.get('date'))}): {e(lab)}")
+    if bits:
+        parts.append("Reported timing, not confirmed: " + "; ".join(bits) + ".")
+    return " ".join(parts)
+
+def anth_faq_filed(a):
+    if a.get("status") == "publicly_filed":
+        link = s1_edgar_url(a)
+        extra = f' <a href="{e(link)}" rel="noopener nofollow" target="_blank">EDGAR</a>.' if link else ""
+        return f"Yes. A public S-1 is on EDGAR.{extra} Last checked {e(format_checked(a.get('edgar_checked_at')))}."
+    conf = ""
+    for k in a.get("key_dates", []):
+        lab = (k.get("label") or "").lower()
+        if k.get("confirmed") and "confidential" in lab and "s-1" in lab:
+            conf = f"Confidentially, yes (announced {fmt_date(k['date'])}). A confidential draft is not public. "
+            break
+    return f"{conf}{e(edgar_note_for(a))} Last checked {e(format_checked(a.get('edgar_checked_at')))}. When a public S-1 appears, it will show the ticker, exchange and financials."
+
+def anth_faq_valuation(a):
+    v = a.get("last_private_valuation") or {}
+    talks = a.get("reported_valuations") or ([a["reported_valuation_talk"]] if a.get("reported_valuation_talk") else [])
+    extra = " ".join(f"{e(t.get('source_name') or 'Report')} (reported): {e(t.get('value'))}." for t in talks)
+    return f"The last confirmed private valuation was {e(v.get('value'))} ({e(v.get('label'))}, {fmt_date(v.get('date'))}). {extra} None of the IPO valuation talk is confirmed by the company."
+
+def anth_faq_ipo_price():
+    return ("No. Canadians should not count on buying Anthropic at the IPO price. Retail allocations are limited. "
+            "After a US listing, the usual route is a broker that offers US stocks, often in a TFSA or RRSP, with a USD account, a W-8BEN, and a limit order. Confirm the ticker in your broker's symbol search. "
+            'As US context only, Fidelity cut its US retail IPO minimum to $25,000 effective Oct 19, 2026 (<a href="https://www.fidelity.com/stock-trading/ipos" rel="noopener nofollow" target="_blank">https://www.fidelity.com/stock-trading/ipos</a>). That program is not something Canadians can use. '
+            "Today, an indirect route is DXYZ or VCX, which can trade at a premium or discount to their last reported NAV. This is general information only, not personalized advice.")
+
+def anth_desc(a):
+    conf = ""
+    for k in a.get("key_dates", []):
+        lab = (k.get("label") or "").lower()
+        if k.get("confirmed") and "confidential" in lab and "s-1" in lab:
+            conf = f"Confidential S-1 confirmed {fmt_date(k['date'])}. "
+            break
+    if a.get("status") == "publicly_filed":
+        lead = "Anthropic's public S-1 is on EDGAR. "
+    else:
+        lead = filing_blurb(a) + ". "
+    return (lead + conf + "Reported financials, valuation and how Canadians can get exposure.").strip()
+
 # ---------- pages ----------
 def write(path, content):
     p = OUT / path.strip("/") / "index.html" if not path.endswith(".html") else OUT / path.strip("/")
@@ -260,9 +566,9 @@ def home():
 <div class="stat"><span class="k">Tracked pipeline</span><span class="v">{len(PIPE['items'])}</span><span class="muted small">companies</span></div>
 <div class="stat"><span class="k">Recent AI listings</span><span class="v">{len(lb)}</span><span class="muted small">with returns</span></div>
 <div class="stat"><span class="k">Next lock-up</span><span class="v">{fmt_date(nxt['date']) if nxt and nxt['date'] else 'TBD'}</span><span class="muted small">{e(nxt['name']) if nxt else ''}</span></div>
-<div class="stat"><span class="k">Anthropic</span><span class="v sm">{e(STATUS_LABEL[anth['status']])}</span><span class="muted small">public S-1 reported for Oct 26</span></div></div>"""
+<div class="stat"><span class="k">Anthropic</span><span class="v sm">{e(STATUS_LABEL[anth['status']])}</span><span class="muted small">{e(filing_blurb(anth) if anth.get('status') != 'publicly_filed' else 'Public S-1 is on EDGAR')}</span></div></div>"""
     body = f"""<section class="hero"><p class="eyebrow">AI IPO tracker for Canadian investors</p><h1>Every AI IPO, lock-up and pre-IPO fund in one place</h1>
-<p class="lead">Track Anthropic, OpenAI and the rest of the AI IPO pipeline, see how recent AI listings have traded, know when insiders can sell, and compare the listed funds that hold private AI stakes, including which Canadian brokers carry them.</p>{asof_line()}{stats}</section>
+<p class="lead">Track Anthropic, OpenAI and the rest of the AI IPO pipeline, see how recent AI listings have traded, know when insiders can sell, and compare the listed funds that hold private AI stakes, including which Canadian brokers carry them.</p>{asof_line()}{s1_box(anth)}{newsletter_cta()}{stats}</section>
 <section id="pipeline"><div class="sh"><h2>IPO pipeline</h2><a href="/ipo-pipeline/">Full pipeline →</a></div>
 <p class="muted">Status comes from SEC EDGAR or a company announcement. Anything marked <span class="tag rep">reported</span> comes from media reports and is not confirmed.</p>{pipeline_table()}</section>
 <section id="returns"><div class="sh"><h2>AI IPO leaderboard: return since listing</h2><a href="/ai-ipo-returns/">Details →</a></div>{leaderboard_table()}</section>
@@ -275,7 +581,7 @@ def home():
 <a class="card link" href="/dxyz-premium-to-nav/"><h3>DXYZ premium to NAV</h3><p>The live premium/discount vs Destiny Tech100's last reported NAV.</p></a></section>
 {newsletter()}"""
     schema = [{"@context": "https://schema.org", "@type": "WebSite", "name": SITE, "url": BASE + "/", "description": CFG["tagline"]},
-              {"@context": "https://schema.org", "@type": "Dataset", "name": f"{SITE} AI IPO pipeline", "description": "AI IPO pipeline, returns, lock-ups and pre-IPO fund NAVs with sources", "url": BASE + "/data/", "dateModified": PIPE.get("as_of"), "creator": {"@type": "Person", "name": CFG["owner"]}}]
+              {"@context": "https://schema.org", "@type": "Dataset", "name": f"{SITE} AI IPO pipeline", "description": "AI IPO pipeline, returns, lock-ups and pre-IPO fund NAVs with sources", "url": BASE + "/data/", "dateModified": newest_iso(), "creator": {"@type": "Person", "name": CFG["owner"]}}]
     write("/", layout("/", f"{SITE}: AI IPO tracker, lock-ups & pre-IPO funds (Canada)", "Track the AI IPO pipeline (Anthropic, OpenAI, Databricks), AI IPO returns, lock-up expiries and listed funds holding private AI stakes (DXYZ, VCX, RVI, ARKVX), with Canadian broker info.", body, schema, priority="1.0"))
 
 def section_pages():
@@ -307,25 +613,28 @@ def edgar_list(cik):
     return f"<ul class='filings'>{lis}</ul><p class='small'><a href='{e(c['edgar_page'])}' rel='noopener nofollow' target='_blank'>All filings on EDGAR →</a> (refreshed {e(EDGAR.get('as_of',''))})</p>"
 
 def anthropic_page():
-    a = next(x for x in PIPE["items"] if x["slug"] == "anthropic"); v = a["last_private_valuation"]; rv = a.get("reported_valuation_talk")
+    a = anthropic_item()
     faq, fs = faq_block([
-        ("When is the Anthropic IPO date?", "No date is confirmed. Anthropic confirmed a confidential draft S-1 on June 1, 2026. IFR (via Newsquawk) reported a public SEC filing planned for around October 26, 2026 and a mid-November listing target; Renaissance Capital says December is also being considered. Treat all of these dates as reported, not confirmed."),
-        ("Has Anthropic filed an S-1?", "Confidentially, yes (announced June 1, 2026). A confidential draft is not public. As of our last EDGAR check there is no public S-1. When it appears, it will show the ticker, exchange and financials."),
-        ("What is Anthropic's valuation?", f"The last confirmed private valuation was {e(v['value'])} ({e(v['label'])}, {fmt_date(v['date'])}). Reuters reported on Oct 15, 2026 that some investors discussed about $1.5T for the IPO, which is not confirmed."),
-        ("Can Canadians buy Anthropic stock before the IPO?", "Not directly. Indirect exposure exists through listed funds that report Anthropic holdings, such as DXYZ and VCX, which you may be able to buy through a Canadian broker that offers US-listed securities. These funds can trade at large premiums or discounts to their last reported NAV."),
+        ("When is the Anthropic IPO date?", anth_faq_when(a)),
+        ("Has Anthropic filed an S-1?", anth_faq_filed(a)),
+        ("What is Anthropic's valuation?", anth_faq_valuation(a)),
+        ("Can Canadians buy Anthropic at the IPO price?", anth_faq_ipo_price()),
+        ("Can Canadians buy Anthropic stock before the IPO?", "Not directly. Indirect exposure exists through listed funds that report Anthropic holdings, such as DXYZ and VCX, which you may be able to buy through a Canadian broker that offers US-listed securities. These funds can trade at large premiums or discounts to their last reported NAV. This is general information only, not personalized advice."),
         ("Will Anthropic list on the TSX?", "Nothing reported suggests a TSX listing. If it lists on a US exchange, Canadians can usually buy it through brokers that offer US stocks."),
     ])
     body = f"""<article><h1>Anthropic IPO date: what's confirmed and what's reported</h1>{asof_line()}
-<div class="card status">{badge(a['status'], True)}<p>{e(a['summary'])}</p></div>
+{s1_box(a)}{newsletter_cta()}
+<div class="card status">{badge(a['status'], a.get('status_confirmed', True))}<p>{linkify(a['summary'])}</p></div>
 <h2>Key dates</h2>{timeline(a)}
-<h2>Valuation</h2><p>Last confirmed private valuation: <strong>{e(v['value'])}</strong> ({e(v['label'])}, {fmt_date(v['date'])}) {src(v['source_url'], v['source_name'])}.</p>
-<p>IPO valuation talk: {e(rv['value'])} {dated_badge(False)} {src(rv['source_url'], rv['source_name'])}</p>
-<h2>SEC filings</h2><p>{e(a.get('edgar_note',''))} We check EDGAR full-text search for "Anthropic, PBC" on every refresh.</p>
-<h2>How to get Anthropic exposure before the IPO</h2>{exposure_list('Anthropic')}
+{financials_table(a)}
+{valuation_html(a)}
+{sec_block(a)}
+{canadians_exposure(a)}
+<h2>Listed funds that report an Anthropic holding</h2>{exposure_list('Anthropic')}
 {affiliates('buy US-listed funds like DXYZ and VCX')}
 {faq}{newsletter()}</article>"""
-    art = {"@context": "https://schema.org", "@type": "Article", "headline": "Anthropic IPO date: what's confirmed and what's reported", "dateModified": PIPE.get("as_of"), "author": {"@type": "Person", "name": CFG["owner"]}}
-    write("/anthropic-ipo-date/", layout("/anthropic-ipo-date/", "Anthropic IPO date (2026): filing, timeline & how to invest", "When is the Anthropic IPO? Confidential S-1 confirmed June 1, 2026; public filing reported for Oct 26 and a mid-November listing target. Sources, valuation and pre-IPO exposure for Canadians.", body, [fs, art], "article", "0.9"))
+    art = article_ld("Anthropic IPO date: what's confirmed and what's reported")
+    write("/anthropic-ipo-date/", layout("/anthropic-ipo-date/", "Anthropic IPO date (2026): filing, timeline & how to invest", anth_desc(a), body, [fs, art], "article", "0.9"))
 
 def openai_page():
     a = next(x for x in PIPE["items"] if x["slug"] == "openai"); v = a["last_private_valuation"]
@@ -340,7 +649,7 @@ def openai_page():
 <h2>Key dates</h2>{timeline(a)}
 <h2>Valuation</h2><p>{e(v['value'])} ({e(v['label'])}) {src(v['source_url'], v['source_name'])}</p>
 <h2>Funds that hold OpenAI</h2>{exposure_list('OpenAI')}{affiliates()}{faq}{newsletter()}</article>"""
-    write("/openai-ipo/", layout("/openai-ipo/", "OpenAI IPO: date, S-1 status & how to invest (2026)", "OpenAI confidentially filed for an IPO in June 2026 and has pointed toward 2027. Status, sources, valuation and listed funds that hold OpenAI, for Canadian investors.", body, [fs], "article", "0.9"))
+    write("/openai-ipo/", layout("/openai-ipo/", "OpenAI IPO: date, S-1 status & how to invest (2026)", "OpenAI confidentially filed for an IPO in June 2026 and has pointed toward 2027. Status, sources, valuation and listed funds that hold OpenAI, for Canadian investors.", body, [fs, article_ld("OpenAI IPO: the confidential S-1 and the 2027 question")], "article", "0.9"))
 
 def vcx_canada_page():
     f = fund_by("VCX"); n = f["nav"]
@@ -367,7 +676,7 @@ def vcx_canada_page():
 <h2>What VCX holds</h2><ul>{''.join(f"<li>{e(h['name'])}: {e(h['weight'])}</li>" for h in f['ai_holdings'])}</ul><p class="small">As of {fmt_date(f['holdings_as_of'])}. {src(f['holdings_source_url'], f['holdings_source_name'])}</p>
 <h2>Key risks</h2><ul><li>Premium/discount to NAV can move sharply; VCX's own filing showed a 75.67% premium on Sep 8, 2026 {src('https://www.sec.gov/Archives/edgar/data/1867090/000121390026098534/ea0303702-01_424b2.htm','424B2')}.</li><li>NAV is quarterly and based on private-company marks.</li><li>Concentration in a few AI companies.</li><li>The fund can issue new shares through an at-the-market program (filed Sep 2026).</li></ul>
 {faq}{newsletter()}</article>"""
-    write("/how-to-buy-vcx-in-canada/", layout("/how-to-buy-vcx-in-canada/", "How to buy VCX in Canada (Fundrise Innovation Fund)", "How Canadians can buy VCX, the NYSE-listed fund holding Anthropic, OpenAI and Databricks: brokers, USD, TFSA/RRSP, premium to NAV and risks.", body, [fs], "article", "0.9"))
+    write("/how-to-buy-vcx-in-canada/", layout("/how-to-buy-vcx-in-canada/", "How to buy VCX in Canada (Fundrise Innovation Fund)", "How Canadians can buy VCX, the NYSE-listed fund holding Anthropic, OpenAI and Databricks: brokers, USD, TFSA/RRSP, premium to NAV and risks.", body, [fs, article_ld("How to buy VCX (Fundrise Innovation Fund) in Canada")], "article", "0.9"))
 
 def dxyz_page():
     f = fund_by("DXYZ"); n = f["nav"]
@@ -386,7 +695,7 @@ def dxyz_page():
 <h2>Reported NAV per share history</h2><div class="tw"><table><thead><tr><th>NAV date</th><th>NAV / share</th><th>Source</th></tr></thead><tbody>{hist}</tbody></table></div>
 <h2>Top AI holdings</h2><ul>{''.join(f"<li>{e(h['name'])}: {e(h['weight'])}</li>" for h in f['ai_holdings'])}</ul><p class="small">{src(f['holdings_source_url'], f['holdings_source_name'])}, as of {fmt_date(f['holdings_as_of'])}</p>
 {affiliates('buy DXYZ')}{faq}{newsletter()}</article>"""
-    write("/dxyz-premium-to-nav/", layout("/dxyz-premium-to-nav/", "DXYZ premium to NAV: live vs last reported NAV", "Destiny Tech100 (DXYZ) premium or discount to its last reported NAV, NAV history from SEC filings, and its Anthropic, SpaceX/xAI and OpenAI holdings.", body, [fs], "article", "0.9"))
+    write("/dxyz-premium-to-nav/", layout("/dxyz-premium-to-nav/", "DXYZ premium to NAV: live vs last reported NAV", "Destiny Tech100 (DXYZ) premium or discount to its last reported NAV, NAV history from SEC filings, and its Anthropic, SpaceX/xAI and OpenAI holdings.", body, [fs, article_ld("DXYZ premium to NAV (Destiny Tech100)")], "article", "0.9"))
 
 def company_pages():
     """Per-company template: one page for each pipeline company, listed AI IPO and fund."""
@@ -422,19 +731,28 @@ def company_pages():
         parts.append(f"<h2>SEC filings</h2>{edgar_list(it.get('cik'))}")
         parts.append(affiliates()); parts.append(newsletter())
         desc = (it.get("summary") or f"{name}: IPO status, price since listing, lock-ups, SEC filings and listed-fund exposure.")[:155]
-        write(f"/company/{slug}/", layout(f"/company/{slug}/", f"{name} IPO: status, dates & how to invest" if not is_fund else f"{it['ticker']} ({name}): NAV, premium & holdings", desc, "<article>" + "".join(parts) + "</article>", priority="0.6"))
+        headline = f"{name} IPO: status, dates & how to invest" if not is_fund else f"{it['ticker']} ({name}): NAV, premium & holdings"
+        write(f"/company/{slug}/", layout(f"/company/{slug}/", headline, desc, "<article>" + "".join(parts) + "</article>", [article_ld(headline)], priority="0.6"))
 
 def static_pages():
     write("/about/", layout("/about/", "About", f"About {SITE}", f"<article><h1>About {e(SITE)}</h1><p>{e(SITE)} is an independent tracker of AI IPOs and pre-IPO exposure, built in {e(CFG['location'])} for investors, with a focus on what Canadians can actually access.</p><p>Owner: {e(CFG['owner'])}.</p><p>The data is kept in open JSON files and refreshed by scripts; every number links to its source. If you spot an error, tell us and we will fix it.</p>{newsletter()}</article>", priority="0.3"))
-    write("/disclaimer/", layout("/disclaimer/", "Disclaimer & affiliate disclosure", "Not financial advice. Affiliate disclosure.", f"<article><h1>Disclaimer</h1><p><strong>Not financial advice.</strong> All content is general information only and is not investment, tax or legal advice, nor an offer or solicitation to buy or sell any security. IPO timing and terms reported in the media are frequently wrong or change. Prices are delayed and may be inaccurate. Past performance is not indicative of future results. Consult a registered professional.</p><h2>Affiliate disclosure</h2><p>Some links (labelled partner links) may earn us a commission if you open an account. This does not influence the data. As of today all affiliate links are placeholders.</p></article>", priority="0.2"))
+    write("/disclaimer/", layout("/disclaimer/", "Disclaimer & affiliate disclosure", "Not financial advice. Affiliate disclosure.", f"<article><h1>Disclaimer</h1><p><strong>Not financial advice.</strong> All content is general information only and is not investment, tax or legal advice, nor an offer or solicitation to buy or sell any security. IPO timing and terms reported in the media are frequently wrong or change. Prices are delayed and may be inaccurate. Past performance is not indicative of future results. Consult a registered professional.</p><h2>Affiliate disclosure</h2><p>Some links may earn us a commission if you open an account. This does not influence the data or which brokers we say carry a fund. See <a href='/disclosure/'>how we make money</a>.</p>{newsletter()}</article>", priority="0.2"))
     srcs = "".join(f"<li>{x}</li>" for x in ["SEC EDGAR submissions API &amp; full-text search (filings, IPO prices from Form 424B4, lock-up terms)", "Company announcements (Anthropic, OpenAI, Waymo)", "Fund websites and filings (Destiny, Fundrise, Robinhood Ventures, ARK Funds)", "Renaissance Capital AI IPO tracker (pipeline candidates, AI ratings)", "Yahoo Finance public chart endpoint (delayed prices), Stooq fallback", "News reports (Reuters, Bloomberg, CNBC, IFR) for reported items, always labelled 'reported'"])
     write("/methodology/", layout("/methodology/", "Methodology & sources", "How the AI IPO data is sourced, verified and refreshed.", f"""<article><h1>Methodology &amp; sources</h1><ul>{srcs}</ul>
 <h2>Rules</h2><ul><li>No invented numbers. Unknown values are shown as n/a.</li><li>Status is 'confirmed' only when it comes from an SEC filing or the company itself; media items are labelled 'reported'.</li><li>Lock-up dates come from the prospectus. When the prospectus gives "N days after the date of this prospectus", we compute the date and label it 'computed'.</li><li>Premium/discount is always vs the <em>last reported</em> NAV, shown with its date.</li><li>Broker availability stays 'unverified' until confirmed in the broker's own symbol search, with the check date recorded.</li></ul>
-<h2>Refresh</h2><p>Prices: every market day. EDGAR filings and fund NAV checks: daily. Reported news: reviewed by an editor or AI agent, with sources.</p></article>""", priority="0.3"))
+<h2>Refresh</h2><p>Prices: every market day. EDGAR filings and fund NAV checks: daily. Reported news: reviewed by an editor or AI agent, with sources. The Anthropic public-S-1 "last checked" time is <code>edgar_checked_at</code> in pipeline.json (SEC blocks the GitHub-hosted refresh).</p>{newsletter()}</article>""", priority="0.3"))
     # data index
     files = "".join(f"<li><a href='/data/{n}'>{n}</a></li>" for n in ["pipeline.json", "ipos.json", "lockups.json", "funds.json", "prices.json", "edgar.json"])
-    write("/data/", layout("/data/", "Open data (JSON)", "Download the AI IPO pipeline, returns, lock-ups and fund NAV data as JSON.", f"<article><h1>Open data</h1><p>The JSON files behind this site. Free to use with attribution.</p><ul>{files}</ul></article>", priority="0.3"))
-    (OUT / "404.html").write_text(layout("/404.html", "Page not found", "Page not found", "<h1>Page not found</h1><p><a href='/'>Back to the tracker</a></p>").replace("", ""))
+    write("/data/", layout("/data/", "Open data (JSON)", "Download the AI IPO pipeline, returns, lock-ups and fund NAV data as JSON.", f"<article><h1>Open data</h1><p>The JSON files behind this site. Free to use with attribution.</p><ul>{files}</ul>{newsletter()}</article>", priority="0.3"))
+    write("/disclosure/", layout("/disclosure/", "How we make money", "How AI IPO Watch may earn referral commissions, and what that does not change.", f"""<article><h1>How we make money</h1>
+<ul><li>This site may earn referral commissions from some brokers and financial services linked on the site, at no extra cost to readers.</li>
+<li>Opinions are our own and not those of any broker.</li>
+<li>Commissions never change the data, or which brokers we say carry a fund.</li>
+<li>Everything here is general information only, not investment advice.</li>
+<li>We are not registered with any securities regulator.</li></ul>
+<p>Affiliate links are off until a real URL is set in the site config. Pages that show one also show a short commission note.</p>
+<p>See also the <a href="/disclaimer/">disclaimer</a>.</p>{newsletter()}</article>""", priority="0.2"))
+    (OUT / "404.html").write_text(layout("/404.html", "Page not found", "Page not found", "<h1>Page not found</h1><p><a href='/'>Back to the tracker</a></p>" + newsletter()))
     PAGES.pop()  # don't list 404 in sitemap
 
 def assets_and_seo():
@@ -489,6 +807,30 @@ def assert_subpath():
             bad.append("CNAME must be ipowatch.ca")
     if bad:
         raise SystemExit("subpath check failed:\n" + "\n".join(bad))
+    anth = (OUT / "anthropic-ipo-date" / "index.html").read_text()
+    disc = (OUT / "disclosure" / "index.html").read_text()
+    # Structural only. Do not pin dates or "not filed" copy: filing day is a data edit.
+    checks = {
+        "s1 box": "S-1 filed?" in home and "S-1 filed?" in anth and "Public S-1 on EDGAR:" in anth and "Last checked" in anth,
+        "old oct 26 copy": "public S-1 reported for Oct 26" not in home and "public filing reported for Oct 26" not in anth,
+        "financials": "Financials (reported)" in anth,
+        "exposure": "How Canadians can get exposure" in anth and "Can Canadians buy Anthropic at the IPO price?" in anth,
+        "cta": "Get the S-1 breakdown the day it's filed - Subscribe free" in home and "Get the S-1 breakdown the day it's filed - Subscribe free" in anth,
+        "subscribe nav": ">Subscribe</a>" in home,
+        "disclosure": "How we make money" in disc and "not registered with any securities regulator" in disc,
+        "no placeholder buttons": 'href="#"' not in home and 'href="#"' not in anth,
+        "ws hidden unless linked": (WS_OPINION in anth) == ("data-affiliate=\"wealthsimple\"" in anth),
+        "article dates": '"datePublished"' in anth and '"dateModified"' in anth,
+        "updated": "Updated " in home and " MT" in home,
+    }
+    for name in ("methodology", "data", "disclaimer"):
+        checks[f"newsletter {name}"] = 'id="newsletter"' in (OUT / name / "index.html").read_text()
+    checks["newsletter 404"] = 'id="newsletter"' in (OUT / "404.html").read_text()
+    if not live_affiliates() and 'data-affiliate=' in home + anth:
+        checks["affiliates hidden"] = False
+    missed = [k for k, ok in checks.items() if not ok]
+    if missed:
+        raise SystemExit("content check failed:\n" + "\n".join(missed))
 
 def main():
     if OUT.exists(): shutil.rmtree(OUT)

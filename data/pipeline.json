@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-19",
+  "as_of": "2026-10-21",
   "status_legend": {
     "reported": "Media reports only (not confirmed by the company or an SEC filing).",
     "confidentially_filed": "Company confirmed a confidential draft S-1 (DRS). Not visible on EDGAR until a public filing.",
@@ -20,7 +20,7 @@
       "exchange": null,
       "sector": "AI model developer",
       "hq": "San Francisco, CA",
-      "summary": "Confirmed a confidential draft S-1 on June 1, 2026. Media reports (IFR, via Newsquawk) say a public SEC filing is planned for around October 26, 2026, with a mid-November listing targeted; Renaissance Capital notes December is also being considered. None of the timing is confirmed by the company.",
+      "summary": "Confidential draft S-1 confirmed June 1, 2026 (Anthropic: https://www.anthropic.com/news/confidential-draft-s1-sec). The public S-1 could be filed as early as Friday, Oct 23, according to three people familiar with the plans (Yahoo Finance, Oct 21: https://finance.yahoo.com/markets/article/anthropic-to-publicly-file-for-ipo-as-early-as-friday-sources-say-135343841.html). IFR reports a planned Oct 26 filing, a roadshow from Nov 9 and pricing the following week (IFR: https://www.ifre.com/equities/2499407/anthropic-pushes-ahead-with-mid-november-ipo). None of this timing is confirmed by the company.",
       "last_private_valuation": {
         "value": "$965B post-money",
         "date": "2026-05-28",
@@ -45,24 +45,31 @@
         },
         {
           "date": "2026-10-14",
-          "label": "Pre-IPO investor day; Q3 revenue $16.8B reported by attendees",
+          "label": "Pre-IPO investor day; Q3 revenue $16.8B (reported)",
           "confirmed": false,
-          "source_url": "https://www.investing.com/news/stock-market-news/exclusiveinvestors-temper-anthropic-ipo-valuation-expectations-over-revenue-growth-slowdown-sources-say-4952698",
-          "source_name": "Reuters (via Investing.com)"
+          "source_url": "https://www.cnbc.com/2026/10/15/anthropics-third-quarter-revenue-hits-16point8-billion-ipo.html",
+          "source_name": "CNBC"
+        },
+        {
+          "date": "2026-10-23",
+          "label": "Public S-1 could be filed as early as this date (reported)",
+          "confirmed": false,
+          "source_url": "https://finance.yahoo.com/markets/article/anthropic-to-publicly-file-for-ipo-as-early-as-friday-sources-say-135343841.html",
+          "source_name": "Yahoo Finance"
         },
         {
           "date": "2026-10-26",
           "label": "Public S-1 filing planned (reported)",
           "confirmed": false,
-          "source_url": "https://www.newsquawk.com/headlines/anthropic-plans-to-file-documents-with-the-sec-for-its-blockbuster-ipo-on-october-26th-in-hopes-of-going-public-in-mid-november-according-to-ifr-citing-a-person-familiar-with-the-matter",
-          "source_name": "IFR via Newsquawk"
+          "source_url": "https://www.ifre.com/equities/2499407/anthropic-pushes-ahead-with-mid-november-ipo",
+          "source_name": "IFR"
         },
         {
           "date": "2026-11-09",
-          "label": "Roadshow / marketing could begin week of Nov 9 (reported)",
+          "label": "Roadshow from Nov 9; pricing the following week (reported)",
           "confirmed": false,
-          "source_url": "https://finance.yahoo.com/technology/article/anthropic-reportedly-looking-to-ipo-as-early-as-mid-november-180315768.html",
-          "source_name": "Yahoo Finance"
+          "source_url": "https://www.ifre.com/equities/2499407/anthropic-pushes-ahead-with-mid-november-ipo",
+          "source_name": "IFR"
         },
         {
           "date": "2026-11",
@@ -79,7 +86,54 @@
         "source_url": "https://www.investing.com/news/stock-market-news/exclusiveinvestors-temper-anthropic-ipo-valuation-expectations-over-revenue-growth-slowdown-sources-say-4952698",
         "source_name": "Reuters (via Investing.com)"
       },
-      "edgar_note": "No public S-1 found on EDGAR full-text search as of 2026-10-19.",
+      "reported_valuations": [
+        {
+          "value": "~$1.5T discussed by some investors (down from ~$2T expected)",
+          "date": "2026-10-15",
+          "confirmed": false,
+          "source_url": "https://www.investing.com/news/stock-market-news/exclusiveinvestors-temper-anthropic-ipo-valuation-expectations-over-revenue-growth-slowdown-sources-say-4952698",
+          "source_name": "Reuters (via Investing.com)"
+        },
+        {
+          "value": "IFR reports Anthropic is targeting up to $100B at a $2T valuation (reported)",
+          "confirmed": false,
+          "source_url": "https://www.ifre.com/equities/2499407/anthropic-pushes-ahead-with-mid-november-ipo",
+          "source_name": "IFR"
+        }
+      ],
+      "reported_financials": [
+        {
+          "period": "H1 2025",
+          "revenue": "$1.1B",
+          "net_loss": null,
+          "note": "",
+          "sources": [
+            {"source_name": "WSJ", "source_url": "https://www.wsj.com/tech/ai/anthropic-revenue-growth-ipo-accaf0f1"}
+          ]
+        },
+        {
+          "period": "H1 2026",
+          "revenue": "$16.3B",
+          "net_loss": "$80.7B",
+          "note": "About $72B of the net loss is a non-cash charge tied to convertible notes and other financing instruments (reported).",
+          "sources": [
+            {"source_name": "WSJ", "source_url": "https://www.wsj.com/tech/ai/anthropic-revenue-growth-ipo-accaf0f1"},
+            {"source_name": "Reuters (via Investing.com)", "source_url": "https://www.investing.com/news/stock-market-news/anthropic-recorded-net-loss-of-over-80-billion-in-first-half-of-this-year-wsj-reports-4960917"}
+          ]
+        },
+        {
+          "period": "Q3 2026",
+          "revenue": "$16.8B",
+          "net_loss": null,
+          "note": "",
+          "sources": [
+            {"source_name": "CNBC", "source_url": "https://www.cnbc.com/2026/10/15/anthropics-third-quarter-revenue-hits-16point8-billion-ipo.html"}
+          ]
+        }
+      ],
+      "edgar_checked_at": "2026-10-21T09:00 MT",
+      "public_s1_url": null,
+      "edgar_note": "No public S-1 found on EDGAR as of 2026-10-21.",
       "cik": null,
       "listed_fund_exposure": [
         "DXYZ",

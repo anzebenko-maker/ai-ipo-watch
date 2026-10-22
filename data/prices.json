@@ -1,11 +1,11 @@
 {
- "as_of": "2026-10-21T17:15Z",
+ "as_of": "2026-10-22T00:46Z",
  "note": "Delayed quotes from free public endpoints. Not for trading.",
  "prices": {
   "CRWV": {
-   "price": 61.86,
+   "price": 61.82,
    "currency": "USD",
-   "price_time": "2026-10-21T17:15Z",
+   "price_time": "2026-10-21T20:00Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/CRWV"
@@ -19,25 +19,25 @@
    "source_url": "https://finance.yahoo.com/quote/0100.HK"
   },
   "CBRS": {
-   "price": 118.32,
+   "price": 117.98,
    "currency": "USD",
-   "price_time": "2026-10-21T17:15Z",
+   "price_time": "2026-10-21T20:00Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/CBRS"
   },
   "SPCX": {
-   "price": 160.734,
+   "price": 159.31,
    "currency": "USD",
-   "price_time": "2026-10-21T17:15Z",
+   "price_time": "2026-10-21T20:00Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/SPCX"
   },
   "CSQR": {
-   "price": 17.16,
+   "price": 16.9,
    "currency": "USD",
-   "price_time": "2026-10-21T17:13Z",
+   "price_time": "2026-10-21T20:00Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/CSQR"
@@ -45,15 +45,15 @@
   "STDN": {
    "price": 12.73,
    "currency": "USD",
-   "price_time": "2026-10-21T17:13Z",
+   "price_time": "2026-10-21T20:00Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/STDN"
   },
   "QMLS": {
-   "price": 3.68,
+   "price": 3.72,
    "currency": "USD",
-   "price_time": "2026-10-21T17:14Z",
+   "price_time": "2026-10-21T20:00Z",
    "exchange": "NasdaqGM",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/QMLS",
@@ -61,9 +61,9 @@
    "first_trade_date": "2026-07-16"
   },
   "IOND": {
-   "price": 66.47,
+   "price": 66.72,
    "currency": "USD",
-   "price_time": "2026-10-21T17:12Z",
+   "price_time": "2026-10-21T20:00Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/IOND",
@@ -71,9 +71,9 @@
    "first_trade_date": "2026-07-28"
   },
   "RZAI": {
-   "price": 11.2,
+   "price": 11.14,
    "currency": "USD",
-   "price_time": "2026-10-21T17:14Z",
+   "price_time": "2026-10-21T20:00Z",
    "exchange": "NasdaqCM",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/RZAI",
@@ -81,49 +81,49 @@
    "first_trade_date": "2026-09-30"
   },
   "ACCV": {
-   "price": 13.32,
+   "price": 13.93,
    "currency": "USD",
-   "price_time": "2026-10-21T17:15Z",
+   "price_time": "2026-10-21T20:00Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/ACCV"
   },
   "IAM": {
-   "price": 16.53,
+   "price": 15.8,
    "currency": "USD",
-   "price_time": "2026-10-21T17:05Z",
+   "price_time": "2026-10-21T20:00Z",
    "exchange": "NasdaqGS",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/IAM"
   },
   "DXYZ": {
-   "price": 29.19,
+   "price": 29.0,
    "currency": "USD",
-   "price_time": "2026-10-21T17:15Z",
+   "price_time": "2026-10-21T20:02Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/DXYZ"
   },
   "VCX": {
-   "price": 24.517,
+   "price": 24.4,
    "currency": "USD",
-   "price_time": "2026-10-21T17:14Z",
+   "price_time": "2026-10-21T20:00Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/VCX"
   },
   "RVI": {
-   "price": 24.795,
+   "price": 24.765,
    "currency": "USD",
-   "price_time": "2026-10-21T17:14Z",
+   "price_time": "2026-10-21T19:58Z",
    "exchange": "NYSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/RVI"
   },
   "ARKVX": {
-   "price": 60.62,
+   "price": 61.05,
    "currency": "USD",
-   "price_time": "2026-10-21T12:05Z",
+   "price_time": "2026-10-22T00:00Z",
    "exchange": "Nasdaq",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/ARKVX"

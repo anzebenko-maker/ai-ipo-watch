@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-23",
+  "as_of": "2026-10-24",
   "premium_method": "Premium/discount = latest market price / last reported NAV per share - 1. The NAV is often months old (quarterly marks of private holdings), so this is 'vs last reported NAV', not vs. a live value.",
   "broker_method": "Broker availability can't be checked from public pages (Questrade, Wealthsimple, IBKR and Qtrade symbol search requires a logged-in account). A cell shows 'available' or 'not available' only after someone confirmed it in that broker's own symbol search, with the check date. Wealthsimple, Questrade, and IBKR were checked this way on Oct 20, 2026. Qtrade stays 'unverified'.",
   "items": [
@@ -236,8 +236,8 @@
       "website": "https://www.ark-funds.com/funds/arkvx",
       "nav_is_daily": true,
       "nav": {
-        "value": 61.05,
-        "date": "2026-10-21",
+        "value": 60.16,
+        "date": "2026-10-22",
         "source_name": "ARK Funds (fund page NAV)",
         "source_url": "https://www.ark-funds.com/funds/arkvx",
         "verified": true

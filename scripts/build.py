@@ -13,6 +13,8 @@ def load(n):
     return json.loads(p.read_text()) if p.exists() else {}
 PIPE, IPOS, LOCK, FUNDS = load("pipeline.json"), load("ipos.json"), load("lockups.json"), load("funds.json")
 PRICES, EDGAR = load("prices.json"), load("edgar.json")
+CA_BROKERS = load("ca_brokers.json")
+DATA_FILES = ["pipeline.json", "ipos.json", "lockups.json", "funds.json", "prices.json", "edgar.json", "ca_brokers.json"]
 TODAY = datetime.date.today()
 SITE = CFG["site_name"]; BASE = CFG["base_url"].rstrip("/")
 # A project-Pages URL has a path (/ai-ipo-watch); a custom domain is the root.
@@ -113,7 +115,7 @@ def next_date(item):
     return k
 
 # ---------- layout ----------
-NAV = [("/ipo-pipeline/", "Pipeline"), ("/ai-ipo-returns/", "Returns"), ("/lockup-calendar/", "Lock-ups"), ("/private-ai-funds/", "Pre-IPO funds"), ("/how-to-buy-vcx-in-canada/", "Canada")]
+NAV = [("/ipo-pipeline/", "Pipeline"), ("/ai-ipo-returns/", "Returns"), ("/lockup-calendar/", "Lock-ups"), ("/private-ai-funds/", "Pre-IPO funds"), ("/upcoming-ai-ipos/", "Upcoming"), ("/how-to-buy-a-us-ipo-from-canada/", "Canada")]
 def layout(path, title, desc, body, schema=None, og_type="website", priority="0.7"):
     PAGES.append((path, priority))
     url = BASE + path; full_title = title if SITE in title else f"{title} | {SITE}"
@@ -131,7 +133,7 @@ def layout(path, title, desc, body, schema=None, og_type="website", priority="0.
 <meta property="og:type" content="{og_type}"><meta property="og:site_name" content="{e(SITE)}"><meta property="og:title" content="{e(full_title)}">
 <meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{e(url)}"><meta property="og:image" content="{BASE}/assets/og-default.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="en_CA">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{e(full_title)}"><meta name="twitter:description" content="{e(desc)}"><meta name="twitter:image" content="{BASE}/assets/og-default.png">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{e(full_title)}"><meta name="twitter:description" content="{e(desc)}"><meta name="twitter:image" content="{BASE}/assets/og-default.png">{twitter_site_tag()}
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/style.css">{ld}
 </head><body>
 <header class="top"><div class="wrap bar"><a class="logo" href="/"><span class="dot"></span>{e(SITE)}</a>
@@ -170,12 +172,19 @@ def newsletter():
 <p>One email a week: new AI IPO filings, pricing dates, lock-up expiries and premium/discount moves on DXYZ, VCX and RVI. Written for Canadian investors.</p></div>
 <div>{control}</div></section>"""
 
-def newsletter_cta():
+def twitter_site_tag():
+    handle = (CFG.get("twitter_handle") or "").strip().lstrip("@")
+    if not handle:
+        return ""
+    return f'<meta name="twitter:site" content="@{e(handle)}">'
+
+def newsletter_cta(label=None):
     """Compact hero CTA. Shown on the home page and the Anthropic page."""
     url = (CFG.get("newsletter_url") or CFG.get("newsletter_form_action") or "").strip()
     if not url:
         return ""
-    return f'<p class="nl-cta"><a class="btn" href="{e(url)}">Get the S-1 breakdown the day it\'s filed - Subscribe free</a></p>'
+    text = label or "Get the S-1 breakdown the day it's filed - Subscribe free"
+    return f'<p class="nl-cta"><a class="btn" href="{e(url)}">{html.escape(text, quote=False)}</a></p>'
 
 def live_affiliates():
     """Real affiliate links only. Empty or placeholder URLs stay hidden."""
@@ -250,6 +259,14 @@ def lockup_table(show_past=True):
     return html_
 
 BROKER_NAMES = [("questrade", "Questrade"), ("wealthsimple", "Wealthsimple"), ("ibkr", "IBKR"), ("qtrade", "Qtrade")]
+def broker_home_link(key, label=None):
+    """Public homepage only. Affiliate URLs stay in site.config.json and are not used here."""
+    a = (CFG.get("affiliates") or {}).get(key) or {}
+    name = label or a.get("label") or key
+    url = (a.get("homepage") or "").strip()
+    if not url:
+        return e(name)
+    return f'<a href="{e(url)}" rel="noopener" target="_blank">{e(name)}</a>'
 def broker_cell(b):
     s = (b or {}).get("status", "unverified")
     cls = {"available": "ok", "not_available": "neg", "unverified": "rep"}.get(s, "rep")
@@ -268,7 +285,7 @@ def funds_table():
 <td data-v="{f['price'] or ''}">{money(f['price'])}{stale}<br><span class="muted small">{e(fmt_ts(f.get('price_time')))}</span></td>
 <td data-v="{n.get('value') or ''}">{money(n.get('value'))}<br><span class="muted small">as of {fmt_date(n.get('date'))}</span><br>{src(n.get('source_url'), 'NAV source')}</td>
 <td data-v="{f['premium'] if f['premium'] is not None else ''}">{prem}<br><span class="muted small">vs last reported NAV</span></td>
-<td class="small brk">{''.join(f'<div>{nm}: {broker_cell(f["brokers"].get(k))}</div>' for k, nm in BROKER_NAMES)}</td></tr>"""
+<td class="small brk">{''.join(f'<div>{broker_home_link(k, nm)}: {broker_cell(f["brokers"].get(k))}</div>' for k, nm in BROKER_NAMES)}</td></tr>"""
     return f"""<div class="tw"><table class="sortable"><thead><tr><th>Fund</th><th>Key AI holdings</th><th>Latest price</th><th>Last reported NAV</th><th>Premium / discount</th><th>Canadian brokers</th></tr></thead><tbody>{rows}</tbody></table></div>
 <p class="small muted">Premium/discount is computed against the <em>last reported</em> NAV, which can be months old. Broker availability: "available" / "not available" were confirmed in that broker's own symbol search on the date shown; "unverified" means we could not confirm it; confirm in your broker's symbol search.</p>"""
 
@@ -415,14 +432,20 @@ def filing_blurb(a):
     return "Public S-1 reported as early as " + " or ".join(bits)
 
 def timing_extra(a):
-    lines = []
+    candidates = []
     for k in _unconfirmed(a):
         lab = k.get("label") or ""
         low = lab.lower()
         if "s-1" in low or "filing" in low or "confidential" in low:
             continue
         if any(w in low for w in ("roadshow", "listing", "pricing")):
-            lines.append(f"{e(lab)} {src(k.get('source_url'), k.get('source_name'))}")
+            candidates.append(k)
+    specific = [k for k in candidates if re.fullmatch(r"\d{4}-\d{2}-\d{2}", k.get("date") or "")]
+    lines = []
+    for k in candidates:
+        if specific and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", k.get("date") or ""):
+            continue
+        lines.append(f"{e(k.get('label') or '')} {src(k.get('source_url'), k.get('source_name'))}")
     return "<br>".join(lines)
 
 def s1_box(a):
@@ -475,21 +498,12 @@ def canadians_exposure(a):
         if not f:
             continue
         prem = pct(f["premium"], neutral=True) if f["premium"] is not None else NA
-        brokers = "".join(f"<div>{nm}: {broker_cell(f['brokers'].get(k))}</div>" for k, nm in BROKER_NAMES)
+        brokers = "".join(f"<div>{broker_home_link(k, nm)}: {broker_cell(f['brokers'].get(k))}</div>" for k, nm in BROKER_NAMES)
         rows += f"<tr><td><a href='/company/{e(f['slug'])}/'><strong>{e(f['ticker'])}</strong></a><br><span class='muted small'>{e(f['name'])}</span></td><td>{money(f['price'])}</td><td>{prem}<br><span class='muted small'>vs last reported NAV</span></td><td class='small brk'>{brokers}</td></tr>"
-    return f"""<h2>How Canadians can get exposure</h2>
-<p>General information only. This is not a recommendation and not personalized advice.</p>
-<h3>After a listing</h3>
-<ol class="steps"><li><strong>Buy through a broker that offers US stocks.</strong> After Anthropic lists, confirm the ticker in that broker's symbol search before funding an account.</li>
-<li><strong>TFSA or RRSP.</strong> US-listed shares are commonly held in those accounts. Confirm eligibility, and how US withholding tax applies, with your broker or a tax professional.</li>
-<li><strong>USD account and W-8BEN.</strong> A US listing trades in US dollars. A USD account avoids converting twice. Brokers usually ask for a W-8BEN.</li>
-<li><strong>Use a limit order.</strong> The first sessions after a listing can move quickly.</li></ol>
-<h3>Do not count on an IPO allocation</h3>
-<p>Retail allocations at the IPO price are limited, and Canadians should not plan on getting one. As US context only, Fidelity cut its US retail IPO minimum to $25,000 effective Oct 19, 2026 ({src('https://www.fidelity.com/stock-trading/ipos', 'Fidelity')}). That is a US Fidelity program, not something Canadians can use.</p>
-<h3>Indirect route today: DXYZ and VCX</h3>
-<p>Two NYSE-listed funds report Anthropic holdings. Their shares can trade at a large premium or discount to the last reported NAV, so the price is not the value of the private stake.</p>
+    return f"""<h2>How Canadians can get exposure before a listing</h2>
+<p>You cannot buy Anthropic itself yet. Two NYSE-listed funds report Anthropic holdings. You would be buying the fund, not Anthropic. The share price can sit far above or below the last reported NAV.</p>
 <div class="tw"><table><thead><tr><th>Fund</th><th>Latest price</th><th>Premium / discount</th><th>Canadian brokers</th></tr></thead><tbody>{rows}</tbody></table></div>
-<p class="small muted">Broker cells use the same checks as the funds table.</p>"""
+<p class="small muted">Broker cells are symbol-search checks for these fund tickers, on the date shown. They are not a check for Anthropic, which has no ticker. RBC Direct Investing is not in this check. Unverified means we did not confirm it.</p>"""
 
 def sec_block(a):
     note = edgar_note_for(a)
@@ -537,9 +551,10 @@ def anth_faq_valuation(a):
     return f"The last confirmed private valuation was {e(v.get('value'))} ({e(v.get('label'))}, {fmt_date(v.get('date'))}). {extra} None of the IPO valuation talk is confirmed by the company."
 
 def anth_faq_ipo_price():
-    return ("No. Canadians should not count on buying Anthropic at the IPO price. Retail allocations are limited. "
-            "After a US listing, the usual route is a broker that offers US stocks, often in a TFSA or RRSP, with a USD account, a W-8BEN, and a limit order. Confirm the ticker in your broker's symbol search. "
-            'As US context only, Fidelity cut its US retail IPO minimum to $25,000 effective Oct 19, 2026 (<a href="https://www.fidelity.com/stock-trading/ipos" rel="noopener nofollow" target="_blank">https://www.fidelity.com/stock-trading/ipos</a>). That program is not something Canadians can use. '
+    return ("No. Canadians should not count on buying Anthropic at the IPO price. "
+            "Questrade says that in most cases a US IPO is filled in the United States and Canadian residents cannot take part. "
+            "After a US listing, the usual route is a broker that offers US stocks, often in a TFSA or RRSP, with US dollars already in the account, a W-8BEN, and a limit order. Confirm the ticker in your broker's symbol search. "
+            'As US context only, Fidelity says IPO participation there is for brokerage customers with at least $25,000 in retail assets, and that most of the shares go to institutions (<a href="https://www.fidelity.com/stock-trading/ipos" rel="noopener nofollow" target="_blank">Fidelity</a>). That is not a Canadian account. '
             "Today, an indirect route is DXYZ or VCX, which can trade at a premium or discount to their last reported NAV. This is general information only, not personalized advice.")
 
 def anth_desc(a):
@@ -577,7 +592,9 @@ def home():
 <section id="lockups"><div class="sh"><h2>Lock-up expiry calendar</h2><a href="/lockup-calendar/">Calendar →</a></div><p class="muted">The dates when pre-IPO insiders can first sell. Big unlocks can weigh on a share price.</p>{lockup_table(show_past=False)}</section>
 <section id="funds"><div class="sh"><h2>Listed funds with private AI stakes</h2><a href="/private-ai-funds/">Compare →</a></div>{funds_table()}</section>
 {affiliates()}
-<section class="grid3"><a class="card link" href="/anthropic-ipo-date/"><h3>Anthropic IPO date</h3><p>What's confirmed, what's only reported, and how to get exposure today.</p></a>
+<section class="grid3"><a class="card link" href="/anthropic-ipo/"><h3>Anthropic IPO</h3><p>Date, valuation, S-1 status, and how to buy it in Canada.</p></a>
+<a class="card link" href="/how-to-buy-a-us-ipo-from-canada/"><h3>Buy a US IPO from Canada</h3><p>Allocation versus day one, brokers, TFSA, RRSP and FX costs.</p></a>
+<a class="card link" href="/upcoming-ai-ipos/"><h3>Upcoming AI IPOs</h3><p>The pipeline in one list, with the Canada guides.</p></a>
 <a class="card link" href="/openai-ipo/"><h3>OpenAI IPO</h3><p>The confidential S-1, the reported 2027 timeline, and the funds that hold it.</p></a>
 <a class="card link" href="/how-to-buy-vcx-in-canada/"><h3>How to buy VCX in Canada</h3><p>Brokers, USD accounts, the premium to NAV and the risks.</p></a>
 <a class="card link" href="/dxyz-premium-to-nav/"><h3>DXYZ premium to NAV</h3><p>The live premium/discount vs Destiny Tech100's last reported NAV.</p></a></section>
@@ -589,7 +606,7 @@ def home():
 def section_pages():
     legend = "".join(f"<li>{badge(k)} {e(v)}</li>" for k, v in PIPE.get("status_legend", {}).items())
     write("/ipo-pipeline/", layout("/ipo-pipeline/", "AI IPO pipeline: who has filed, who is rumoured", "Every AI company in the IPO pipeline, from reported plans to confidential and public S-1 filings, with key dates and SEC EDGAR links.",
-        f"<h1>AI IPO pipeline</h1>{asof_line()}<ul class='legend'>{legend}</ul>{pipeline_table()}{newsletter()}", priority="0.9"))
+        f"<h1>AI IPO pipeline</h1>{asof_line()}<p>Guides: <a href='/upcoming-ai-ipos/'>upcoming AI IPOs</a>, <a href='/anthropic-ipo/'>the Anthropic IPO</a>, and <a href='/how-to-buy-a-us-ipo-from-canada/'>how to buy a US IPO from Canada</a>.</p><ul class='legend'>{legend}</ul>{pipeline_table()}{newsletter()}", priority="0.9"))
     write("/ai-ipo-returns/", layout("/ai-ipo-returns/", "AI IPO returns since listing (leaderboard)", "How recent AI IPOs have traded: IPO price vs latest price for CoreWeave, Cerebras, SpaceX, Accelevation and more.",
         f"<h1>AI IPO leaderboard</h1>{asof_line()}<p>Ranked by return since listing. IPO prices come from each final prospectus (424B4). Direct listings have no IPO price, so we use the first-day opening price and label it.</p>{leaderboard_table()}{affiliates('buy US-listed AI stocks')}{newsletter()}", priority="0.9"))
     write("/lockup-calendar/", layout("/lockup-calendar/", "AI IPO lock-up expiry calendar", "Upcoming lock-up expiry dates for recent AI IPOs (SpaceX, Cerebras, Csquare, Accelevation and more), from the prospectus, with countdowns.",
@@ -614,29 +631,260 @@ def edgar_list(cik):
     lis = "".join(f"<li>{fmt_date(f['date'])}: <a href='{e(f['url'])}' rel='noopener nofollow' target='_blank'>{e(f['form'])}</a></li>" for f in c["filings"][:10])
     return f"<ul class='filings'>{lis}</ul><p class='small'><a href='{e(c['edgar_page'])}' rel='noopener nofollow' target='_blank'>All filings on EDGAR →</a> (refreshed {e(EDGAR.get('as_of',''))})</p>"
 
+CRA_FOLIO = "https://www.canada.ca/en/revenue-agency/services/tax/technical-information/income-tax/income-tax-folios-index/series-3-property-investments-savings-plans/series-3-property-investments-savings-plan-folio-10-registered-plans-individuals/income-tax-folio-s3-f10-c1-qualified-investments-rrsps-resps-rrifs-rdsps-tfsas.html"
+FIN_EXCH = "https://www.canada.ca/en/department-finance/services/designated-stock-exchanges.html"
+TREATY = "https://www.canada.ca/en/department-finance/programs/tax-policy/tax-treaties/country/united-states-america-convention-consolidated-1980-1983-1984-1995-1997-2007.html"
+W8 = "https://www.irs.gov/forms-pubs/about-form-w-8-ben"
+EDGAR_ANTH = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=anthropic&type=S-1"
+ANTH_TITLE = "Anthropic IPO: date, valuation, and how to buy it in Canada"
+
+def advice_note():
+    return '<p class="note"><strong>Not financial advice.</strong> This is general information for people in Canada. It is not a recommendation to buy or sell any security, and it is not tax advice. IPO dates change. Anything marked reported is not confirmed by the company.</p>'
+
+def affiliate_spot(context="buy US-listed stocks from Canada"):
+    """Real referral buttons only after a URL is set. The pending slot stays neutral."""
+    if live_affiliates():
+        return affiliates(context)
+    return ('<aside class="card aff" id="affiliate-links" data-affiliate-slot="pending">'
+            '<!-- affiliate slot: set affiliates.*.url in site.config.json and set placeholder to false. Empty or placeholder URLs are not rendered as links. -->'
+            '<p class="small">Broker names on this page go to each firm\'s public website. Referral links are not in use. If one is added later, it will be labelled, and the commission will be disclosed beside it. <a href="/disclosure/">How we make money</a>.</p>'
+            '</aside>')
+
+def broker_fact_cards():
+    day = fmt_date(CA_BROKERS.get("as_of"))
+    cards = ""
+    for b in CA_BROKERS.get("items") or []:
+        bits = []
+        if b.get("us_stocks"):
+            bits.append(f"<p>{e(b['us_stocks'])}</p>")
+        if b.get("fx"):
+            bits.append(f"<p><strong>Currency conversion.</strong> {e(b['fx'])}</p>")
+        if b.get("usd_account"):
+            bits.append(f"<p><strong>US dollars.</strong> {e(b['usd_account'])}</p>")
+        if b.get("ipo"):
+            bits.append(f"<p><strong>Getting shares in the offering.</strong> {e(b['ipo'])}</p>")
+        srcs = " ".join(src(s.get("url"), s.get("name")) for s in b.get("sources") or [])
+        cards += f'<div class="card broker"><h3>{broker_home_link(b["id"])}</h3>{"".join(bits)}<p class="small srcs">Fee pages checked {day}. {srcs}</p></div>'
+    cards += f'<p class="small">{broker_home_link("ibkr")} appears in our symbol-search checks for listed funds. This page does not quote an Interactive Brokers commission or conversion rate.</p>'
+    return cards
+
+def fx_faq_answer():
+    day = fmt_date(CA_BROKERS.get("as_of"))
+    shorts = [b.get("fx_short") for b in (CA_BROKERS.get("items") or []) if b.get("fx_short")]
+    return (f"As of {day}, from each broker's own pages: {'; '.join(shorts)}. "
+            "US dollars already in the account let you buy without converting on the way in and again on the way out. "
+            "Schedules change. Read the fee page before you convert a large amount.")
+
+def registered_accounts_html():
+    return f"""<h2>TFSA, RRSP and FHSA</h2>
+<p>Once a common share lists on a designated stock exchange, it is a qualified investment for a TFSA, an RRSP, an FHSA and the other plans named in the CRA folio. {src(CRA_FOLIO, "CRA folio S3-F10-C1")}</p>
+<p>Nasdaq and the NYSE are both on Finance Canada's designated list. {src(FIN_EXCH, "Department of Finance")}</p>
+<p>That is about eligibility after the shares list. It does not mean your broker will accept a brand-new ticker in that account on the first morning. Check the symbol search. A stock that only trades over the counter is a different case. Those markets are not designated exchanges.</p>
+<p>Canadian tax on growth inside a TFSA or RRSP is separate from US tax on dividends. Article X of the Canada-US tax treaty generally caps US tax on dividends paid to a Canadian resident at 15%. Article XXI(2) exempts dividends received by a Canadian pension or retirement arrangement. An RRSP is that kind of plan. A TFSA is not a pension, so that exemption does not apply to it. {src(TREATY, "Canada-US tax treaty")}</p>
+<p>Brokers usually ask for Form W-8BEN so the US payer can apply the treaty rate. {src(W8, "IRS Form W-8BEN")}</p>
+<p>Confirm the security and any withholding with your broker or a tax professional before you place the trade.</p>"""
+
+def allocation_vs_market_html():
+    return """<h2>Allocation versus buying on day one</h2>
+<p>These are two different purchases.</p>
+<p><strong>An allocation</strong> means shares from the offering, at the IPO price, before the first trade. The underwriters decide who gets them. Do not plan on getting any.</p>
+<p><strong>Day one</strong> is an ordinary trade after the stock opens. You pay the market price, which can be well above or below the IPO price. You need a broker that offers US-listed stocks, the ticker in that broker's symbol search, and usually US dollars.</p>
+<p>If you trade near the open, a limit order sets the most you will pay. A market order can fill far from the last price you saw.</p>"""
+
+def passed_filing_note(a):
+    if a.get("status") == "publicly_filed":
+        return ""
+    past = []
+    for k in filing_key_dates(a):
+        ds = k.get("date") or ""
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", ds) and ds < TODAY.isoformat():
+            past.append(k)
+    if not past:
+        return ""
+    bits = ", ".join(f"{fmt_date(k['date'])} ({e(short_source(k.get('source_name')))})" for k in past)
+    return f"<p>Reported public-filing dates that have already passed, with no public S-1 found: {bits}. Later reported dates can still be ahead. None of them are confirmed.</p>"
+
+def listing_section(a):
+    ticker, exchange = a.get("ticker"), a.get("exchange")
+    if a.get("status") in ("publicly_filed", "roadshow", "priced") and (ticker or exchange):
+        ex = e(exchange) if exchange else "not filled in yet"
+        tk = e(ticker) if ticker else "not filled in yet"
+        return f"<p>From the filing fields in our data: exchange <strong>{ex}</strong>, ticker <strong>{tk}</strong>.</p>"
+    hits = []
+    for k in a.get("key_dates") or []:
+        low = (k.get("label") or "").lower()
+        if any(w in low for w in ("nasdaq", "nyse", "ticker", "exchange")):
+            hits.append(f"<li>{fmt_date(k.get('date'))} {dated_badge(bool(k.get('confirmed')))} {e(k.get('label'))} {src(k.get('source_url'), k.get('source_name'))}</li>")
+    listed = "<ul>" + "".join(hits) + "</ul>" if hits else "<p>No exchange has been named in our dated sources.</p>"
+    tick = f"<p>Ticker: <strong>{e(ticker)}</strong>.</p>" if ticker else "<p>Ticker: <strong>not reported</strong>. We have not found a trading symbol in a company announcement or a news report we trust.</p>"
+    return tick + listed
+
+def anth_faq_listing(a):
+    if a.get("status") in ("publicly_filed", "roadshow", "priced") and (a.get("ticker") or a.get("exchange")):
+        return f"The filing fields we store list the exchange as {a.get('exchange') or 'n/a'} and the ticker as {a.get('ticker') or 'n/a'}."
+    bits = []
+    for k in a.get("key_dates") or []:
+        low = (k.get("label") or "").lower()
+        if "nasdaq" in low or "nyse" in low or "ticker" in low:
+            bits.append(f"{k.get('source_name')} ({fmt_date(k.get('date'))}): {k.get('label')}")
+    return ("No ticker has been reported. " + " ".join(bits) +
+            " Anthropic has not confirmed the exchange. When a public S-1 names an exchange and a ticker, this answer follows those fields.")
+
+def anth_faq_account():
+    return ("After a listing on Nasdaq or the NYSE, a common share is generally a qualified investment for a TFSA, RRSP or FHSA, because both exchanges are on Finance Canada's designated list. "
+            "Your broker still has to accept the ticker. US tax on dividends can still apply inside a TFSA. The Canada-US treaty exempts dividends paid to a pension arrangement such as an RRSP. "
+            "A TFSA is not a pension. This is general information, not tax advice.")
+
+def guide_links(current):
+    items = [
+        ("/anthropic-ipo/", ANTH_TITLE),
+        ("/how-to-buy-a-us-ipo-from-canada/", "How to buy a US IPO from Canada"),
+        ("/upcoming-ai-ipos/", "Upcoming AI IPOs"),
+        ("/ipo-pipeline/", "Full IPO pipeline"),
+        ("/how-to-buy-vcx-in-canada/", "How to buy VCX in Canada"),
+        ("/private-ai-funds/", "Listed funds with private AI stakes"),
+    ]
+    lis = "".join(f'<li><a href="{h}">{e(t)}</a></li>' for h, t in items if h != current)
+    return f"<h2>Related on this site</h2><ul>{lis}</ul>"
+
+def edgar_search_line(a):
+    if a.get("status") == "publicly_filed":
+        return ""
+    return f'<p class="small">Name search on {e(format_checked(a.get("edgar_checked_at")))}: SEC company search for Anthropic, form type S-1. {src(EDGAR_ANTH, "EDGAR search")}. A confidential draft does not appear in that search. A filing under a different legal name would not appear in it either.</p>'
+
+def anth_guide_desc(a):
+    if a.get("status") == "publicly_filed":
+        lead = "Anthropic's public S-1 is on EDGAR. "
+    else:
+        lead = "No public Anthropic S-1 yet. "
+    return lead + "Reported timing and valuation, plus how Canadians buy a US IPO: brokers, TFSA, RRSP and FX costs."
+
+def write_moved(old, new, label):
+    doc = f"""<!doctype html><html lang="en-CA"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Page moved | {e(SITE)}</title>
+<link rel="canonical" href="{e(BASE + new)}">
+<meta http-equiv="refresh" content="0; url={e(new)}">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+</head><body>
+<p>This page has moved. <a href="{e(new)}">{e(label)}</a>.</p>
+</body></html>"""
+    write(old, prefix_root_urls(doc))
+
 def anthropic_page():
+    """Reads pipeline fields. On S-1 day set status, cik, public_s1_url, ticker, exchange, edgar_checked_at."""
     a = anthropic_item()
     faq, fs = faq_block([
         ("When is the Anthropic IPO date?", anth_faq_when(a)),
         ("Has Anthropic filed an S-1?", anth_faq_filed(a)),
         ("What is Anthropic's valuation?", anth_faq_valuation(a)),
+        ("What exchange and ticker will Anthropic use?", anth_faq_listing(a)),
         ("Can Canadians buy Anthropic at the IPO price?", anth_faq_ipo_price()),
-        ("Can Canadians buy Anthropic stock before the IPO?", "Not directly. Indirect exposure exists through listed funds that report Anthropic holdings, such as DXYZ and VCX, which you may be able to buy through a Canadian broker that offers US-listed securities. These funds can trade at large premiums or discounts to their last reported NAV. This is general information only, not personalized advice."),
-        ("Will Anthropic list on the TSX?", "Nothing reported suggests a TSX listing. If it lists on a US exchange, Canadians can usually buy it through brokers that offer US stocks."),
+        ("Can I hold Anthropic in a TFSA or RRSP?", anth_faq_account()),
+        ("What does it cost to convert Canadian dollars?", fx_faq_answer()),
+        ("Can Canadians buy Anthropic stock before the IPO?", "Not directly. Indirect exposure exists through listed funds that report Anthropic holdings, such as DXYZ and VCX, if your broker offers those US-listed funds. These funds can trade at large premiums or discounts to their last reported NAV. This is general information only, not personalized advice."),
+        ("Will Anthropic list on the TSX?", "Nothing we have found reports a TSX listing. Reported coverage points to Nasdaq, and Anthropic has not confirmed the exchange."),
     ])
-    body = f"""<article><h1>Anthropic IPO date: what's confirmed and what's reported</h1>{asof_line()}
-{s1_box(a)}{newsletter_cta()}
+    body = f"""<article><h1>{e(ANTH_TITLE)}</h1>{asof_line()}
+{advice_note()}
+<p class="lead">Anthropic has not set an IPO price, and the public prospectus is not on EDGAR. Below is what the company has confirmed, what reporters have said, and what someone in Canada can actually do.</p>
+{s1_box(a)}{edgar_search_line(a)}{passed_filing_note(a)}{newsletter_cta()}
 <div class="card status">{badge(a['status'], a.get('status_confirmed', True))}<p>{linkify(a['summary'])}</p></div>
-<h2>Key dates</h2>{timeline(a)}
-{financials_table(a)}
+<h2>Timing</h2>
+<p>Confirmed items come from Anthropic. Everything else is a news report and can move. Yahoo Finance wrote on Oct 21 that a company using the confidential process has to put the registration on EDGAR at least 15 days before a formal roadshow. That is Yahoo's description of the rule, not a date Anthropic has confirmed. {src("https://finance.yahoo.com/markets/article/anthropic-to-publicly-file-for-ipo-as-early-as-friday-sources-say-135343841.html", "Yahoo Finance")}</p>
+{timeline(a)}
+<h2>Exchange and ticker</h2>
+{listing_section(a)}
+<!-- S-1 day: in data/pipeline.json set Anthropic status, cik, public_s1_url, ticker, exchange, edgar_checked_at, then rebuild. This section, the S-1 box and the FAQ read those fields. -->
 {valuation_html(a)}
+{financials_table(a)}
 {sec_block(a)}
+<h2>How a Canadian can buy it</h2>
+<p>The same steps for any US listing are on <a href="/how-to-buy-a-us-ipo-from-canada/">how to buy a US IPO from Canada</a>. What follows is the Anthropic version.</p>
+{allocation_vs_market_html()}
+<h3>What that means for Anthropic</h3>
+<p>There is no deal to join yet. In its June 1, 2026 announcement Anthropic said the number of shares and the price had not been set. When a broker offers the new issue, it will show in that broker's IPO or new-issue list. Opening an account does not reserve shares.</p>
+<h3>Buying after it lists</h3>
+<ol class="steps"><li><strong>Wait for a real ticker.</strong> None has been reported. Search the symbol in your broker before you move cash.</li>
+<li><strong>Use a broker that offers US-listed stocks.</strong> The notes below are from each firm's own pages, checked {fmt_date(CA_BROKERS.get("as_of"))}.</li>
+<li><strong>Choose the account</strong> (TFSA, RRSP, FHSA or non-registered) and confirm that broker accepts the ticker there.</li>
+<li><strong>Hold US dollars if you can,</strong> so you do not convert on the buy and again on the sell.</li>
+<li><strong>Complete Form W-8BEN</strong> if the broker asks for it.</li>
+<li><strong>Use a limit order</strong> if you trade on the first day.</li></ol>
+<h2>Brokers that offer US-listed stocks</h2>
+<p>These are published facts about US-listed trading and currency conversion. They are not a statement that any of these brokers will offer Anthropic shares in the IPO, and they are not symbol-search checks for a ticker that does not exist yet. {broker_home_link("rbc")} is included here because its own site describes US stock trading. It is not in our fund symbol-search table.</p>
+{broker_fact_cards()}
+{registered_accounts_html()}
 {canadians_exposure(a)}
 <h2>Listed funds that report an Anthropic holding</h2>{exposure_list('Anthropic')}
-{affiliates('buy US-listed funds like DXYZ and VCX')}
-{faq}{newsletter()}</article>"""
-    art = article_ld("Anthropic IPO date: what's confirmed and what's reported")
-    write("/anthropic-ipo-date/", layout("/anthropic-ipo-date/", "Anthropic IPO date (2026): filing, timeline & how to invest", anth_desc(a), body, [fs, art], "article", "0.9"))
+{affiliate_spot('buy US-listed funds like DXYZ and VCX')}
+{faq}{guide_links('/anthropic-ipo/')}{newsletter()}</article>"""
+    art = article_ld(ANTH_TITLE)
+    write("/anthropic-ipo/", layout("/anthropic-ipo/", ANTH_TITLE, anth_guide_desc(a), body, [fs, art], "article", "0.9"))
+    write_moved("/anthropic-ipo-date/", "/anthropic-ipo/", ANTH_TITLE)
+
+def how_to_buy_us_ipo_page():
+    faq, fs = faq_block([
+        ("Can Canadians buy a US IPO at the IPO price?", "Sometimes, and you should not count on it. Questrade says that in most cases a US IPO is filled in the United States and Canadian residents cannot take part. When a deal is offered there, the minimum commitment is $5,000 and the allocation can be cut. RBC's fee schedule says new stock issues, when available, have no commission. Wealthsimple and Qtrade pages we checked do not promise a US IPO allocation. After the stock opens, you buy it like any other US-listed share."),
+        ("Which Canadian brokers offer US stocks?", "Wealthsimple, Questrade, RBC Direct Investing and Qtrade each describe US-listed stock trading on their own sites. Whether a specific new ticker is enabled in your account is a symbol search, not something this page can promise."),
+        ("Can I hold a US stock in a TFSA or RRSP?", anth_faq_account()),
+        ("How much does currency conversion cost?", fx_faq_answer()),
+        ("What if the ticker is not in my broker's search?", "Do not send money on the assumption it will appear. Search the symbol on listing day. Our fund table shows the same idea: a US listing is not the same as 'available' at every Canadian broker."),
+    ])
+    body = f"""<article><h1>How to buy a US IPO from Canada</h1>{asof_line()}
+{advice_note()}
+<p class="lead">A US initial public offering and the first day of trading are not the same purchase. This page is the practical version for someone with a Canadian brokerage account. The live example right now is <a href="/anthropic-ipo/">the Anthropic IPO</a>.</p>
+{newsletter_cta("Get AI IPO filings in one email a week - Subscribe free")}
+{allocation_vs_market_html()}
+<h2>A workable order of steps</h2>
+<ol class="steps"><li><strong>Read the prospectus when it is public.</strong> Until an S-1 or F-1 is on EDGAR, the price, the share count and the ticker are not set.</li>
+<li><strong>Decide whether you even want an allocation.</strong> Check the IPO or new-issue screen inside the broker you already use. If the deal is not listed, you do not have a way in at the IPO price through that firm.</li>
+<li><strong>Plan on buying after the open</strong> if the allocation is not offered. That is the path most Canadians actually have.</li>
+<li><strong>Pick the account</strong> and confirm a US-listed common share is accepted there. See the TFSA and RRSP notes below.</li>
+<li><strong>Get the currency sorted</strong> before the morning of the listing, not during the first volatile prints.</li>
+<li><strong>Search the ticker</strong> the broker shows, then use a limit order.</li></ol>
+<h2>Brokers that publish US-stock access</h2>
+<p>Figures are from each broker's own pages as of {fmt_date(CA_BROKERS.get("as_of"))}. They are not referral links. {e(CA_BROKERS.get("method") or "")}</p>
+{broker_fact_cards()}
+{registered_accounts_html()}
+<h2>A note on the fund checks</h2>
+<p>Elsewhere on this site, Questrade, Wealthsimple, IBKR and Qtrade are marked available, not available, or unverified for specific fund tickers such as DXYZ and VCX. Those checks were done inside a logged-in symbol search. They do not tell you whether a future IPO ticker will be there. The method is on the <a href="/private-ai-funds/">funds page</a>.</p>
+{affiliate_spot("buy US-listed stocks from Canada")}
+{faq}{guide_links("/how-to-buy-a-us-ipo-from-canada/")}{newsletter()}</article>"""
+    title = "How to buy a US IPO from Canada"
+    desc = "How Canadians can buy a US IPO: the offering versus the first trade, brokers that offer US stocks, TFSA and RRSP rules, and currency conversion costs."
+    write("/how-to-buy-a-us-ipo-from-canada/", layout("/how-to-buy-a-us-ipo-from-canada/", title, desc, body, [fs, article_ld(title)], "article", "0.8"))
+
+def upcoming_ai_ipos_page():
+    a = anthropic_item()
+    along = [it["name"] for it in PIPE.get("items", []) if it.get("status") in ("publicly_filed", "confidentially_filed", "roadshow")]
+    along_txt = ", ".join(along) if along else "none"
+    faq, fs = faq_block([
+        ("Which AI IPOs are furthest along?", f"In this tracker, confidentially filed, publicly filed, or on the roadshow: {along_txt}. Reported rumours and companies with no filing are in the same table, with a different status. Withdrawn deals stay listed so the record is intact."),
+        ("Has Anthropic filed a public S-1?", anth_faq_filed(a)),
+        ("How does someone in Canada buy one?", "Most buyers here purchase the shares after they open on a US exchange, through a broker that offers US stocks. Getting an allocation at the IPO price is a separate, and often unavailable, step. The walkthrough is the how-to-buy guide. This is general information, not a recommendation."),
+        ("Is there a Canadian company on the list?", "Cohere, based in Toronto, is on the pipeline as reported only. No filing date is confirmed."),
+    ])
+    body = f"""<article><h1>Upcoming AI IPOs</h1>{asof_line()}
+{advice_note()}
+<p class="lead">This is the hub for AI companies that are not yet trading, plus the guides for buying a US listing from Canada. The table is the same pipeline as the <a href="/ipo-pipeline/">tracker</a>. Every date in a row links back to its source from the company page.</p>
+{newsletter_cta("Get the week's AI IPO filings - Subscribe free")}
+<h2>Start here</h2>
+<ul>
+<li><a href="/anthropic-ipo/">{e(ANTH_TITLE)}</a></li>
+<li><a href="/how-to-buy-a-us-ipo-from-canada/">How to buy a US IPO from Canada</a></li>
+<li><a href="/openai-ipo/">OpenAI IPO</a></li>
+<li><a href="/ipo-pipeline/">Full pipeline, with the status legend</a></li>
+<li><a href="/private-ai-funds/">Listed funds that hold private AI stakes</a> (DXYZ, VCX, RVI, ARKVX)</li>
+<li><a href="/how-to-buy-vcx-in-canada/">How to buy VCX in Canada</a></li>
+</ul>
+<h2>The pipeline</h2>
+<p class="muted">Status comes from an SEC filing or a company announcement. A <span class="tag rep">reported</span> tag is a news report, not a confirmation.</p>
+{pipeline_table()}
+{faq}{guide_links("/upcoming-ai-ipos/")}{newsletter()}</article>"""
+    title = "Upcoming AI IPOs"
+    desc = "Upcoming AI IPOs for Canadian investors: Anthropic, OpenAI and the rest of the pipeline, plus guides on how to buy a US listing."
+    write("/upcoming-ai-ipos/", layout("/upcoming-ai-ipos/", title, desc, body, [fs, article_ld(title)], "article", "0.8"))
 
 def openai_page():
     a = next(x for x in PIPE["items"] if x["slug"] == "openai"); v = a["last_private_valuation"]
@@ -655,7 +903,7 @@ def openai_page():
 
 def vcx_canada_page():
     f = fund_by("VCX"); n = f["nav"]
-    brows = "".join(f"<tr><td>{nm}</td><td>{broker_cell(f['brokers'].get(k))}</td></tr>" for k, nm in BROKER_NAMES)
+    brows = "".join(f"<tr><td>{broker_home_link(k, nm)}</td><td>{broker_cell(f['brokers'].get(k))}</td></tr>" for k, nm in BROKER_NAMES)
     faq, fs = faq_block([
         ("Can you buy VCX in Canada?", "VCX trades on the NYSE, so in principle any Canadian broker that offers US-listed closed-end funds can carry it. Questrade and IBKR offered it in their symbol search when checked on Oct 20, 2026; Wealthsimple did not. We have not verified Qtrade, so check the symbol search in your account."),
         ("Can I hold VCX in a TFSA or RRSP?", "US-listed securities are commonly held in TFSAs and RRSPs at Canadian brokers. Whether VCX is eligible at your broker, and how US withholding tax applies to any distributions, are questions to confirm with your broker or a tax professional."),
@@ -727,9 +975,13 @@ def company_pages():
             parts.append(f"""<div class='stats'><div class='stat'><span class='k'>Latest price</span><span class='v'>{money(f['price'])}</span></div><div class='stat'><span class='k'>Last reported NAV</span><span class='v'>{money(n['value'])}</span><span class='muted small'>as of {fmt_date(n['date'])}</span></div>
 <div class='stat'><span class='k'>Premium / discount</span><span class='v'>{'n/a' if f.get('nav_is_daily') else pct(f['premium'], neutral=True)}</span><span class='muted small'>vs last reported NAV</span></div></div><p>{src(n['source_url'], n['source_name'])}</p>
 <h2>Key AI holdings</h2><ul>{''.join(f"<li>{e(h['name'])}: {e(h['weight'])}</li>" for h in f['ai_holdings'])}</ul><p class='small'>{src(f['holdings_source_url'], f['holdings_source_name'])}</p>
-<h2>Canadian brokers</h2><div class='tw'><table><tbody>{''.join(f"<tr><td>{nm}</td><td>{broker_cell(f['brokers'].get(k))}</td></tr>" for k, nm in BROKER_NAMES)}</tbody></table></div><p class='small'>{e(f.get('broker_note',''))}</p>""")
+<h2>Canadian brokers</h2><div class='tw'><table><tbody>{''.join(f"<tr><td>{broker_home_link(k, nm)}</td><td>{broker_cell(f['brokers'].get(k))}</td></tr>" for k, nm in BROKER_NAMES)}</tbody></table></div><p class='small'>{e(f.get('broker_note',''))}</p>""")
         else:
             parts.append(f"<h2>Listed funds holding {e(name)}</h2>{exposure_list(name.split(' (')[0])}")
+            if slug == "anthropic":
+                parts.append("<p><a href='/anthropic-ipo/'>Anthropic IPO: date, valuation, and how to buy it in Canada</a></p>")
+            elif slug == "openai":
+                parts.append("<p>See <a href='/upcoming-ai-ipos/'>upcoming AI IPOs</a> and <a href='/how-to-buy-a-us-ipo-from-canada/'>how to buy a US IPO from Canada</a>.</p>")
         parts.append(f"<h2>SEC filings</h2>{edgar_list(it.get('cik'))}")
         parts.append(affiliates()); parts.append(newsletter())
         desc = (it.get("summary") or f"{name}: IPO status, price since listing, lock-ups, SEC filings and listed-fund exposure.")[:155]
@@ -742,9 +994,9 @@ def static_pages():
     srcs = "".join(f"<li>{x}</li>" for x in ["SEC EDGAR submissions API &amp; full-text search (filings, IPO prices from Form 424B4, lock-up terms)", "Company announcements (Anthropic, OpenAI, Waymo)", "Fund websites and filings (Destiny, Fundrise, Robinhood Ventures, ARK Funds)", "Renaissance Capital AI IPO tracker (pipeline candidates, AI ratings)", "Yahoo Finance public chart endpoint (delayed prices), Stooq fallback", "News reports (Reuters, Bloomberg, CNBC, IFR) for reported items, always labelled 'reported'"])
     write("/methodology/", layout("/methodology/", "Methodology & sources", "How the AI IPO data is sourced, verified and refreshed.", f"""<article><h1>Methodology &amp; sources</h1><ul>{srcs}</ul>
 <h2>Rules</h2><ul><li>No invented numbers. Unknown values are shown as n/a.</li><li>Status is 'confirmed' only when it comes from an SEC filing or the company itself; media items are labelled 'reported'.</li><li>Lock-up dates come from the prospectus. When the prospectus gives "N days after the date of this prospectus", we compute the date and label it 'computed'.</li><li>Premium/discount is always vs the <em>last reported</em> NAV, shown with its date.</li><li>Broker availability stays 'unverified' until confirmed in the broker's own symbol search, with the check date recorded.</li></ul>
-<h2>Refresh</h2><p>Prices: every market day. EDGAR filings and fund NAV checks: daily. Reported news: reviewed by an editor or AI agent, with sources. The Anthropic public-S-1 "last checked" time is <code>edgar_checked_at</code> in pipeline.json (SEC blocks the GitHub-hosted refresh).</p>{newsletter()}</article>""", priority="0.3"))
+<h2>Refresh</h2><p>Prices: every market day. EDGAR filings and fund NAV checks: daily. Reported news: reviewed by an editor or AI agent, with sources. The Anthropic public-S-1 "last checked" time is <code>edgar_checked_at</code> in pipeline.json (SEC blocks the GitHub-hosted refresh). On the day the public S-1 appears, set that row's status to publicly_filed, and fill in cik, public_s1_url, ticker and exchange from the filing. The Anthropic guide reads those fields.</p>{newsletter()}</article>""", priority="0.3"))
     # data index
-    files = "".join(f"<li><a href='/data/{n}'>{n}</a></li>" for n in ["pipeline.json", "ipos.json", "lockups.json", "funds.json", "prices.json", "edgar.json"])
+    files = "".join(f"<li><a href='/data/{n}'>{n}</a></li>" for n in DATA_FILES)
     write("/data/", layout("/data/", "Open data (JSON)", "Download the AI IPO pipeline, returns, lock-ups and fund NAV data as JSON.", f"<article><h1>Open data</h1><p>The JSON files behind this site. Free to use with attribution.</p><ul>{files}</ul>{newsletter()}</article>", priority="0.3"))
     write("/disclosure/", layout("/disclosure/", "How we make money", "How AI IPO Watch may earn referral commissions, and what that does not change.", f"""<article><h1>How we make money</h1>
 <ul><li>This site may earn referral commissions from some brokers and financial services linked on the site, at no extra cost to readers.</li>
@@ -763,7 +1015,7 @@ def static_pages():
 def assets_and_seo():
     shutil.copytree(ROOT / "src" / "assets", OUT / "assets", dirs_exist_ok=True)
     (OUT / "data").mkdir(exist_ok=True)
-    for n in ["pipeline.json", "ipos.json", "lockups.json", "funds.json", "prices.json", "edgar.json"]:
+    for n in DATA_FILES:
         if (ROOT / "data" / n).exists(): shutil.copy(ROOT / "data" / n, OUT / "data" / n)
     lastmod = TODAY.isoformat()
     urls = "".join(f"<url><loc>{BASE}{p}</loc><lastmod>{lastmod}</lastmod><priority>{pr}</priority></url>" for p, pr in PAGES)
@@ -812,8 +1064,12 @@ def assert_subpath():
             bad.append("CNAME must be ipowatch.ca")
     if bad:
         raise SystemExit("subpath check failed:\n" + "\n".join(bad))
-    anth = (OUT / "anthropic-ipo-date" / "index.html").read_text()
+    anth = (OUT / "anthropic-ipo" / "index.html").read_text()
+    guide = (OUT / "how-to-buy-a-us-ipo-from-canada" / "index.html").read_text()
+    hub = (OUT / "upcoming-ai-ipos" / "index.html").read_text()
+    moved = (OUT / "anthropic-ipo-date" / "index.html").read_text()
     disc = (OUT / "disclosure" / "index.html").read_text()
+    sm = (OUT / "sitemap.xml").read_text()
     # Structural only. Do not pin dates or "not filed" copy: filing day is a data edit.
     checks = {
         "s1 box": "S-1 filed?" in home and "S-1 filed?" in anth and "Public S-1 on EDGAR:" in anth and "Last checked" in anth,
@@ -830,6 +1086,16 @@ def assert_subpath():
         "impact verification": "<meta name='impact-site-verification' value='0bb4882c-bc98-4a99-8bdc-d1fdd926ec95'>" in home,
         "goatcounter": '<script data-goatcounter="https://ipowatch.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>' in home and '<script data-goatcounter="https://ipowatch.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>' in anth,
         "privacy note": "We use GoatCounter, a privacy-friendly analytics tool that doesn't use cookies or track you across sites, to count page views." in disc,
+        "guide canonicals": all(f'href="{BASE}{p}"' in page for p, page in (
+            ("/anthropic-ipo/", anth), ("/how-to-buy-a-us-ipo-from-canada/", guide), ("/upcoming-ai-ipos/", hub))),
+        "guide sitemap": all(f"<loc>{BASE}{p}</loc>" in sm for p in ("/anthropic-ipo/", "/how-to-buy-a-us-ipo-from-canada/", "/upcoming-ai-ipos/")),
+        "old slug redirected": f'href="{BASE}/anthropic-ipo/"' in moved and "http-equiv=\"refresh\"" in moved and f"<loc>{BASE}/anthropic-ipo-date/</loc>" not in sm,
+        "faq schema": all('"FAQPage"' in page for page in (anth, guide, hub)),
+        "twitter site": 'name="twitter:site" content="@TickerHotTakes"' in anth,
+        "newsletter on guides": all('id="newsletter"' in page and "Not financial advice." in page for page in (anth, guide, hub)),
+        "homepage guide links": all(h in home for h in ("/anthropic-ipo/", "/how-to-buy-a-us-ipo-from-canada/", "/upcoming-ai-ipos/")),
+        "affiliate slot neutral": 'data-affiliate-slot="pending"' in anth and 'data-affiliate-slot="pending"' in guide and "Referral links are not in use." in anth,
+        "broker homepages": "https://www.wealthsimple.com/en-ca" in anth and "https://www.rbcdirectinvesting.com/" in guide and "https://www.qtrade.ca/en/investor.html" in guide,
     }
     for name in ("methodology", "data", "disclaimer"):
         checks[f"newsletter {name}"] = 'id="newsletter"' in (OUT / name / "index.html").read_text()
@@ -843,7 +1109,7 @@ def assert_subpath():
 def main():
     if OUT.exists(): shutil.rmtree(OUT)
     OUT.mkdir()
-    home(); section_pages(); anthropic_page(); openai_page(); vcx_canada_page(); dxyz_page(); company_pages(); static_pages(); assets_and_seo()
+    home(); section_pages(); anthropic_page(); how_to_buy_us_ipo_page(); upcoming_ai_ipos_page(); openai_page(); vcx_canada_page(); dxyz_page(); company_pages(); static_pages(); assets_and_seo()
     assert_subpath()
     print(f"Built {len(PAGES)} pages into {OUT}")
 

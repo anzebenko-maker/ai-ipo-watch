@@ -9,9 +9,12 @@
   "newsletter_form_action": "",
   "contact_email": "",
   "affiliates": {
-    "wealthsimple": {"label": "Wealthsimple", "url": "", "placeholder": true},
-    "questrade": {"label": "Questrade", "url": "", "placeholder": true}
+    "wealthsimple": {"label": "Wealthsimple", "url": "", "homepage": "https://www.wealthsimple.com/en-ca", "placeholder": true},
+    "questrade": {"label": "Questrade", "url": "", "homepage": "https://www.questrade.com/", "placeholder": true},
+    "rbc": {"label": "RBC Direct Investing", "url": "", "homepage": "https://www.rbcdirectinvesting.com/", "placeholder": true},
+    "qtrade": {"label": "Qtrade", "url": "", "homepage": "https://www.qtrade.ca/en/investor.html", "placeholder": true},
+    "ibkr": {"label": "Interactive Brokers", "url": "", "homepage": "https://www.interactivebrokers.ca/en/home.php", "placeholder": true}
   },
-  "twitter_handle": "",
+  "twitter_handle": "TickerHotTakes",
   "theme_color": "#0b1020"
 }

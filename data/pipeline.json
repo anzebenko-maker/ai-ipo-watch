@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-21",
+  "as_of": "2026-10-25",
   "status_legend": {
     "reported": "Media reports only (not confirmed by the company or an SEC filing).",
     "confidentially_filed": "Company confirmed a confidential draft S-1 (DRS). Not visible on EDGAR until a public filing.",
@@ -20,7 +20,7 @@
       "exchange": null,
       "sector": "AI model developer",
       "hq": "San Francisco, CA",
-      "summary": "Confidential draft S-1 confirmed June 1, 2026 (Anthropic: https://www.anthropic.com/news/confidential-draft-s1-sec). The public S-1 could be filed as early as Friday, Oct 23, according to three people familiar with the plans (Yahoo Finance, Oct 21: https://finance.yahoo.com/markets/article/anthropic-to-publicly-file-for-ipo-as-early-as-friday-sources-say-135343841.html). IFR reports a planned Oct 26 filing, a roadshow from Nov 9 and pricing the following week (IFR: https://www.ifre.com/equities/2499407/anthropic-pushes-ahead-with-mid-november-ipo). None of this timing is confirmed by the company.",
+      "summary": "Confidential draft S-1 confirmed June 1, 2026 (Anthropic: https://www.anthropic.com/news/confidential-draft-s1-sec). Yahoo Finance reported on Oct 21 that a public S-1 could come as early as Oct 23 (https://finance.yahoo.com/markets/article/anthropic-to-publicly-file-for-ipo-as-early-as-friday-sources-say-135343841.html). That date passed with no matching company on the SEC's S-1 name search as of Oct 25, 2026 (https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=anthropic&type=S-1). Later reported dates are in the timeline. None of the timing is confirmed by the company.",
       "last_private_valuation": {
         "value": "$965B post-money",
         "date": "2026-05-28",
@@ -44,11 +44,25 @@
           "source_name": "Anthropic"
         },
         {
+          "date": "2026-09-13",
+          "label": "Nasdaq selected for a potential IPO (reported, via Business Insider)",
+          "confirmed": false,
+          "source_url": "https://www.reuters.com/business/anthropic-selects-nasdaq-ipo-business-insider-reports-2026-09-13/",
+          "source_name": "Reuters"
+        },
+        {
           "date": "2026-10-14",
           "label": "Pre-IPO investor day; Q3 revenue $16.8B (reported)",
           "confirmed": false,
           "source_url": "https://www.cnbc.com/2026/10/15/anthropics-third-quarter-revenue-hits-16point8-billion-ipo.html",
           "source_name": "CNBC"
+        },
+        {
+          "date": "2026-10-22",
+          "label": "Listing planned for mid-November; prospectus as early as late October; marketing the week of Nov 9; dates subject to change (reported)",
+          "confirmed": false,
+          "source_url": "https://www.investing.com/news/economy-news/analysisanthropic-ipo-stands-alone-as-ai-market-jitters-sideline-others-4966313",
+          "source_name": "Reuters (via Investing.com)"
         },
         {
           "date": "2026-10-23",
@@ -69,6 +83,13 @@
           "label": "Roadshow from Nov 9; pricing the following week (reported)",
           "confirmed": false,
           "source_url": "https://www.ifre.com/equities/2499407/anthropic-pushes-ahead-with-mid-november-ipo",
+          "source_name": "IFR"
+        },
+        {
+          "date": "2026-11-20",
+          "label": "Nasdaq listing aimed for this date; roadshow expected the week of Nov 9 (reported)",
+          "confirmed": false,
+          "source_url": "https://www.ifre.com/equities/2502542/anthropic-presses-ahead-with-nasdaq-debut-set-for-november-20",
           "source_name": "IFR"
         },
         {
@@ -131,9 +152,9 @@
           ]
         }
       ],
-      "edgar_checked_at": "2026-10-21T09:00 MT",
+      "edgar_checked_at": "2026-10-25",
       "public_s1_url": null,
-      "edgar_note": "No public S-1 found on EDGAR as of 2026-10-21.",
+      "edgar_note": "No public S-1 found on EDGAR as of 2026-10-25. SEC company search for Anthropic, form type S-1, returned no matching companies.",
       "cik": null,
       "listed_fund_exposure": [
         "DXYZ",

@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-25",
+  "as_of": "2026-10-26",
   "premium_method": "Premium/discount = latest market price / last reported NAV per share - 1. The NAV is often months old (quarterly marks of private holdings), so this is 'vs last reported NAV', not vs. a live value.",
   "broker_method": "Broker availability can't be checked from public pages (Questrade, Wealthsimple, IBKR and Qtrade symbol search requires a logged-in account). A cell shows 'available' or 'not available' only after someone confirmed it in that broker's own symbol search, with the check date. Wealthsimple, Questrade, and IBKR were checked this way on Oct 20, 2026. Qtrade stays 'unverified'.",
   "items": [

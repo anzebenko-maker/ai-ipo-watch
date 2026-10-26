@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-25",
+  "as_of": "2026-10-26",
   "status_legend": {
     "reported": "Media reports only (not confirmed by the company or an SEC filing).",
     "confidentially_filed": "Company confirmed a confidential draft S-1 (DRS). Not visible on EDGAR until a public filing.",
@@ -14,13 +14,13 @@
       "slug": "anthropic",
       "name": "Anthropic",
       "legal_name": "Anthropic, PBC",
-      "status": "confidentially_filed",
+      "status": "publicly_filed",
       "status_confirmed": true,
-      "ticker": null,
-      "exchange": null,
+      "ticker": "ANT",
+      "exchange": "Nasdaq Global Select Market",
       "sector": "AI model developer",
       "hq": "San Francisco, CA",
-      "summary": "Confidential draft S-1 confirmed June 1, 2026 (Anthropic: https://www.anthropic.com/news/confidential-draft-s1-sec). Yahoo Finance reported on Oct 21 that a public S-1 could come as early as Oct 23 (https://finance.yahoo.com/markets/article/anthropic-to-publicly-file-for-ipo-as-early-as-friday-sources-say-135343841.html). That date passed with no matching company on the SEC's S-1 name search as of Oct 25, 2026 (https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=anthropic&type=S-1). Later reported dates are in the timeline. None of the timing is confirmed by the company.",
+      "summary": "Anthropic, PBC filed a public S-1 on Oct 26, 2026 (accession 0001628280-26-067168, CIK 2130357): https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm. The company has applied to list Class A common stock on the Nasdaq Global Select Market under the proposed symbol ANT. The cover page leaves the IPO price range blank (between $ and $). A confidential draft was announced on June 1, 2026 (https://www.anthropic.com/news/confidential-draft-s1-sec). IFR has reported a roadshow from Nov 9 and a Nasdaq debut aimed at Nov 20. Those later dates are not in the S-1 and are not confirmed.",
       "last_private_valuation": {
         "value": "$965B post-money",
         "date": "2026-05-28",
@@ -73,7 +73,14 @@
         },
         {
           "date": "2026-10-26",
-          "label": "Public S-1 filing planned (reported)",
+          "label": "Public S-1 filed. Proposed ticker ANT. Applied to list Class A common stock on the Nasdaq Global Select Market. IPO price range left blank.",
+          "confirmed": true,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
+          "source_name": "SEC EDGAR S-1"
+        },
+        {
+          "date": "2026-10-26",
+          "label": "IFR had reported a public S-1 filing planned for this date (reported)",
           "confirmed": false,
           "source_url": "https://www.ifre.com/equities/2499407/anthropic-pushes-ahead-with-mid-november-ipo",
           "source_name": "IFR"
@@ -152,10 +159,24 @@
           ]
         }
       ],
-      "edgar_checked_at": "2026-10-25",
-      "public_s1_url": null,
-      "edgar_note": "No public S-1 found on EDGAR as of 2026-10-25. SEC company search for Anthropic, form type S-1, returned no matching companies.",
-      "cik": null,
+      "s1_financials": {
+        "source_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
+        "source_name": "SEC EDGAR S-1",
+        "h1_2026_revenue": "$16,286 million (about $16.29 billion)",
+        "h1_2025_revenue": "$1,163 million (about $1.16 billion)",
+        "fy2025_revenue": "$4,585 million (about $4.59 billion)",
+        "h1_2026_operating_loss": "$693 million",
+        "h1_2025_operating_loss": "$2,135 million (about $2.14 billion)",
+        "h1_2026_net_loss": "$80,748 million (about $80.75 billion)",
+        "h1_2026_fair_value": "$72,388 million (about $72.39 billion)",
+        "h1_2026_compute_pct": "55%",
+        "h1_2025_compute_pct": "201%",
+        "h1_2026_other_expense": "$8,757 million"
+      },
+      "edgar_checked_at": "2026-10-26T13:00:00Z",
+      "public_s1_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
+      "edgar_note": "Public S-1 filed Oct 26, 2026. Accession 0001628280-26-067168. CIK 2130357.",
+      "cik": 2130357,
       "listed_fund_exposure": [
         "DXYZ",
         "VCX",

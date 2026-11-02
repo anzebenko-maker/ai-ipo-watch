@@ -134,7 +134,8 @@ def layout(path, title, desc, body, schema=None, og_type="website", priority="0.
 <meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{e(url)}"><meta property="og:image" content="{BASE}/assets/og-default.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="en_CA">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{e(full_title)}"><meta name="twitter:description" content="{e(desc)}"><meta name="twitter:image" content="{BASE}/assets/og-default.png">{twitter_site_tag()}
-<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/style.css">{ld}
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/style.css">
+<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM site summary">{ld}
 </head><body>
 <header class="top"><div class="wrap bar"><a class="logo" href="/"><span class="dot"></span>{e(SITE)}</a>
 <button class="menu" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button><nav>{nav}</nav></div></header>
@@ -142,14 +143,14 @@ def layout(path, title, desc, body, schema=None, og_type="website", priority="0.
 <footer class="foot"><div class="wrap">
 <p class="disc"><strong>Not financial advice.</strong> {e(SITE)} is an independent information site. Nothing here is a recommendation to buy or sell any security. IPO dates and terms change; reported items are not confirmed. Prices are delayed and may be wrong. Do your own research or talk to a registered advisor.</p>
 <p class="disc"><strong>Affiliate disclosure:</strong> Some links on this site may be affiliate links. If you open an account through one, we may earn a commission at no cost to you. This never changes the data we show. <a href="/disclosure/">How we make money</a>.</p>
-<p class="small">Updated {e(updated_label())}.</p>
+<p class="small">Last updated {e(updated_label())}.</p>
 <p class="small">Data: SEC EDGAR, company announcements, fund websites, Renaissance Capital, Yahoo Finance (delayed quotes). Prices as of {e(fmt_ts(asof))}. <a href="/methodology/">Methodology &amp; sources</a> · <a href="/about/">About</a> · <a href="/disclaimer/">Disclaimer</a> · <a href="/disclosure/">How we make money</a> · <a href="/data/">Data (JSON)</a></p>
 <p class="small">© {TODAY.year} {e(SITE)} · Made in {e(CFG.get('location','Canada'))}</p></div></footer>
 <script src="/assets/app.js" defer></script>
 <script data-goatcounter="https://ipowatch.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script></body></html>"""
     return prefix_root_urls(doc)
 
-def newsletter():
+def newsletter(nid="newsletter"):
     """Signup control comes from site.config.json.
     newsletter_form_action: POST endpoint (swap in a beehiiv embed action later).
     newsletter_url: hosted subscribe page. Beehiiv's /subscribe form does not
@@ -168,8 +169,8 @@ def newsletter():
         control = """<form class="nl" action="" method="post" data-placeholder="1">
 <label class="sr" for="nl-email">Email</label><input id="nl-email" type="email" name="email" placeholder="you@example.com" required>
 <button type="submit">Subscribe</button><p class="small nl-msg" aria-live="polite">Signup is not live yet (placeholder form).</p></form>"""
-    return f"""<section class="card news" id="newsletter"><div><h2>{name}</h2>
-<p>One email a week: new AI IPO filings, pricing dates, lock-up expiries and premium/discount moves on DXYZ, VCX and RVI. Written for Canadian investors.</p></div>
+    return f"""<section class="card news" id="{e(nid)}"><div><h2>{name}</h2>
+<p>Get the Anthropic IPO date, price range and lock-up dates in your inbox. Free, weekly. One email from {name}, written for Canadian investors. It also covers other AI IPO filings and lock-up dates.</p></div>
 <div>{control}</div></section>"""
 
 def twitter_site_tag():
@@ -183,7 +184,7 @@ def newsletter_cta(label=None):
     url = (CFG.get("newsletter_url") or CFG.get("newsletter_form_action") or "").strip()
     if not url:
         return ""
-    text = label or "Get the S-1 breakdown the day it's filed - Subscribe free"
+    text = label or "Get the Anthropic IPO date, price range and lock-up dates in your inbox. Free, weekly."
     return f'<p class="nl-cta"><a class="btn" href="{e(url)}">{html.escape(text, quote=False)}</a></p>'
 
 def live_affiliates():
@@ -292,10 +293,10 @@ def funds_table():
 def faq_block(qas):
     body = "".join(f"<details class='faq'><summary>{e(q)}</summary><div>{a}</div></details>" for q, a in qas)
     schema = {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": re.sub("<[^>]+>", "", a)}} for q, a in qas]}
-    return f"<section><h2>FAQ</h2>{body}</section>", schema
+    return f'<section id="faq"><h2>FAQ</h2>{body}</section>', schema
 
 def asof_line(extra=""):
-    return f'<p class="asof">Data as of {fmt_date(PIPE.get("as_of"))} · prices {e(fmt_ts(PRICES.get("as_of","")))} {extra}</p>'
+    return f'<p class="asof">Last updated {e(updated_label())}. Data as of {fmt_date(PIPE.get("as_of"))} · prices {e(fmt_ts(PRICES.get("as_of","")))} {extra}</p>'
 
 MT = ZoneInfo("America/Edmonton")
 STAMP_KEYS = {"as_of", "edgar_checked_at", "price_time"}
@@ -383,6 +384,13 @@ def short_source(name):
 def anthropic_item():
     return next(x for x in PIPE["items"] if x["slug"] == "anthropic")
 
+def amendment_key_date(a):
+    for k in a.get("key_dates") or []:
+        lab = (k.get("label") or "").lower()
+        if k.get("confirmed") and "amendment no. 1" in lab:
+            return k
+    return None
+
 def format_checked(raw):
     raw = (raw or "").strip()
     m = re.fullmatch(r"(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})(?::\d{2})?Z", raw)
@@ -405,6 +413,8 @@ def confirmed_public_s1_date(a):
 def edgar_note_for(a):
     """Generated from edgar_checked_at so a filing-day edit does not touch this sentence."""
     if a.get("status") == "publicly_filed":
+        if amendment_key_date(a):
+            return "S-1 Amendment No. 1 is the current prospectus on EDGAR."
         return "Public S-1 is on EDGAR."
     day = (a.get("edgar_checked_at") or "")[:10]
     if re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
@@ -477,9 +487,11 @@ def s1_box(a):
         when = fmt_date(confirmed_public_s1_date(a))
         tk = a.get("ticker") or "n/a"
         ex = a.get("exchange") or "n/a"
-        blurb = f"Filed {when}. Proposed ticker {tk}. Applied to list on {ex}. The price range is not set"
+        amd = amendment_key_date(a)
+        amd_bit = f" Amendment No. 1 filed {fmt_date(amd.get('date'))}." if amd else ""
+        blurb = f"Filed {when}.{amd_bit} Proposed ticker {tk}. Applied to list on {ex}. The price range and the share count are not set"
         extra_html = f"<p><strong>Still reported, not confirmed:</strong><br>{extra}</p>" if extra else ""
-        note = "The filing itself is the S-1 on EDGAR. Roadshow and debut dates are media reports and are not confirmed."
+        note = "The current prospectus is Amendment No. 1 on EDGAR. Roadshow, pricing and first-trade dates are media reports or still TBD. They are not confirmed."
     else:
         blurb = filing_blurb(a)
         extra_html = f"<p>{extra}</p>" if extra else ""
@@ -495,24 +507,30 @@ def _fin_cell(v):
 
 def s1_financials_html(a):
     fin = a.get("s1_financials") or {}
-    if not fin.get("h1_2026_revenue"):
+    if not fin.get("q3_2026_revenue") and not fin.get("h1_2026_revenue"):
         return ""
-    link = src(fin.get("source_url"), fin.get("source_name") or "S-1")
+    link = src(fin.get("source_url"), fin.get("source_name") or "S-1/A")
+    orig = (" " + src(fin.get("original_s1_url"), "Original S-1, Oct 26, 2026")) if fin.get("original_s1_url") else ""
     rows = [
-        ("Revenue", fin.get("h1_2025_revenue"), fin.get("h1_2026_revenue"), fin.get("fy2025_revenue")),
-        ("Operating loss", fin.get("h1_2025_operating_loss"), fin.get("h1_2026_operating_loss"), ""),
-        ("Net loss", "", fin.get("h1_2026_net_loss"), ""),
-        ("of which: change in fair value of convertible notes, derivative liabilities, and SAFEs", "", fin.get("h1_2026_fair_value"), ""),
-        ("Compute and infrastructure, percent of revenue", fin.get("h1_2025_compute_pct"), fin.get("h1_2026_compute_pct"), ""),
+        ("Revenue", fin.get("q2_2026_revenue"), fin.get("q3_2026_revenue"), fin.get("nine_month_2026_revenue")),
+        ("Operating income (loss)", fin.get("q2_2026_operating_income") and (fin.get("q2_2026_operating_income") + " (income)"), fin.get("q3_2026_operating_loss") and (fin.get("q3_2026_operating_loss") + " (loss)"), fin.get("nine_month_2026_operating_loss") and (fin.get("nine_month_2026_operating_loss") + " (loss)")),
+        ("Net loss", fin.get("q2_2026_net_loss"), fin.get("q3_2026_net_loss"), fin.get("nine_month_2026_net_loss")),
+        ("of which: change in fair value of convertible notes, derivative liabilities, and SAFEs", fin.get("q2_2026_fair_value"), fin.get("q3_2026_fair_value"), fin.get("nine_month_2026_fair_value")),
+        ("Compute and infrastructure, percent of revenue", fin.get("q2_2026_compute_pct"), fin.get("q3_2026_compute_pct"), ""),
     ]
     body = "".join(
         f"<tr><td>{e(line)}</td><td>{_fin_cell(c1)}</td><td>{_fin_cell(c2)}</td><td>{_fin_cell(c3)}</td></tr>"
         for line, c1, c2, c3 in rows
     )
-    return f"""<h2>Financials from the S-1</h2>
-<p>For the six months ended June 30, 2026, the S-1 reports revenue of {e(fin.get('h1_2026_revenue'))}, compared with {e(fin.get('h1_2025_revenue'))} in the six months ended June 30, 2025. Operating loss was {e(fin.get('h1_2026_operating_loss'))}, compared with {e(fin.get('h1_2025_operating_loss'))}. Net loss was {e(fin.get('h1_2026_net_loss'))}. Of that net loss, {e(fin.get('h1_2026_fair_value'))} is the change in fair value of convertible notes, derivative liabilities, and SAFEs. The filing says those instruments are marked to market each period, so a higher enterprise valuation increases this expense. It is a non-cash mark-to-market change, not cash spent on operations. The operating result is the {e(fin.get('h1_2026_operating_loss'))} operating loss, not the {e(fin.get('h1_2026_net_loss'))} net loss. Other income (expense), net was a further loss of {e(fin.get('h1_2026_other_expense'))} in the same six months. The S-1 says that line is mostly fair-value changes on strategic investments and other financial instruments. Compute and infrastructure costs were {e(fin.get('h1_2026_compute_pct'))} of revenue, compared with {e(fin.get('h1_2025_compute_pct'))} a year earlier. Revenue for the year ended December 31, 2025 was {e(fin.get('fy2025_revenue'))}. {link}</p>
-<p class="small muted">Dollar amounts are as printed in the summary consolidated statements of operations, in millions. "About" figures are the same amounts in billions, rounded half up. The 55% and 201% lines are the filing's compute and infrastructure expense as a percentage of revenue.</p>
-<div class="tw"><table><thead><tr><th></th><th>Six months ended June 30, 2025</th><th>Six months ended June 30, 2026</th><th>Year ended December 31, 2025</th></tr></thead><tbody>{body}</tbody></table></div>"""
+    return f"""<h2>Financials from the S-1/A</h2>
+<p>Amendment No. 1, filed Nov 2, 2026, adds quarterly results through September 30, 2026. Amounts below are as printed in that prospectus, in millions of US dollars, unless a line is already stated in billions. {link}{orig}</p>
+<p>Revenue was {e(fin.get('q3_2026_revenue'))} for the three months ended September 30, 2026, and {e(fin.get('q2_2026_revenue'))} for the three months ended June 30, 2026. Revenue for the nine months ended September 30, 2026 was {e(fin.get('nine_month_2026_revenue'))}, compared with {e(fin.get('nine_month_2025_revenue'))} in the nine months ended September 30, 2025. The prospectus narrative rounds the September quarter to $17.0 billion. The printed quarterly line is $16,956 million.</p>
+<p>Net loss was {e(fin.get('q3_2026_net_loss'))} in the September quarter and {e(fin.get('q2_2026_net_loss'))} in the June quarter. Nine-month net loss was {e(fin.get('nine_month_2026_net_loss'))}. Operating loss was {e(fin.get('q3_2026_operating_loss'))} in the September quarter. The June quarter was operating income of {e(fin.get('q2_2026_operating_income'))}. Nine-month operating loss was {e(fin.get('nine_month_2026_operating_loss'))}.</p>
+<p>The filing says the September operating loss was driven by $5.0 billion of compute under short-term commitments and $2.0 billion of non-cash charges related to the donation matching program. Most of the net loss is a different line: the change in fair value of convertible notes, derivative liabilities, and SAFEs. That line was {e(fin.get('q3_2026_fair_value'))} in the September quarter, {e(fin.get('q2_2026_fair_value'))} in the June quarter, and {e(fin.get('nine_month_2026_fair_value'))} for the nine months. The filing says those instruments are marked to market, so a higher enterprise valuation increases this expense. It is not cash spent on operations. The operating result is the {e(fin.get('q3_2026_operating_loss'))} operating loss, not the {e(fin.get('q3_2026_net_loss'))} net loss.</p>
+<p>Compute purchase commitments were {e(fin.get('compute_commitments'))} {e(fin.get('compute_commitments_as_of'))}, substantially all of it related to compute and infrastructure. The same paragraph says {e(fin.get('compute_before_2031'))} is expected before December 31, 2030, and {e(fin.get('compute_next_12_months'))} is due in the 12 months after September 30, 2026. Compute and infrastructure was {e(fin.get('q3_2026_compute_pct'))} of revenue in the September 2026 quarter and {e(fin.get('q2_2026_compute_pct'))} in the June 2026 quarter.</p>
+<p>The Oct 26 S-1 six-month totals match the sum of the amendment's March and June quarters. First-quarter 2026 revenue of {e(fin.get('q1_2026_revenue'))} plus June-quarter revenue equals six-month revenue of {e(fin.get('h1_2026_revenue'))}. Six-month operating loss was {e(fin.get('h1_2026_operating_loss'))}. Six-month net loss was {e(fin.get('h1_2026_net_loss'))}, of which {e(fin.get('h1_2026_fair_value'))} was the fair-value change. Other income (expense), net was a further loss of {e(fin.get('h1_2026_other_expense'))} in those six months (Oct 26 S-1). Revenue for the year ended December 31, 2025 was {e(fin.get('fy2025_revenue'))}. Revenue for the six months ended June 30, 2025 was {e(fin.get('h1_2025_revenue'))}, and the operating loss for that period was {e(fin.get('h1_2025_operating_loss'))}. Compute and infrastructure was {e(fin.get('h1_2026_compute_pct'))} of revenue in the six months ended June 30, 2026, and {e(fin.get('h1_2025_compute_pct'))} a year earlier (Oct 26 S-1).</p>
+<p class="small muted">"About" figures are the printed million amounts, restated in billions and rounded half up. $66,309 million is about $66.31 billion on that rule, which is the same $66.3 billion figure rounded to one decimal. The price range and the share count on the cover are still blank.</p>
+<div class="tw"><table><thead><tr><th></th><th>Three months ended June 30, 2026</th><th>Three months ended September 30, 2026</th><th>Nine months ended September 30, 2026</th></tr></thead><tbody>{body}</tbody></table></div>"""
 
 def financials_table(a):
     rows = a.get("reported_financials") or []
@@ -525,7 +543,7 @@ def financials_table(a):
         sources = " ".join(src(s.get("source_url"), s.get("source_name")) for s in r.get("sources") or [])
         body += f"<tr><td>{e(r.get('period'))}</td><td>{e(r.get('revenue') or NA)}</td><td>{loss}{note}</td><td class='srcs'>{sources}</td></tr>"
     if a.get("s1_financials"):
-        intro = "These earlier figures come from news reports. They are rounded. The S-1 table above is the filing. Q3 2026 is still a news report only."
+        intro = "These earlier figures come from news reports. They are rounded. The S-1/A table above is the filing. The Oct 15, 2026 report of about $16.8 billion for Q3 was a news report. The amendment prints $16,956 million for that quarter."
     else:
         intro = "These figures come from news reports, not from a public S-1."
     return f"""<h2>Financials (reported)</h2>
@@ -565,14 +583,22 @@ def sec_block(a):
     checked = format_checked(a.get("edgar_checked_at"))
     if a.get("status") == "publicly_filed":
         link = s1_edgar_url(a)
-        linked = f' <a href="{e(link)}" rel="noopener nofollow" target="_blank">Public S-1 on EDGAR</a>.' if link else ""
+        label = "Current prospectus on EDGAR" if amendment_key_date(a) else "Public S-1 on EDGAR"
+        linked = f' <a href="{e(link)}" rel="noopener nofollow" target="_blank">{label}</a>.' if link else ""
         return f"<h2>SEC filings</h2><p>{e(note)}{linked} Last checked {e(checked)}.</p>{edgar_list(a.get('cik'))}"
     return f"<h2>SEC filings</h2><p>{e(note)} Last checked {e(checked)}.</p>"
 
 def anth_faq_when(a):
     if a.get("status") == "publicly_filed":
         when = fmt_date(confirmed_public_s1_date(a))
-        parts = [f"The public S-1 was filed on {when}. That filing does not set an IPO price or a pricing date. The cover page leaves the price range blank."]
+        amd = amendment_key_date(a)
+        amd_bit = f" Amendment No. 1 was filed on {fmt_date(amd.get('date'))}." if amd else ""
+        parts = [
+            f"No confirmed pricing date or first-trade date. The public S-1 was filed on {when}.{amd_bit} "
+            "The cover still leaves the price range and the share count blank. "
+            "What is next, in order: a later amendment that prints the price range (confirmed date TBD), the roadshow, pricing, and the first trade. "
+            "Confirmed dates for the roadshow, pricing and the first trade are TBD."
+        ]
         bits = []
         for k in _unconfirmed(a):
             lab = k.get("label") or ""
@@ -582,7 +608,7 @@ def anth_faq_when(a):
             if any(w in low for w in ("roadshow", "listing", "pricing")):
                 bits.append(f"{e(k.get('source_name') or 'Report')} ({fmt_date(k.get('date'))}): {e(lab)}")
         if bits:
-            parts.append("Reported roadshow and listing timing, not confirmed: " + "; ".join(bits) + ".")
+            parts.append("Reported, not confirmed: " + "; ".join(bits) + ".")
         return " ".join(parts)
     parts = ["No date is confirmed by the company."]
     for k in a.get("key_dates", []):
@@ -608,8 +634,10 @@ def anth_faq_filed(a):
         tk = e(a.get("ticker") or "n/a")
         ex = e(a.get("exchange") or "n/a")
         cik = e(a.get("cik") or "")
-        return (f"Yes. Anthropic filed a public S-1 on {when}.{extra} "
-                f"Proposed ticker {tk} on {ex}. The price range is not set. "
+        amd = amendment_key_date(a)
+        amd_bit = f" Amendment No. 1 was filed on {fmt_date(amd.get('date'))} and is the current prospectus." if amd else ""
+        return (f"Yes. Anthropic filed a public S-1 on {when}.{extra}{amd_bit} "
+                f"Proposed ticker {tk} on {ex}. The price range and the share count are not set. "
                 f"CIK {cik}. Last checked {e(format_checked(a.get('edgar_checked_at')))}.")
     conf = ""
     for k in a.get("key_dates", []):
@@ -625,12 +653,40 @@ def anth_faq_valuation(a):
     extra = " ".join(f"{e(t.get('source_name') or 'Report')} (reported): {e(t.get('value'))}." for t in talks)
     return f"The last confirmed private valuation was {e(v.get('value'))} ({e(v.get('label'))}, {fmt_date(v.get('date'))}). {extra} None of the IPO valuation talk is confirmed by the company."
 
+def anth_faq_revenue(a):
+    fin = a.get("s1_financials") or {}
+    if not fin.get("q3_2026_revenue"):
+        return "The public filing does not yet include a revenue figure this page can quote."
+    url = fin.get("source_url") or ""
+    return (
+        f"Amendment No. 1 to the S-1, filed Nov 2, 2026, prints revenue of {fin.get('q3_2026_revenue')} "
+        f"for the three months ended September 30, 2026, and {fin.get('q2_2026_revenue')} for the three months ended June 30, 2026. "
+        f"Revenue for the nine months ended September 30, 2026 was {fin.get('nine_month_2026_revenue')}. "
+        f"The same table prints a Q3 net loss of {fin.get('q3_2026_net_loss')} and a Q2 net loss of {fin.get('q2_2026_net_loss')}. "
+        f"Q3 operating loss was {fin.get('q3_2026_operating_loss')}. Q2 operating income was {fin.get('q2_2026_operating_income')}. "
+        f"Most of the net loss is a non-cash fair-value change on convertible notes and related instruments, not the operating result. "
+        f"The filing also says compute purchase commitments were {fin.get('compute_commitments')} {fin.get('compute_commitments_as_of') or ''}. "
+        f"Source: {fin.get('source_name') or 'SEC EDGAR'} {url}."
+    )
+
+def anth_faq_canadians(a):
+    rp = a.get("retail_platforms") or {}
+    names = ", ".join(rp.get("names") or [])
+    return (
+        "Maybe at the IPO price, and only if a broker actually offers you shares. Do not count on it. "
+        f"The Nov 2, 2026 S-1/A says the company anticipates offering a portion of the shares to retail investors through these US platforms: {names}. "
+        "A purchase there would be at the cover price, which is still blank, and each platform sets its own terms. "
+        "The filing also says the offering includes a public offering in Canada, and that Anthropic does not currently intend to list on an exchange in Canada. It does not name a Canadian broker. "
+        "Questrade says that in most cases a US IPO is filled in the United States and Canadian residents cannot take part. "
+        "After Nasdaq opens the stock, the usual path in Canada is a broker that offers US-listed stocks, such as Wealthsimple, Questrade, Qtrade or a big-bank brokerage, then a limit order. "
+        "Check the symbol in that broker before you move cash. "
+        f'The step-by-step page is <a href="/how-to-buy-anthropic-ipo-canada/">How to buy the Anthropic IPO from Canada</a> ({BASE}/how-to-buy-anthropic-ipo-canada/). '
+        "This is general information, not a recommendation to buy or sell."
+    )
+
 def anth_faq_ipo_price():
-    return ("No. Canadians should not count on buying Anthropic at the IPO price. "
-            "Questrade says that in most cases a US IPO is filled in the United States and Canadian residents cannot take part. "
-            "After a US listing, the usual route is a broker that offers US stocks, often in a TFSA or RRSP, with US dollars already in the account, a W-8BEN, and a limit order. Confirm the ticker in your broker's symbol search. "
-            'As US context only, Fidelity says IPO participation there is for brokerage customers with at least $25,000 in retail assets, and that most of the shares go to institutions (<a href="https://www.fidelity.com/stock-trading/ipos" rel="noopener nofollow" target="_blank">Fidelity</a>). That is not a Canadian account. '
-            "Today, an indirect route is DXYZ or VCX, which can trade at a premium or discount to their last reported NAV. This is general information only, not personalized advice.")
+    a = anthropic_item()
+    return anth_faq_canadians(a)
 
 def anth_desc(a):
     conf = ""
@@ -660,14 +716,15 @@ def home():
 <div class="stat"><span class="k">Next lock-up</span><span class="v">{fmt_date(nxt['date']) if nxt and nxt['date'] else 'TBD'}</span><span class="muted small">{e(nxt['name']) if nxt else ''}</span></div>
 <div class="stat"><span class="k">Anthropic</span><span class="v sm">{e(STATUS_LABEL[anth['status']])}</span><span class="muted small">{e(filing_blurb(anth) if anth.get('status') != 'publicly_filed' else (f"Proposed ticker {anth.get('ticker') or 'ANT'}. Price range not set."))}</span></div></div>"""
     body = f"""<section class="hero"><p class="eyebrow">AI IPO tracker for Canadian investors</p><h1>Every AI IPO, lock-up and pre-IPO fund in one place</h1>
-<p class="lead">Track Anthropic, OpenAI and the rest of the AI IPO pipeline, see how recent AI listings have traded, know when insiders can sell, and compare the listed funds that hold private AI stakes, including which Canadian brokers carry them.</p>{asof_line()}{s1_box(anth)}{newsletter_cta()}{stats}</section>
+<p class="lead">Track Anthropic, OpenAI and the rest of the AI IPO pipeline, see how recent AI listings have traded, know when insiders can sell, and compare the listed funds that hold private AI stakes, including which Canadian brokers carry them. The practical Anthropic guide is <a href="/how-to-buy-anthropic-ipo-canada/">how to buy the Anthropic IPO from Canada</a>.</p>{asof_line()}{s1_box(anth)}{newsletter_cta()}{stats}</section>
 <section id="pipeline"><div class="sh"><h2>IPO pipeline</h2><a href="/ipo-pipeline/">Full pipeline →</a></div>
 <p class="muted">Status comes from SEC EDGAR or a company announcement. Anything marked <span class="tag rep">reported</span> comes from media reports and is not confirmed.</p>{pipeline_table()}</section>
 <section id="returns"><div class="sh"><h2>AI IPO leaderboard: return since listing</h2><a href="/ai-ipo-returns/">Details →</a></div>{leaderboard_table()}</section>
 <section id="lockups"><div class="sh"><h2>Lock-up expiry calendar</h2><a href="/lockup-calendar/">Calendar →</a></div><p class="muted">The dates when pre-IPO insiders can first sell. Big unlocks can weigh on a share price.</p>{lockup_table(show_past=False)}</section>
 <section id="funds"><div class="sh"><h2>Listed funds with private AI stakes</h2><a href="/private-ai-funds/">Compare →</a></div>{funds_table()}</section>
 {affiliates()}
-<section class="grid3"><a class="card link" href="/anthropic-ipo/"><h3>Anthropic IPO</h3><p>Public S-1 filed Oct 26. Proposed ticker ANT on Nasdaq Global Select. How to buy it in Canada.</p></a>
+<section class="grid3"><a class="card link" href="/anthropic-ipo/"><h3>Anthropic IPO</h3><p>S-1 filed Oct 26. Amendment No. 1 filed Nov 2. Proposed ticker ANT. Price range still blank.</p></a>
+<a class="card link" href="/how-to-buy-anthropic-ipo-canada/"><h3>Buy the Anthropic IPO from Canada</h3><p>IPO price versus day one, the US platforms named in the filing, Canadian brokers, TFSA and FX.</p></a>
 <a class="card link" href="/how-to-buy-a-us-ipo-from-canada/"><h3>Buy a US IPO from Canada</h3><p>Allocation versus day one, brokers, TFSA, RRSP and FX costs.</p></a>
 <a class="card link" href="/upcoming-ai-ipos/"><h3>Upcoming AI IPOs</h3><p>The pipeline in one list, with the Canada guides.</p></a>
 <a class="card link" href="/openai-ipo/"><h3>OpenAI IPO</h3><p>The confidential S-1, the reported 2027 timeline, and the funds that hold it.</p></a>
@@ -755,7 +812,8 @@ def fx_faq_answer():
 
 def registered_accounts_html():
     return f"""<h2>TFSA, RRSP and FHSA</h2>
-<p>Once a common share lists on a designated stock exchange, it is a qualified investment for a TFSA, an RRSP, an FHSA and the other plans named in the CRA folio. {src(CRA_FOLIO, "CRA folio S3-F10-C1")}</p>
+<p><strong>Check with your broker</strong> before you place an order in a registered account. A new ticker is not automatically accepted in every account on the first morning.</p>
+<p>Once a common share lists on a designated stock exchange, it is generally a qualified investment for a TFSA, an RRSP, an FHSA and the other plans named in the CRA folio. {src(CRA_FOLIO, "CRA folio S3-F10-C1")}</p>
 <p>Nasdaq and the NYSE are both on Finance Canada's designated list. {src(FIN_EXCH, "Department of Finance")}</p>
 <p>That is about eligibility after the shares list. It does not mean your broker will accept a brand-new ticker in that account on the first morning. Check the symbol search. A stock that only trades over the counter is a different case. Those markets are not designated exchanges.</p>
 <p>Canadian tax on growth inside a TFSA or RRSP is separate from US tax on dividends. Article X of the Canada-US tax treaty generally caps US tax on dividends paid to a Canadian resident at 15%. Article XXI(2) exempts dividends received by a Canadian pension or retirement arrangement. An RRSP is that kind of plan. A TFSA is not a pension, so that exemption does not apply to it. {src(TREATY, "Canada-US tax treaty")}</p>
@@ -814,12 +872,14 @@ def anth_faq_listing(a):
 
 def anth_faq_account():
     return ("After a listing on Nasdaq or the NYSE, a common share is generally a qualified investment for a TFSA, RRSP or FHSA, because both exchanges are on Finance Canada's designated list. "
-            "Your broker still has to accept the ticker. US tax on dividends can still apply inside a TFSA. The Canada-US treaty exempts dividends paid to a pension arrangement such as an RRSP. "
+            "Your broker still has to accept the ticker. Check with your broker before you place an order in a TFSA, RRSP or FHSA. "
+            "US tax on dividends can still apply inside a TFSA. The Canada-US treaty exempts dividends paid to a pension arrangement such as an RRSP. "
             "A TFSA is not a pension. This is general information, not tax advice.")
 
 def guide_links(current):
     items = [
         ("/anthropic-ipo/", ANTH_TITLE),
+        ("/how-to-buy-anthropic-ipo-canada/", "How to buy the Anthropic IPO from Canada"),
         ("/how-to-buy-a-us-ipo-from-canada/", "How to buy a US IPO from Canada"),
         ("/upcoming-ai-ipos/", "Upcoming AI IPOs"),
         ("/ipo-pipeline/", "Full IPO pipeline"),
@@ -836,22 +896,31 @@ def edgar_search_line(a):
 
 def anth_guide_desc(a):
     if a.get("status") == "publicly_filed":
-        when = fmt_date(confirmed_public_s1_date(a))
+        amd = amendment_key_date(a)
+        when = fmt_date(amd.get("date") if amd else confirmed_public_s1_date(a))
         tk = a.get("ticker") or "ANT"
-        return (f"Anthropic filed a public S-1 on {when}. Proposed ticker {tk} on Nasdaq Global Select. "
-                "Price range is blank. Reported roadshow timing, and how to buy from Canada.")
+        return (f"Anthropic filed S-1 Amendment No. 1 on {when}. Q3 2026 revenue was $16.96 billion. "
+                f"Proposed ticker {tk}. Price range still blank. Timeline, and how to buy from Canada.")
     return "No public Anthropic S-1 yet. Reported timing and valuation, plus how Canadians buy a US IPO: brokers, TFSA, RRSP and FX costs."
 
 def anth_lead(a):
     if a.get("status") != "publicly_filed":
         return "Anthropic has not set an IPO price, and the public prospectus is not on EDGAR. Below is what the company has confirmed, what reporters have said, and what someone in Canada can actually do."
-    link = s1_edgar_url(a)
+    fin = a.get("s1_financials") or {}
+    orig = (fin.get("original_s1_url") or "").strip()
+    link = orig or s1_edgar_url(a)
     linked = f'<a href="{e(link)}" rel="noopener nofollow" target="_blank">public S-1</a>' if link else "public S-1"
     when = fmt_date(confirmed_public_s1_date(a))
     tk = e(a.get("ticker") or "")
     ex = e(a.get("exchange") or "")
-    return (f"Anthropic filed a {linked} on {when}. The proposed ticker is <strong>{tk}</strong>, and the company has applied to list Class A common stock on the {ex}. "
-            "The cover page leaves the IPO price range blank. The figures below are from that filing. IFR's Nov 9 roadshow and Nov 20 debut are still reported, not confirmed.")
+    amd = amendment_key_date(a)
+    amd_bit = ""
+    if amd:
+        amd_url = (fin.get("source_url") or a.get("public_s1_url") or "").strip()
+        amd_link = f'<a href="{e(amd_url)}" rel="noopener nofollow" target="_blank">Amendment No. 1</a>' if amd_url else "Amendment No. 1"
+        amd_bit = f" {amd_link} was filed on {fmt_date(amd.get('date'))}. It adds results through September 30, 2026. The price range and the share count are still blank."
+    return (f"Anthropic filed a {linked} on {when}.{amd_bit} The proposed ticker is <strong>{tk}</strong>, and the company has applied to list Class A common stock on the {ex}. "
+            "The figures below are from the Nov 2 amendment. IFR's week-of-Nov-9 roadshow and about-Nov-20 first trade are reported, not confirmed. Confirmed dates for those steps are TBD.")
 
 def anth_buy_first_step(a):
     tk = a.get("ticker")
@@ -865,6 +934,62 @@ def anth_broker_caveat(a):
     if a.get("status") in ("publicly_filed", "roadshow", "priced") and tk:
         return f"they are not symbol-search checks for {e(tk)}, which is proposed and not listed yet"
     return "they are not symbol-search checks for a ticker that does not exist yet"
+
+def ipo_timeline(a):
+    s1 = None
+    for k in a.get("key_dates") or []:
+        if k.get("confirmed") and (k.get("label") or "").lower().startswith("public s-1 filed"):
+            s1 = k
+            break
+    amd = amendment_key_date(a)
+    road = next((k for k in a.get("key_dates") or [] if k.get("date") == "2026-11-09"), None)
+    trade = next((k for k in a.get("key_dates") or [] if k.get("date") == "2026-11-20"), None)
+    def li(when, badge_html, text, source=None):
+        extra = (" " + src(source.get("source_url"), source.get("source_name"))) if source else ""
+        return f"<li><span class='t'>{when}</span> {badge_html} {text}{extra}</li>"
+    items = []
+    if s1:
+        items.append(li(fmt_date(s1.get("date")), dated_badge(True), e(s1.get("label")), s1))
+    if amd:
+        items.append(li(fmt_date(amd.get("date")), dated_badge(True), e(amd.get("label")), amd))
+    items.append(li(
+        "TBD",
+        '<span class="tag ok">confirmed date not set</span>',
+        "Price-range amendment. A later S-1/A that prints the price range. Not filed as of Nov 2, 2026. Confirmed date: TBD.",
+    ))
+    if road:
+        items.append(li(
+            "Week of Nov 9, 2026",
+            '<span class="tag rep">reported, not confirmed</span>',
+            "Roadshow. IFR reported a roadshow from Nov 9, with pricing the following week. Confirmed date: TBD.",
+            road,
+        ))
+    items.append(li(
+        "TBD",
+        '<span class="tag ok">confirmed date not set</span>',
+        "Pricing. The final offer price is set in a Form 424B4. No 424B4 is on file. Confirmed date: TBD.",
+    ))
+    if trade:
+        items.append(li(
+            "About Nov 20, 2026",
+            '<span class="tag rep">reported, not confirmed</span>',
+            "First trade. IFR reported a Nasdaq debut aimed at Nov 20. Confirmed date: TBD.",
+            trade,
+        ))
+    return f"""<h2 id="ipo-timeline">IPO timeline / what's next</h2>
+<p>Filed steps are on EDGAR. Later steps do not have a confirmed date. Where a news report names a day, the label is reported, not confirmed, and the confirmed date stays TBD.</p>
+<ol class="tl">{''.join(items)}</ol>"""
+
+def retail_platforms_html(a, heading="h3"):
+    rp = a.get("retail_platforms") or {}
+    names = rp.get("names") or []
+    if not names:
+        return ""
+    lis = "".join(f"<li>{e(n)}</li>" for n in names)
+    return f"""<{heading}>US platforms named in the Nov 2 amendment</{heading}>
+<p>{e(rp.get('note'))} {src(rp.get('source_url'), rp.get('source_name'))}</p>
+<ul>{lis}</ul>
+<p>That list is in the prospectus. It is not a news report. The filing's own word is "anticipates". It does not say a person in Canada will receive an allocation through those US accounts.</p>"""
 
 def write_moved(old, new, label):
     doc = f"""<!doctype html><html lang="en-CA"><head><meta charset="utf-8">
@@ -882,22 +1007,24 @@ def anthropic_page():
     """Reads pipeline fields. On S-1 day set status, cik, public_s1_url, ticker, exchange, edgar_checked_at."""
     a = anthropic_item()
     faq, fs = faq_block([
-        ("When is the Anthropic IPO date?", anth_faq_when(a)),
+        ("When is the Anthropic IPO?", anth_faq_when(a)),
+        ("What is Anthropic's ticker?", anth_faq_listing(a)),
+        ("Can Canadians buy the Anthropic IPO?", anth_faq_canadians(a)),
+        ("How much revenue does Anthropic make?", anth_faq_revenue(a)),
         ("Has Anthropic filed an S-1?", anth_faq_filed(a)),
         ("What is Anthropic's valuation?", anth_faq_valuation(a)),
-        ("What is Anthropic's ticker?", anth_faq_listing(a)),
-        ("Can Canadians buy Anthropic at the IPO price?", anth_faq_ipo_price()),
         ("Can I hold Anthropic in a TFSA or RRSP?", anth_faq_account()),
         ("What does it cost to convert Canadian dollars?", fx_faq_answer()),
-        ("Can Canadians buy Anthropic stock before the IPO?", "Not the company itself. ANT is a proposed ticker and is not trading yet. Indirect exposure exists through listed funds that report Anthropic holdings, such as DXYZ and VCX, if your broker offers those US-listed funds. These funds can trade at large premiums or discounts to their last reported NAV. This is general information only, not personalized advice."),
-        ("Will Anthropic list on the TSX?", "The S-1 says Anthropic has applied to list Class A common stock on the Nasdaq Global Select Market under ANT. The same prospectus says the offering includes a public offering in Canada, and that the company does not currently intend to list Class A common stock on an exchange outside the United States, including Canada. Nothing in the filing describes a TSX listing."),
+        ("Can Canadians buy Anthropic stock before the IPO?", "Not the company itself. ANT is a proposed ticker and is not trading yet. Indirect exposure exists through funds that report Anthropic holdings, such as DXYZ, VCX and ARKVX, if your broker offers them. DXYZ and VCX can trade at large premiums or discounts to their last reported NAV. ARKVX is an interval fund and is not a Canadian brokerage listing. This is general information only, not a recommendation to buy or sell."),
+        ("Will Anthropic list on the TSX?", "The S-1/A says Anthropic has applied to list Class A common stock on the Nasdaq Global Select Market under ANT. The same prospectus says the offering includes a public offering in Canada, and that the company does not currently intend to list Class A common stock on an exchange outside the United States, including Canada. Nothing in the filing describes a TSX listing."),
     ])
     body = f"""<article><h1>{e(ANTH_TITLE)}</h1>{asof_line()}
 {advice_note()}
 <p class="lead">{anth_lead(a)}</p>
-{s1_box(a)}{edgar_search_line(a)}{passed_filing_note(a)}{newsletter_cta()}
+{s1_box(a)}{edgar_search_line(a)}{passed_filing_note(a)}{newsletter("newsletter-top")}
+{ipo_timeline(a)}
 <div class="card status">{badge(a['status'], a.get('status_confirmed', True))}<p>{linkify(a['summary'])}</p></div>
-<h2>Timing</h2>
+<h2>Dated record</h2>
 <p>Confirmed items come from Anthropic. Everything else is a news report and can move. Yahoo Finance wrote on Oct 21 that a company using the confidential process has to put the registration on EDGAR at least 15 days before a formal roadshow. That is Yahoo's description of the rule, not a date Anthropic has confirmed. {src("https://finance.yahoo.com/markets/article/anthropic-to-publicly-file-for-ipo-as-early-as-friday-sources-say-135343841.html", "Yahoo Finance")}</p>
 {timeline(a)}
 <h2>Exchange and ticker</h2>
@@ -908,10 +1035,11 @@ def anthropic_page():
 {financials_table(a)}
 {sec_block(a)}
 <h2>How a Canadian can buy it</h2>
-<p>The same steps for any US listing are on <a href="/how-to-buy-a-us-ipo-from-canada/">how to buy a US IPO from Canada</a>. What follows is the Anthropic version.</p>
+<p>The plain-language version is <a href="/how-to-buy-anthropic-ipo-canada/">how to buy the Anthropic IPO from Canada</a>. The same ideas for any US listing are on <a href="/how-to-buy-a-us-ipo-from-canada/">how to buy a US IPO from Canada</a>.</p>
 {allocation_vs_market_html()}
 <h3>What that means for Anthropic</h3>
-<p>There is still no deal to join. The S-1 leaves the share count and the price blank. When a broker offers the new issue, it will show in that broker's IPO or new-issue list. Opening an account does not reserve shares.</p>
+<p>There is still no deal to join. Amendment No. 1 leaves the share count and the price blank. The prospectus says the offering includes a public offering in Canada, and that Anthropic does not currently intend to list the shares on a Canadian exchange. {src(s1_edgar_url(a), "S-1/A")} When a broker offers the new issue, it will show in that broker's IPO or new-issue list. Opening an account does not reserve shares.</p>
+{retail_platforms_html(a)}
 <h3>Buying after it lists</h3>
 <ol class="steps">{anth_buy_first_step(a)}
 <li><strong>Use a broker that offers US-listed stocks.</strong> The notes below are from each firm's own pages, checked {fmt_date(CA_BROKERS.get("as_of"))}.</li>
@@ -931,6 +1059,60 @@ def anthropic_page():
     write("/anthropic-ipo/", layout("/anthropic-ipo/", ANTH_TITLE, anth_guide_desc(a), body, [fs, art], "article", "0.9"))
     write_moved("/anthropic-ipo-date/", "/anthropic-ipo/", ANTH_TITLE)
 
+def how_to_buy_anthropic_canada_page():
+    a = anthropic_item()
+    day = fmt_date(CA_BROKERS.get("as_of"))
+    fx_items = []
+    for b in CA_BROKERS.get("items") or []:
+        if not b.get("fx_short"):
+            continue
+        srcs = " ".join(src(s.get("url"), s.get("name")) for s in b.get("sources") or [])
+        usd = f" {e(b.get('usd_account'))}" if b.get("usd_account") else ""
+        fx_items.append(f"<li>{broker_home_link(b['id'])}: {e(b.get('fx_short'))}.{usd} {srcs}</li>")
+    fx_list = "<ul>" + "".join(fx_items) + "</ul>"
+    faq, fs = faq_block([
+        ("Can Canadians buy the Anthropic IPO at the IPO price?", anth_faq_canadians(a)),
+        ("Which Canadian brokers can buy ANT on day one?", "Wealthsimple, Questrade, Qtrade and RBC Direct Investing each describe US-listed stock trading on their own sites. Other big-bank brokerages generally do too. This page does not quote TD, BMO, Scotiabank or CIBC fee schedules. Search ANT in your own broker on listing day. The symbol is proposed and is not trading yet."),
+        ("Can I hold ANT in a TFSA or RRSP?", anth_faq_account()),
+        ("What does currency conversion cost for a US stock?", fx_faq_answer()),
+        ("How can Canadians get Anthropic exposure before ANT lists?", "Not by buying the company. Funds this site already tracks that report an Anthropic holding include DXYZ, VCX and ARKVX. You would own the fund, not Anthropic. DXYZ and VCX can trade far from their last reported NAV. ARKVX is not exchange-listed. This is general information, not a recommendation."),
+    ])
+    title = "How to buy the Anthropic IPO from Canada"
+    desc = "Plain-language guide for Canadians: ANT at the IPO price versus day one, US platforms named in the S-1/A, brokers, USD costs, TFSA and RRSP. Not financial advice."
+    body = f"""<article><h1>{e(title)}</h1>{asof_line()}
+{advice_note()}
+<p class="lead">Anthropic has applied to list Class A shares on the Nasdaq Global Select Market under the symbol ANT. Amendment No. 1, filed Nov 2, 2026, still does not set a price or a share count. This page is for someone in Canada. It is not a recommendation to buy or sell.</p>
+{newsletter("newsletter-top")}
+<p>The numbers and the filing status live on <a href="/anthropic-ipo/">the Anthropic IPO page</a>. {src(s1_edgar_url(a), "S-1/A on EDGAR")}</p>
+<h2>Can you buy shares at the IPO price?</h2>
+<p>Two different purchases.</p>
+<p><strong>An allocation</strong> means shares from the offering, at the IPO price, before the first trade. The underwriters decide who gets them.</p>
+<p><strong>Day one</strong> is a normal trade after ANT opens. You pay the market price. That price can be higher or lower than the IPO price.</p>
+<p>The amendment says the offering includes a public offering in Canada. It also says Anthropic does not currently intend to list the shares on an exchange in Canada. The filing does not name a Canadian broker that will hand out IPO shares. {src(s1_edgar_url(a), "S-1/A")}</p>
+<p>Questrade's own IPO centre says that, in most cases, a US IPO is filled in the United States and Canadian residents cannot take part. RBC's fee schedule says there is no commission on new stock issues when those issues are available. This site has not confirmed that RBC, or any other Canadian broker, will offer ANT in the IPO. {src("https://www.questrade.com/learning/using-questrade/questrades-ipo-centre", "Questrade IPO centre")} {src("https://www.rbcdirectinvesting.com/pricing/", "RBC Direct Investing pricing")}</p>
+<p>Do not plan on getting shares at the IPO price through a Canadian account. If your broker lists the deal on its IPO or new-issue screen, read that screen. Opening an account does not reserve shares.</p>
+{retail_platforms_html(a, "h2")}
+<h2>Buying ANT on day one through a Canadian broker</h2>
+<p>After the shares list on Nasdaq, the usual path in Canada is a broker that already lets you buy US stocks. Search ANT in that broker's symbol search on listing day, before you move cash. The symbol is proposed. It is not trading yet.</p>
+<p>The notes below are from each firm's own pages, checked {day}. They describe US-listed trading and currency conversion. They are not a promise that ANT will be in the symbol search on the first morning, and {anth_broker_caveat(a)}.</p>
+{broker_fact_cards()}
+<p>The big-bank brokerages also let clients trade US-listed stocks. This page quotes RBC Direct Investing because we read its fee pages. It does not quote TD Direct Investing, BMO InvestorLine, Scotia iTRADE or CIBC Investor's Edge. Check the fee schedule and the symbol search in the account you already use.</p>
+<h2>Currency conversion and a US-dollar account</h2>
+<p>ANT would trade in US dollars. If you pay with Canadian dollars, the broker converts the cash. That conversion has a fee or a spread. US dollars already in the account let you buy without converting on the way in and again on the way out. Schedules change. Read the fee page before you convert a large amount. Checked {day}.</p>
+{fx_list}
+<p>ANT is not listed yet, so the qualified-investment rule below does not apply to it today. It starts to matter after Nasdaq lists the shares. This is not tax advice.</p>
+{registered_accounts_html()}
+<h2>Exposure before the IPO</h2>
+<p>You cannot buy Anthropic itself today. The options below are funds this site already tracks. You would own the fund, not Anthropic. A fund price can sit far above or below the last reported value of its holdings. Nothing here is a suggestion to buy or sell a fund.</p>
+{canadians_exposure(a)}
+<h2>Funds that report an Anthropic holding</h2>
+{exposure_list('Anthropic')}
+<p>DXYZ and VCX trade on the NYSE. ARKVX holds Anthropic and is not exchange-listed. Symbol-search checks on Oct 20, 2026 did not find ARKVX at Wealthsimple, Questrade or IBKR. Qtrade was not checked. See <a href="/company/arkvx/">ARKVX</a>, <a href="/dxyz-premium-to-nav/">the DXYZ premium</a>, <a href="/how-to-buy-vcx-in-canada/">how to buy VCX in Canada</a>, and the <a href="/private-ai-funds/">fund comparison</a>.</p>
+{affiliate_spot("buy US-listed stocks from Canada")}
+{faq}{guide_links("/how-to-buy-anthropic-ipo-canada/")}{newsletter()}</article>"""
+    write("/how-to-buy-anthropic-ipo-canada/", layout(
+        "/how-to-buy-anthropic-ipo-canada/", title, desc, body, [fs, article_ld(title)], "article", "0.9"))
+
 def how_to_buy_us_ipo_page():
     faq, fs = faq_block([
         ("Can Canadians buy a US IPO at the IPO price?", "Sometimes, and you should not count on it. Questrade says that in most cases a US IPO is filled in the United States and Canadian residents cannot take part. When a deal is offered there, the minimum commitment is $5,000 and the allocation can be cut. RBC's fee schedule says new stock issues, when available, have no commission. Wealthsimple and Qtrade pages we checked do not promise a US IPO allocation. After the stock opens, you buy it like any other US-listed share."),
@@ -941,11 +1123,11 @@ def how_to_buy_us_ipo_page():
     ])
     body = f"""<article><h1>How to buy a US IPO from Canada</h1>{asof_line()}
 {advice_note()}
-<p class="lead">A US initial public offering and the first day of trading are not the same purchase. This page is the practical version for someone with a Canadian brokerage account. The live example right now is <a href="/anthropic-ipo/">the Anthropic IPO</a>.</p>
-{newsletter_cta("Get AI IPO filings in one email a week - Subscribe free")}
+<p class="lead">A US initial public offering and the first day of trading are not the same purchase. This page is the practical version for someone with a Canadian brokerage account. For Anthropic specifically, use <a href="/how-to-buy-anthropic-ipo-canada/">how to buy the Anthropic IPO from Canada</a>. The filing page is <a href="/anthropic-ipo/">the Anthropic IPO</a>.</p>
+{newsletter_cta()}
 {allocation_vs_market_html()}
 <h2>A workable order of steps</h2>
-<ol class="steps"><li><strong>Read the prospectus when it is public.</strong> <a href="/anthropic-ipo/">Anthropic's S-1</a> is on EDGAR, with proposed ticker ANT and a blank price range. Until some other company's S-1 or F-1 is on EDGAR, that company's price, share count and ticker are not set.</li>
+<ol class="steps"><li><strong>Read the prospectus when it is public.</strong> <a href="/anthropic-ipo/">Anthropic's S-1</a> is on EDGAR, with proposed ticker ANT. Amendment No. 1, filed Nov 2, 2026, still leaves the price range and the share count blank. Until some other company's S-1 or F-1 is on EDGAR, that company's price, share count and ticker are not set.</li>
 <li><strong>Decide whether you even want an allocation.</strong> Check the IPO or new-issue screen inside the broker you already use. If the deal is not listed, you do not have a way in at the IPO price through that firm.</li>
 <li><strong>Plan on buying after the open</strong> if the allocation is not offered. That is the path most Canadians actually have.</li>
 <li><strong>Pick the account</strong> and confirm a US-listed common share is accepted there. See the TFSA and RRSP notes below.</li>
@@ -975,11 +1157,12 @@ def upcoming_ai_ipos_page():
     ])
     body = f"""<article><h1>Upcoming AI IPOs</h1>{asof_line()}
 {advice_note()}
-<p class="lead">Anthropic's public S-1 is on EDGAR (proposed ticker ANT, Nasdaq Global Select Market, price range not set). This hub is for AI companies that are not yet trading, plus the guides for buying a US listing from Canada. The table is the same pipeline as the <a href="/ipo-pipeline/">tracker</a>. Every date in a row links back to its source from the company page. IFR's Nov 9 roadshow and Nov 20 debut for Anthropic are still reported, not confirmed.</p>
-{newsletter_cta("Get the week's AI IPO filings - Subscribe free")}
+<p class="lead">Anthropic's S-1 Amendment No. 1 is on EDGAR (filed Nov 2, 2026, proposed ticker ANT, Nasdaq Global Select Market, price range still blank). This hub is for AI companies that are not yet trading, plus the guides for buying a US listing from Canada. The table is the same pipeline as the <a href="/ipo-pipeline/">tracker</a>. Every date in a row links back to its source from the company page. IFR's Nov 9 roadshow and Nov 20 debut for Anthropic are reported, not confirmed. Confirmed dates for those steps are TBD.</p>
+{newsletter_cta()}
 <h2>Start here</h2>
 <ul>
 <li><a href="/anthropic-ipo/">{e(ANTH_TITLE)}</a></li>
+<li><a href="/how-to-buy-anthropic-ipo-canada/">How to buy the Anthropic IPO from Canada</a></li>
 <li><a href="/how-to-buy-a-us-ipo-from-canada/">How to buy a US IPO from Canada</a></li>
 <li><a href="/openai-ipo/">OpenAI IPO</a></li>
 <li><a href="/ipo-pipeline/">Full pipeline, with the status legend</a></li>
@@ -1067,6 +1250,9 @@ def company_pages():
         seen.add(slug)
         name = it["name"]; is_fund = it in FUNDS.get("items", [])
         parts = [f"<h1>{e(name)}{' IPO' if not is_fund else ''}: status, dates &amp; exposure</h1>", asof_line()]
+        if slug == "anthropic":
+            parts.append(newsletter("newsletter-top"))
+            parts.append("<p>Guides: <a href='/anthropic-ipo/'>Anthropic IPO: date, financials, and how to buy it in Canada</a> · <a href='/how-to-buy-anthropic-ipo-canada/'>How to buy the Anthropic IPO from Canada</a>.</p>")
         if "status" in it:
             parts.append(f"<div class='card status'>{badge(it['status'], it.get('status_confirmed', True))}<p>{linkify(it.get('summary',''))}</p></div><h2>Key dates</h2>{timeline(it)}")
         if slug in lb:
@@ -1087,16 +1273,25 @@ def company_pages():
         else:
             parts.append(f"<h2>Listed funds holding {e(name)}</h2>{exposure_list(name.split(' (')[0])}")
             if slug == "anthropic":
-                parts.append("<p><a href='/anthropic-ipo/'>Anthropic IPO: date, valuation, and how to buy it in Canada</a></p>")
+                parts.append(ipo_timeline(it))
+                parts.append(s1_financials_html(it))
+                parts.append(retail_platforms_html(it, "h2"))
+                parts.append("<p><a href='/anthropic-ipo/'>Full Anthropic IPO page</a> · <a href='/how-to-buy-anthropic-ipo-canada/'>How to buy the Anthropic IPO from Canada</a>.</p>")
             elif slug == "openai":
                 parts.append("<p>See <a href='/upcoming-ai-ipos/'>upcoming AI IPOs</a> and <a href='/how-to-buy-a-us-ipo-from-canada/'>how to buy a US IPO from Canada</a>.</p>")
             sec_html = edgar_list(it.get("cik"))
             if it.get("public_s1_url"):
-                sec_html = f'<p><a href="{e(it["public_s1_url"])}" rel="noopener nofollow" target="_blank">Public S-1 on EDGAR</a> (CIK {e(it.get("cik"))}).</p>' + sec_html
+                filing_label = "Current prospectus on EDGAR" if slug == "anthropic" else "Public S-1 on EDGAR"
+                sec_html = f'<p><a href="{e(it["public_s1_url"])}" rel="noopener nofollow" target="_blank">{filing_label}</a> (CIK {e(it.get("cik"))}).</p>' + sec_html
             parts.append(f"<h2>SEC filings</h2>{sec_html}")
         parts.append(affiliates()); parts.append(newsletter())
-        desc = (it.get("summary") or f"{name}: IPO status, price since listing, lock-ups, SEC filings and listed-fund exposure.")[:155]
+        if slug == "anthropic":
+            desc = "Anthropic IPO: S-1/A filed Nov 2, 2026. Q3 revenue $16.96 billion. Proposed ticker ANT. Price range still blank."
+        else:
+            desc = (it.get("summary") or f"{name}: IPO status, price since listing, lock-ups, SEC filings and listed-fund exposure.")[:155]
         headline = f"{name} IPO: status, dates & how to invest" if not is_fund else f"{it['ticker']} ({name}): NAV, premium & holdings"
+        if slug == "anthropic":
+            headline = "Anthropic IPO (ANT): S-1/A financials and status"
         write(f"/company/{slug}/", layout(f"/company/{slug}/", headline, desc, "<article>" + "".join(parts) + "</article>", [article_ld(headline)], priority="0.6"))
 
 def static_pages():
@@ -1123,6 +1318,67 @@ def static_pages():
     (OUT / "404.html").write_text(layout("/404.html", "Page not found", "Page not found", "<h1>Page not found</h1><p><a href='/'>Back to the tracker</a></p>" + newsletter()))
     PAGES.pop()  # don't list 404 in sitemap
 
+def write_llms():
+    a = anthropic_item()
+    fin = a.get("s1_financials") or {}
+    amd = amendment_key_date(a)
+    lines = [
+        f"# {SITE}",
+        f"> {CFG.get('tagline', '')}",
+        "",
+        f"Short map of {BASE} for answer engines. Not financial advice. Figures are copied from the sources linked on the pages. Unknown dates are TBD.",
+        f"Last updated: {updated_label()}.",
+        "",
+        "## Anthropic IPO (the page to cite)",
+        f"- Page: {BASE}/anthropic-ipo/",
+        f"- Canada guide: {BASE}/how-to-buy-anthropic-ipo-canada/",
+        f"- Company page: {BASE}/company/anthropic/",
+        f"- Timeline: {BASE}/anthropic-ipo/#ipo-timeline",
+        f"- FAQ: {BASE}/anthropic-ipo/#faq",
+        "- Proposed ticker: ANT. Exchange applied for: Nasdaq Global Select Market. Class A common stock.",
+        "- Price range: blank on the cover (between $ and $). Share count: not stated. Both still blank as of the Nov 2, 2026 amendment.",
+        "- Public S-1 filed Oct 26, 2026. Accession 0001628280-26-067168.",
+        f"  {fin.get('original_s1_url') or ''}",
+        f"- S-1 Amendment No. 1 filed {fmt_date(amd.get('date') if amd else '2026-11-02')} (confirmed). Accession 0001628280-26-068676.",
+        f"  {fin.get('source_url') or ''}",
+        f"- Q3 2026 revenue (three months ended Sept 30, 2026): {fin.get('q3_2026_revenue')}. The prospectus narrative also rounds this quarter to $17.0 billion.",
+        f"- Q2 2026 revenue (three months ended June 30, 2026): {fin.get('q2_2026_revenue')}.",
+        f"- Nine months ended Sept 30, 2026 revenue: {fin.get('nine_month_2026_revenue')}.",
+        f"- Q3 2026 net loss: {fin.get('q3_2026_net_loss')}. Q2 2026 net loss: {fin.get('q2_2026_net_loss')}.",
+        f"- Q3 2026 operating loss: {fin.get('q3_2026_operating_loss')}. Q2 2026 operating income: {fin.get('q2_2026_operating_income')}.",
+        f"- Compute purchase commitments: {fin.get('compute_commitments')} {fin.get('compute_commitments_as_of') or ''}.",
+        "- Next confirmed steps, with dates TBD: a price-range amendment, then pricing (Form 424B4) and the first trade.",
+        "- Roadshow week of Nov 9, 2026: reported by IFR, not confirmed.",
+        "- First trade about Nov 20, 2026: reported by IFR, not confirmed.",
+        "- US retail platforms named in the amendment, which says the company anticipates offering a portion of shares through them at the IPO price: Charles Schwab, Fidelity, Robinhood, Trade-PMR, SoFi, and E*TRADE from Morgan Stanley. These are US platforms. The filing does not name a Canadian broker.",
+        "- Canadians should not count on an allocation at the IPO price. After listing, the usual path is a Canadian broker that offers US stocks. See the Canada guide. Not a recommendation.",
+        "",
+        "## Key pages",
+        f"- [Home]({BASE}/): pipeline, returns, lock-ups, pre-IPO funds.",
+        f"- [Anthropic IPO]({BASE}/anthropic-ipo/): filing, financials, timeline, FAQ.",
+        f"- [How to buy the Anthropic IPO from Canada]({BASE}/how-to-buy-anthropic-ipo-canada/).",
+        f"- [How to buy a US IPO from Canada]({BASE}/how-to-buy-a-us-ipo-from-canada/).",
+        f"- [Upcoming AI IPOs]({BASE}/upcoming-ai-ipos/).",
+        f"- [IPO pipeline]({BASE}/ipo-pipeline/).",
+        f"- [AI IPO returns]({BASE}/ai-ipo-returns/).",
+        f"- [Lock-up calendar]({BASE}/lockup-calendar/).",
+        f"- [Pre-IPO funds (DXYZ, VCX, RVI, ARKVX)]({BASE}/private-ai-funds/).",
+        f"- [OpenAI IPO]({BASE}/openai-ipo/).",
+        f"- [SpaceX]({BASE}/company/spacex/).",
+        f"- [Methodology]({BASE}/methodology/).",
+        f"- [Open data]({BASE}/data/).",
+        "",
+        "## Newsletter",
+        f"{CFG.get('newsletter_name')}: {CFG.get('newsletter_url')}",
+        "Free weekly email. Pitch: Anthropic IPO date, price range and lock-up dates.",
+        "",
+        "## Rules used on this site",
+        "Confirmed means an SEC filing or the company's own announcement. Media reports are labelled reported, not confirmed.",
+        "This site is not financial advice and is not registered with a securities regulator.",
+        "",
+    ]
+    (OUT / "llms.txt").write_text("\n".join(lines))
+
 def assets_and_seo():
     shutil.copytree(ROOT / "src" / "assets", OUT / "assets", dirs_exist_ok=True)
     (OUT / "data").mkdir(exist_ok=True)
@@ -1130,8 +1386,15 @@ def assets_and_seo():
         if (ROOT / "data" / n).exists(): shutil.copy(ROOT / "data" / n, OUT / "data" / n)
     lastmod = TODAY.isoformat()
     urls = "".join(f"<url><loc>{BASE}{p}</loc><lastmod>{lastmod}</lastmod><priority>{pr}</priority></url>" for p, pr in PAGES)
+    urls += f"<url><loc>{BASE}/llms.txt</loc><lastmod>{lastmod}</lastmod><priority>0.3</priority></url>"
     (OUT / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')
-    (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {BASE}/sitemap.xml\n")
+    bots = ["GPTBot", "ChatGPT-User", "OAI-SearchBot", "PerplexityBot", "ClaudeBot", "Google-Extended"]
+    robot_lines = ["User-agent: *", "Allow: /", ""]
+    for bot in bots:
+        robot_lines += [f"User-agent: {bot}", "Allow: /", ""]
+    robot_lines += [f"Sitemap: {BASE}/sitemap.xml", f"# llms.txt: {BASE}/llms.txt", ""]
+    (OUT / "robots.txt").write_text("\n".join(robot_lines))
+    write_llms()
     (OUT / ".nojekyll").write_text("")
     # Apex custom domain. www is a DNS CNAME to the GitHub Pages host.
     # Actions deploys only keep the custom domain if this file is in the artifact.
@@ -1177,37 +1440,55 @@ def assert_subpath():
         raise SystemExit("subpath check failed:\n" + "\n".join(bad))
     anth = (OUT / "anthropic-ipo" / "index.html").read_text()
     guide = (OUT / "how-to-buy-a-us-ipo-from-canada" / "index.html").read_text()
+    canada = (OUT / "how-to-buy-anthropic-ipo-canada" / "index.html").read_text()
     hub = (OUT / "upcoming-ai-ipos" / "index.html").read_text()
     moved = (OUT / "anthropic-ipo-date" / "index.html").read_text()
+    company = (OUT / "company" / "anthropic" / "index.html").read_text()
     disc = (OUT / "disclosure" / "index.html").read_text()
     sm = (OUT / "sitemap.xml").read_text()
+    llms = (OUT / "llms.txt").read_text()
+    pitch = "Get the Anthropic IPO date, price range and lock-up dates in your inbox. Free, weekly."
+    for p in OUT.rglob("*.html"):
+        if p.parent.name == "anthropic-ipo-date":
+            continue
+        text = p.read_text()
+        for needle in ("<title>", 'name="description"', 'property="og:title"', 'property="og:description"', 'property="og:url"', "Last updated "):
+            if needle not in text:
+                bad.append(f"{p.relative_to(OUT)} missing {needle}")
+    if bad:
+        raise SystemExit("subpath check failed:\n" + "\n".join(bad))
     # Structural only. Do not pin dates or "not filed" copy: filing day is a data edit.
     checks = {
         "s1 box": "S-1 filed?" in home and "S-1 filed?" in anth and "Public S-1 on EDGAR:" in anth and "Last checked" in anth,
         "old oct 26 copy": "public S-1 reported for Oct 26" not in home and "public filing reported for Oct 26" not in anth,
-        "financials": "Financials (reported)" in anth and "Financials from the S-1" in anth and "$80,748 million" in anth and "72,388 million" in anth,
-        "s1 filed copy": "000162828026067168" in anth and ">ANT<" in anth and "price range" in anth.lower() and "What is Anthropic's ticker?" in anth and "the public prospectus is not on EDGAR" not in anth and "which has no ticker" not in anth and "None has been reported" not in anth and "Nasdaq Global Select" in hub and "Proposed ticker ANT" in home and "not set.." not in anth and "sx1.htm." not in anth,
-        "exposure": "How Canadians can get exposure" in anth and "Can Canadians buy Anthropic at the IPO price?" in anth,
-        "cta": "Get the S-1 breakdown the day it's filed - Subscribe free" in home and "Get the S-1 breakdown the day it's filed - Subscribe free" in anth,
+        "financials": "Financials (reported)" in anth and "Financials from the S-1" in anth and "$16,956 million" in anth and "$11,555 million" in anth and "$33,242 million" in anth and "$23,291 million" in anth and "$66,309 million" in anth and "$567 million" in anth and "$974 million" in anth and "$895.4 billion" in anth and "$80,748 million" in anth and "72,388 million" in anth,
+        "s1 filed copy": "000162828026068676" in anth and "000162828026067168" in anth and ">ANT<" in anth and "price range" in anth.lower() and "What is Anthropic's ticker?" in anth and "When is the Anthropic IPO?" in anth and "How much revenue does Anthropic make?" in anth and "Can Canadians buy the Anthropic IPO?" in anth and "IPO timeline / what's next" in anth and "reported, not confirmed" in anth and "the public prospectus is not on EDGAR" not in anth and "which has no ticker" not in anth and "None has been reported" not in anth and "Nasdaq Global Select" in hub and "Proposed ticker ANT" in home and "not set.." not in anth and "sx1.htm." not in anth,
+        "exposure": "How Canadians can get exposure" in anth and "Can Canadians buy the Anthropic IPO?" in anth,
+        "cta": pitch in home and pitch in anth and pitch in canada and pitch in company,
         "subscribe nav": ">Subscribe</a>" in home,
         "disclosure": "How we make money" in disc and "not registered with any securities regulator" in disc,
         "no placeholder buttons": 'href="#"' not in home and 'href="#"' not in anth,
         "ws hidden unless linked": (WS_OPINION in anth) == ("data-affiliate=\"wealthsimple\"" in anth),
         "article dates": '"datePublished"' in anth and '"dateModified"' in anth,
-        "updated": "Updated " in home and " MT" in home,
+        "updated": "Last updated " in home and " MT" in home and "Last updated " in anth and "Last updated " in canada and "Last updated " in company,
         "impact verification": "<meta name='impact-site-verification' value='0bb4882c-bc98-4a99-8bdc-d1fdd926ec95'>" in home,
         "goatcounter": '<script data-goatcounter="https://ipowatch.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>' in home and '<script data-goatcounter="https://ipowatch.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>' in anth,
         "privacy note": "We use GoatCounter, a privacy-friendly analytics tool that doesn't use cookies or track you across sites, to count page views." in disc,
         "guide canonicals": all(f'href="{BASE}{p}"' in page for p, page in (
-            ("/anthropic-ipo/", anth), ("/how-to-buy-a-us-ipo-from-canada/", guide), ("/upcoming-ai-ipos/", hub))),
-        "guide sitemap": all(f"<loc>{BASE}{p}</loc>" in sm for p in ("/anthropic-ipo/", "/how-to-buy-a-us-ipo-from-canada/", "/upcoming-ai-ipos/")),
+            ("/anthropic-ipo/", anth), ("/how-to-buy-a-us-ipo-from-canada/", guide), ("/how-to-buy-anthropic-ipo-canada/", canada), ("/upcoming-ai-ipos/", hub))),
+        "guide sitemap": all(f"<loc>{BASE}{p}</loc>" in sm for p in ("/anthropic-ipo/", "/how-to-buy-a-us-ipo-from-canada/", "/how-to-buy-anthropic-ipo-canada/", "/upcoming-ai-ipos/", "/llms.txt")),
         "old slug redirected": f'href="{BASE}/anthropic-ipo/"' in moved and "http-equiv=\"refresh\"" in moved and f"<loc>{BASE}/anthropic-ipo-date/</loc>" not in sm,
-        "faq schema": all('"FAQPage"' in page for page in (anth, guide, hub)),
+        "faq schema": all('"FAQPage"' in page for page in (anth, guide, hub, canada)),
         "twitter site": 'name="twitter:site" content="@TickerHotTakes"' in anth,
-        "newsletter on guides": all('id="newsletter"' in page and "Not financial advice." in page for page in (anth, guide, hub)),
-        "homepage guide links": all(h in home for h in ("/anthropic-ipo/", "/how-to-buy-a-us-ipo-from-canada/", "/upcoming-ai-ipos/")),
+        "newsletter on guides": all('id="newsletter"' in page and "Not financial advice." in page for page in (anth, guide, hub, canada)),
+        "homepage guide links": all(h in home for h in ("/anthropic-ipo/", "/how-to-buy-a-us-ipo-from-canada/", "/how-to-buy-anthropic-ipo-canada/", "/upcoming-ai-ipos/")),
         "affiliate slot neutral": 'data-affiliate-slot="pending"' in anth and 'data-affiliate-slot="pending"' in guide and "Referral links are not in use." in anth,
         "broker homepages": "https://www.wealthsimple.com/en-ca" in anth and "https://www.rbcdirectinvesting.com/" in guide and "https://www.qtrade.ca/en/investor.html" in guide,
+        "canada guide": "Not financial advice." in canada and "Check with your broker" in canada and "Charles Schwab" in canada and "E*TRADE" in canada and "Trade-PMR" in canada and "reported, not confirmed" not in canada.split("US platforms")[0],
+        "robots bots": all(f"User-agent: {bot}\nAllow: /" in robots for bot in ("GPTBot", "ChatGPT-User", "OAI-SearchBot", "PerplexityBot", "ClaudeBot", "Google-Extended")),
+        "llms": "Q3 2026 revenue" in llms and "$16,956 million" in llms and f"{BASE}/how-to-buy-anthropic-ipo-canada/" in llms and "reported, not confirmed" in llms,
+        "company anthropic": "IPO timeline / what's next" in company and "$16,956 million" in company and "/how-to-buy-anthropic-ipo-canada/" in company,
+        "no em dash": "\u2014" not in anth and "\u2014" not in canada and "\u2014" not in company and "\u2014" not in llms,
     }
     for name in ("methodology", "data", "disclaimer"):
         checks[f"newsletter {name}"] = 'id="newsletter"' in (OUT / name / "index.html").read_text()
@@ -1221,7 +1502,7 @@ def assert_subpath():
 def main():
     if OUT.exists(): shutil.rmtree(OUT)
     OUT.mkdir()
-    home(); section_pages(); anthropic_page(); how_to_buy_us_ipo_page(); upcoming_ai_ipos_page(); openai_page(); vcx_canada_page(); dxyz_page(); company_pages(); static_pages(); assets_and_seo()
+    home(); section_pages(); anthropic_page(); how_to_buy_anthropic_canada_page(); how_to_buy_us_ipo_page(); upcoming_ai_ipos_page(); openai_page(); vcx_canada_page(); dxyz_page(); company_pages(); static_pages(); assets_and_seo()
     assert_subpath()
     print(f"Built {len(PAGES)} pages into {OUT}")
 

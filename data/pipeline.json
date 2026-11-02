@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-26",
+  "as_of": "2026-11-02",
   "status_legend": {
     "reported": "Media reports only (not confirmed by the company or an SEC filing).",
     "confidentially_filed": "Company confirmed a confidential draft S-1 (DRS). Not visible on EDGAR until a public filing.",
@@ -20,7 +20,7 @@
       "exchange": "Nasdaq Global Select Market",
       "sector": "AI model developer",
       "hq": "San Francisco, CA",
-      "summary": "Anthropic, PBC filed a public S-1 on Oct 26, 2026 (accession 0001628280-26-067168, CIK 2130357): https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm. The company has applied to list Class A common stock on the Nasdaq Global Select Market under the proposed symbol ANT. The cover page leaves the IPO price range blank (between $ and $). A confidential draft was announced on June 1, 2026 (https://www.anthropic.com/news/confidential-draft-s1-sec). IFR has reported a roadshow from Nov 9 and a Nasdaq debut aimed at Nov 20. Those later dates are not in the S-1 and are not confirmed.",
+      "summary": "Anthropic, PBC filed a public S-1 on Oct 26, 2026 (accession 0001628280-26-067168) and Amendment No. 1 on Nov 2, 2026 (accession 0001628280-26-068676, CIK 2130357): https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm. The company has applied to list Class A common stock on the Nasdaq Global Select Market under the proposed symbol ANT. The cover still leaves the IPO price blank (between $ and $) and does not state a share count. The amendment's quarterly table, in millions, prints Q3 2026 revenue of 16,956, Q2 2026 revenue of 11,555, nine-month 2026 revenue of 33,242, a Q3 net loss of 23,291, a Q2 net loss of 66,309, a Q3 operating loss of 567, and Q2 operating income of 974. Compute purchase commitments are approximately $895.4 billion as of and subsequent to September 30, 2026. The amendment anticipates a US retail selling group that includes Charles Schwab, Fidelity, Robinhood, Trade-PMR, SoFi, and E*TRADE. IFR has reported a roadshow from Nov 9 and a Nasdaq debut aimed at Nov 20. Those later dates are not in the filing and are not confirmed.",
       "last_private_valuation": {
         "value": "$965B post-money",
         "date": "2026-05-28",
@@ -52,7 +52,7 @@
         },
         {
           "date": "2026-10-14",
-          "label": "Pre-IPO investor day; Q3 revenue $16.8B (reported)",
+          "label": "Pre-IPO investor day; Q3 revenue $16.8B (reported). The Nov 2, 2026 S-1/A later printed $16,956 million for that quarter.",
           "confirmed": false,
           "source_url": "https://www.cnbc.com/2026/10/15/anthropics-third-quarter-revenue-hits-16point8-billion-ipo.html",
           "source_name": "CNBC"
@@ -84,6 +84,13 @@
           "confirmed": false,
           "source_url": "https://www.ifre.com/equities/2499407/anthropic-pushes-ahead-with-mid-november-ipo",
           "source_name": "IFR"
+        },
+        {
+          "date": "2026-11-02",
+          "label": "S-1 Amendment No. 1 filed. Adds quarterly results through Sept 30, 2026. Price range and share count still blank. The filing anticipates a US retail selling group (Schwab, Fidelity, Robinhood, Trade-PMR, SoFi, E*TRADE).",
+          "confirmed": true,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm",
+          "source_name": "SEC EDGAR S-1/A"
         },
         {
           "date": "2026-11-09",
@@ -153,29 +160,66 @@
           "period": "Q3 2026",
           "revenue": "$16.8B",
           "net_loss": null,
-          "note": "",
+          "note": "News report from Oct 15, 2026, before the amendment. The Nov 2, 2026 S-1/A prints $16,956 million of revenue and a $23,291 million net loss for this quarter.",
           "sources": [
             {"source_name": "CNBC", "source_url": "https://www.cnbc.com/2026/10/15/anthropics-third-quarter-revenue-hits-16point8-billion-ipo.html"}
           ]
         }
       ],
       "s1_financials": {
-        "source_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
-        "source_name": "SEC EDGAR S-1",
+        "source_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm",
+        "source_name": "SEC EDGAR S-1/A (Amendment No. 1, filed Nov 2, 2026)",
+        "original_s1_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
+        "original_s1_date": "2026-10-26",
+        "q1_2026_revenue": "$4,731 million",
+        "q2_2026_revenue": "$11,555 million (about $11.56 billion)",
+        "q3_2026_revenue": "$16,956 million (about $16.96 billion)",
+        "nine_month_2026_revenue": "$33,242 million (about $33.24 billion)",
+        "nine_month_2025_revenue": "$2,545 million (about $2.55 billion)",
         "h1_2026_revenue": "$16,286 million (about $16.29 billion)",
         "h1_2025_revenue": "$1,163 million (about $1.16 billion)",
         "fy2025_revenue": "$4,585 million (about $4.59 billion)",
+        "q2_2026_operating_income": "$974 million",
+        "q3_2026_operating_loss": "$567 million",
+        "nine_month_2026_operating_loss": "$1,260 million (about $1.26 billion)",
         "h1_2026_operating_loss": "$693 million",
         "h1_2025_operating_loss": "$2,135 million (about $2.14 billion)",
+        "q2_2026_net_loss": "$66,309 million (about $66.31 billion)",
+        "q3_2026_net_loss": "$23,291 million (about $23.29 billion)",
+        "nine_month_2026_net_loss": "$104,039 million (about $104.04 billion)",
         "h1_2026_net_loss": "$80,748 million (about $80.75 billion)",
+        "q2_2026_fair_value": "$59,597 million (about $59.60 billion)",
+        "q3_2026_fair_value": "$21,936 million (about $21.94 billion)",
+        "nine_month_2026_fair_value": "$94,324 million (about $94.32 billion)",
         "h1_2026_fair_value": "$72,388 million (about $72.39 billion)",
+        "q2_2026_compute_pct": "48%",
+        "q3_2026_compute_pct": "58%",
         "h1_2026_compute_pct": "55%",
         "h1_2025_compute_pct": "201%",
-        "h1_2026_other_expense": "$8,757 million"
+        "h1_2026_other_expense": "$8,757 million",
+        "compute_commitments": "approximately $895.4 billion",
+        "compute_commitments_as_of": "as of and subsequent to September 30, 2026",
+        "compute_before_2031": "approximately $447.5 billion",
+        "compute_next_12_months": "approximately $69.8 billion"
       },
-      "edgar_checked_at": "2026-10-26T13:00:00Z",
-      "public_s1_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm",
-      "edgar_note": "Public S-1 filed Oct 26, 2026. Accession 0001628280-26-067168. CIK 2130357.",
+      "retail_platforms": {
+        "confirmed": true,
+        "as_of": "2026-11-02",
+        "note": "Amendment No. 1 says Anthropic anticipates that a portion of the Class A shares will, at its request, be offered to retail investors through the US platforms below. Those platforms will act as selling group members. A purchase through them would be at the initial public offering price on the cover, subject to each platform's own terms. The cover price is still blank. The filing does not name a Canadian broker.",
+        "source_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm",
+        "source_name": "SEC EDGAR S-1/A, Sales to Retail Investors",
+        "names": [
+          "Charles Schwab & Co., Inc.",
+          "Fidelity Brokerage Services LLC and Fidelity Capital Markets, a division of National Financial Services LLC",
+          "Robinhood Financial, LLC",
+          "Trade-PMR, Inc.",
+          "SoFi Securities LLC",
+          "E*TRADE from Morgan Stanley"
+        ]
+      },
+      "edgar_checked_at": "2026-11-02T16:45:00Z",
+      "public_s1_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm",
+      "edgar_note": "S-1 Amendment No. 1 filed Nov 2, 2026. Accession 0001628280-26-068676. Original S-1 filed Oct 26, 2026, accession 0001628280-26-067168. CIK 2130357. Price range and share count are blank.",
       "cik": 2130357,
       "listed_fund_exposure": [
         "DXYZ",

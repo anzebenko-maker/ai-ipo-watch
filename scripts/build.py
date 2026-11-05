@@ -671,15 +671,32 @@ def anth_faq_revenue(a):
 
 def anth_faq_canadians(a):
     rp = a.get("retail_platforms") or {}
-    names = ", ".join(rp.get("names") or [])
+    us = ", ".join(rp.get("names") or [])
+    cr = a.get("canada_retail") or {}
+    named = ", ".join(cr.get("names") or [])
+    help_url, wire_url = "", ""
+    for s in cr.get("sources") or []:
+        url = s.get("url") or ""
+        if "support.claude.com" in url:
+            help_url = url
+        else:
+            wire_url = url
+    links = ""
+    if help_url:
+        links += f'<a href="{e(help_url)}" rel="noopener nofollow" target="_blank">Anthropic IPO help page</a> '
+    if wire_url:
+        links += f'<a href="{e(wire_url)}" rel="noopener nofollow" target="_blank">MT Newswires, Nov 3, 2026</a> '
     return (
-        "Maybe at the IPO price, and only if a broker actually offers you shares. Do not count on it. "
-        f"The Nov 2, 2026 S-1/A says the company anticipates offering a portion of the shares to retail investors through these US platforms: {names}. "
-        "A purchase there would be at the cover price, which is still blank, and each platform sets its own terms. "
-        "The filing also says the offering includes a public offering in Canada, and that Anthropic does not currently intend to list on an exchange in Canada. It does not name a Canadian broker. "
-        "Questrade says that in most cases a US IPO is filled in the United States and Canadian residents cannot take part. "
-        "After Nasdaq opens the stock, the usual path in Canada is a broker that offers US-listed stocks, such as Wealthsimple, Questrade, Qtrade or a big-bank brokerage, then a limit order. "
-        "Check the symbol in that broker before you move cash. "
+        "Maybe, and only if a broker actually offers you shares. Do not count on an allocation. "
+        f"Anthropic's IPO help page lists firms it says are expected to participate in a proposed Canadian retail offering. "
+        f"A Nov 3, 2026 MT Newswires report names the same three: {named}. "
+        "Those are the names both sources give. "
+        "Access, eligibility, any minimum, and how many shares you receive depend on the broker and are not guaranteed. Check with your broker. "
+        f"The Nov 2, 2026 S-1/A also says the company anticipates offering a portion of the shares through these US platforms: {us}. "
+        "A purchase there would be at the cover price, which is still blank, and each platform sets its own terms. Those are US platforms, not a Canadian allocation. "
+        "The company does not currently intend to list the shares on an exchange in Canada. ANT is a proposed Nasdaq ticker and is not trading yet. "
+        "After the stock opens, you can also use a broker that offers US-listed stocks, then a limit order. Search the symbol before you move cash. "
+        f"Sources: {links}"
         f'The step-by-step page is <a href="/how-to-buy-anthropic-ipo-canada/">How to buy the Anthropic IPO from Canada</a> ({BASE}/how-to-buy-anthropic-ipo-canada/). '
         "This is general information, not a recommendation to buy or sell."
     )
@@ -724,7 +741,7 @@ def home():
 <section id="funds"><div class="sh"><h2>Listed funds with private AI stakes</h2><a href="/private-ai-funds/">Compare →</a></div>{funds_table()}</section>
 {affiliates()}
 <section class="grid3"><a class="card link" href="/anthropic-ipo/"><h3>Anthropic IPO</h3><p>S-1 filed Oct 26. Amendment No. 1 filed Nov 2. Proposed ticker ANT. Price range still blank.</p></a>
-<a class="card link" href="/how-to-buy-anthropic-ipo-canada/"><h3>Buy the Anthropic IPO from Canada</h3><p>IPO price versus day one, the US platforms named in the filing, Canadian brokers, TFSA and FX.</p></a>
+<a class="card link" href="/how-to-buy-anthropic-ipo-canada/"><h3>Buy the Anthropic IPO from Canada</h3><p>RBC Capital Markets, TD Securities and Wealthsimple are named for the proposed retail offering. An allocation is not guaranteed.</p></a>
 <a class="card link" href="/how-to-buy-a-us-ipo-from-canada/"><h3>Buy a US IPO from Canada</h3><p>Allocation versus day one, brokers, TFSA, RRSP and FX costs.</p></a>
 <a class="card link" href="/upcoming-ai-ipos/"><h3>Upcoming AI IPOs</h3><p>The pipeline in one list, with the Canada guides.</p></a>
 <a class="card link" href="/openai-ipo/"><h3>OpenAI IPO</h3><p>The confidential S-1, the reported 2027 timeline, and the funds that hold it.</p></a>
@@ -820,10 +837,10 @@ def registered_accounts_html():
 <p>Brokers usually ask for Form W-8BEN so the US payer can apply the treaty rate. {src(W8, "IRS Form W-8BEN")}</p>
 <p>Confirm the security and any withholding with your broker or a tax professional before you place the trade.</p>"""
 
-def allocation_vs_market_html():
-    return """<h2>Allocation versus buying on day one</h2>
+def allocation_vs_market_html(allocation_note="The underwriters decide who gets them. Do not plan on getting any."):
+    return f"""<h2>Allocation versus buying on day one</h2>
 <p>These are two different purchases.</p>
-<p><strong>An allocation</strong> means shares from the offering, at the IPO price, before the first trade. The underwriters decide who gets them. Do not plan on getting any.</p>
+<p><strong>An allocation</strong> means shares from the offering, at the IPO price, before the first trade. {allocation_note}</p>
 <p><strong>Day one</strong> is an ordinary trade after the stock opens. You pay the market price, which can be well above or below the IPO price. You need a broker that offers US-listed stocks, the ticker in that broker's symbol search, and usually US dollars.</p>
 <p>If you trade near the open, a limit order sets the most you will pay. A market order can fill far from the last price you saw.</p>"""
 
@@ -900,7 +917,7 @@ def anth_guide_desc(a):
         when = fmt_date(amd.get("date") if amd else confirmed_public_s1_date(a))
         tk = a.get("ticker") or "ANT"
         return (f"Anthropic filed S-1 Amendment No. 1 on {when}. Q3 2026 revenue was $16.96 billion. "
-                f"Proposed ticker {tk}. Price range still blank. Timeline, and how to buy from Canada.")
+                f"Proposed ticker {tk}. RBC Capital Markets, TD Securities and Wealthsimple are named for a proposed Canadian retail offering. Allocation not guaranteed.")
     return "No public Anthropic S-1 yet. Reported timing and valuation, plus how Canadians buy a US IPO: brokers, TFSA, RRSP and FX costs."
 
 def anth_lead(a):
@@ -991,6 +1008,32 @@ def retail_platforms_html(a, heading="h3"):
 <ul>{lis}</ul>
 <p>That list is in the prospectus. It is not a news report. The filing's own word is "anticipates". It does not say a person in Canada will receive an allocation through those US accounts.</p>"""
 
+def canada_retail_html(a, heading="h2"):
+    cr = a.get("canada_retail") or {}
+    names = cr.get("names") or []
+    if not names:
+        return ""
+    lis = "".join(f"<li>{e(n)}</li>" for n in names)
+    srcs = " ".join(src(s.get("url"), s.get("name")) for s in cr.get("sources") or [])
+    return f"""<{heading}>Canadian firms listed for the proposed retail offering</{heading}>
+<p>Anthropic's own IPO help page says a retail offering in Canada is expected. It lists firms it says are expected to participate. A Nov 3, 2026 MT Newswires report also says Anthropic expects a retail offering in Canada, and it names three Canadian firms. This page lists a firm only when both sources name it:</p>
+<ul>{lis}</ul>
+<p>{srcs}</p>
+<p>Both sources say Anthropic has not authorized any other firm or platform to offer, or to advertise access to, shares in that proposed international retail offering. Anthropic says the help page will be updated if the list changes. The help page names other firms as well. The news report did not repeat those other names, so they are not listed here.</p>
+<p>Being listed is not an allocation. Access, eligibility, any minimum, and how many shares you receive depend on the broker. None of that is guaranteed. RBC Capital Markets and TD Securities are dealer names. That is not a confirmation that RBC Direct Investing or TD Direct Investing will show the deal in your account. Check with your broker before you send money or open an account. Opening an account does not reserve shares.</p>
+<p>Anthropic's help page says there will not be a sale, or an acceptance of an offer to buy, until a receipt for the final Canadian base PREP prospectus has been issued. The IPO price and the share count are still blank.</p>"""
+
+def japan_retail_note(a):
+    j = (a.get("canada_retail") or {}).get("japan") or {}
+    if not j.get("label"):
+        return ""
+    srcs = " ".join(src(s.get("url"), s.get("name")) for s in j.get("sources") or [])
+    return (
+        f"<p>Separately, Reuters and Nikkei Asia reported on Nov 2, 2026 that a Japanese filing shows a sale of {e(j.get('label'))}. "
+        "That figure is reported. It is a cap for Japan, not a Canadian allocation, and it is not a promise of how many shares any buyer receives. "
+        f"{srcs}</p>"
+    )
+
 def write_moved(old, new, label):
     doc = f"""<!doctype html><html lang="en-CA"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1036,10 +1079,12 @@ def anthropic_page():
 {sec_block(a)}
 <h2>How a Canadian can buy it</h2>
 <p>The plain-language version is <a href="/how-to-buy-anthropic-ipo-canada/">how to buy the Anthropic IPO from Canada</a>. The same ideas for any US listing are on <a href="/how-to-buy-a-us-ipo-from-canada/">how to buy a US IPO from Canada</a>.</p>
-{allocation_vs_market_html()}
+{allocation_vs_market_html("Who receives shares is up to the underwriters and the brokers on the deal. An allocation is not guaranteed.")}
 <h3>What that means for Anthropic</h3>
-<p>There is still no deal to join. Amendment No. 1 leaves the share count and the price blank. The prospectus says the offering includes a public offering in Canada, and that Anthropic does not currently intend to list the shares on a Canadian exchange. {src(s1_edgar_url(a), "S-1/A")} When a broker offers the new issue, it will show in that broker's IPO or new-issue list. Opening an account does not reserve shares.</p>
+<p>Amendment No. 1 leaves the share count and the price blank. The prospectus says the offering includes a public offering in Canada, and that Anthropic does not currently intend to list the shares on a Canadian exchange. {src(s1_edgar_url(a), "S-1/A")} Firms both sources name for the proposed Canadian retail offering are listed below. If your broker offers the new issue, it will show on that broker's IPO or new-issue screen. Opening an account does not reserve shares.</p>
+{canada_retail_html(a, "h3")}
 {retail_platforms_html(a)}
+{japan_retail_note(a)}
 <h3>Buying after it lists</h3>
 <ol class="steps">{anth_buy_first_step(a)}
 <li><strong>Use a broker that offers US-listed stocks.</strong> The notes below are from each firm's own pages, checked {fmt_date(CA_BROKERS.get("as_of"))}.</li>
@@ -1048,7 +1093,7 @@ def anthropic_page():
 <li><strong>Complete Form W-8BEN</strong> if the broker asks for it.</li>
 <li><strong>Use a limit order</strong> if you trade on the first day.</li></ol>
 <h2>Brokers that offer US-listed stocks</h2>
-<p>These are published facts about US-listed trading and currency conversion. They are not a statement that any of these brokers will offer Anthropic shares in the IPO, and {anth_broker_caveat(a)}. {broker_home_link("rbc")} is included here because its own site describes US stock trading. It is not in our fund symbol-search table.</p>
+<p>These cards quote each firm's own pages on US-listed trading and currency conversion. A firm named above for the proposed retail offering is not a promise that its screen will show ANT, or that you will get shares, and {anth_broker_caveat(a)}. {broker_home_link("rbc")} is included here because its own site describes US stock trading. It is not in our fund symbol-search table.</p>
 {broker_fact_cards()}
 {registered_accounts_html()}
 {canadians_exposure(a)}
@@ -1078,7 +1123,7 @@ def how_to_buy_anthropic_canada_page():
         ("How can Canadians get Anthropic exposure before ANT lists?", "Not by buying the company. Funds this site already tracks that report an Anthropic holding include DXYZ, VCX and ARKVX. You would own the fund, not Anthropic. DXYZ and VCX can trade far from their last reported NAV. ARKVX is not exchange-listed. This is general information, not a recommendation."),
     ])
     title = "How to buy the Anthropic IPO from Canada"
-    desc = "Plain-language guide for Canadians: ANT at the IPO price versus day one, US platforms named in the S-1/A, brokers, USD costs, TFSA and RRSP. Not financial advice."
+    desc = "Canadian guide to the Anthropic IPO (ANT). RBC Capital Markets, TD Securities and Wealthsimple are listed for the proposed retail offering. Allocation, eligibility and size are not guaranteed. Not financial advice."
     body = f"""<article><h1>{e(title)}</h1>{asof_line()}
 {advice_note()}
 <p class="lead">Anthropic has applied to list Class A shares on the Nasdaq Global Select Market under the symbol ANT. Amendment No. 1, filed Nov 2, 2026, still does not set a price or a share count. This page is for someone in Canada. It is not a recommendation to buy or sell.</p>
@@ -1088,10 +1133,11 @@ def how_to_buy_anthropic_canada_page():
 <p>Two different purchases.</p>
 <p><strong>An allocation</strong> means shares from the offering, at the IPO price, before the first trade. The underwriters decide who gets them.</p>
 <p><strong>Day one</strong> is a normal trade after ANT opens. You pay the market price. That price can be higher or lower than the IPO price.</p>
-<p>The amendment says the offering includes a public offering in Canada. It also says Anthropic does not currently intend to list the shares on an exchange in Canada. The filing does not name a Canadian broker that will hand out IPO shares. {src(s1_edgar_url(a), "S-1/A")}</p>
-<p>Questrade's own IPO centre says that, in most cases, a US IPO is filled in the United States and Canadian residents cannot take part. RBC's fee schedule says there is no commission on new stock issues when those issues are available. This site has not confirmed that RBC, or any other Canadian broker, will offer ANT in the IPO. {src("https://www.questrade.com/learning/using-questrade/questrades-ipo-centre", "Questrade IPO centre")} {src("https://www.rbcdirectinvesting.com/pricing/", "RBC Direct Investing pricing")}</p>
-<p>Do not plan on getting shares at the IPO price through a Canadian account. If your broker lists the deal on its IPO or new-issue screen, read that screen. Opening an account does not reserve shares.</p>
+<p>The Nov 2, 2026 amendment says the offering includes a public offering in Canada. It also says Anthropic does not currently intend to list the shares on an exchange in Canada. {src(s1_edgar_url(a), "S-1/A")} The Canadian names below come from Anthropic's IPO help page and from a news report, not from that US platform list.</p>
+{canada_retail_html(a, "h2")}
+<p>Questrade is not one of those three names. Its IPO centre says that, in most cases, a US IPO is filled in the United States and Canadian residents cannot take part. RBC Direct Investing's fee schedule says there is no commission on new stock issues when those issues are available. A fee line is not an allocation. {src("https://www.questrade.com/learning/using-questrade/questrades-ipo-centre", "Questrade IPO centre")} {src("https://www.rbcdirectinvesting.com/pricing/", "RBC Direct Investing pricing")}</p>
 {retail_platforms_html(a, "h2")}
+{japan_retail_note(a)}
 <h2>Buying ANT on day one through a Canadian broker</h2>
 <p>After the shares list on Nasdaq, the usual path in Canada is a broker that already lets you buy US stocks. Search ANT in that broker's symbol search on listing day, before you move cash. The symbol is proposed. It is not trading yet.</p>
 <p>The notes below are from each firm's own pages, checked {day}. They describe US-listed trading and currency conversion. They are not a promise that ANT will be in the symbol search on the first morning, and {anth_broker_caveat(a)}.</p>
@@ -1115,7 +1161,7 @@ def how_to_buy_anthropic_canada_page():
 
 def how_to_buy_us_ipo_page():
     faq, fs = faq_block([
-        ("Can Canadians buy a US IPO at the IPO price?", "Sometimes, and you should not count on it. Questrade says that in most cases a US IPO is filled in the United States and Canadian residents cannot take part. When a deal is offered there, the minimum commitment is $5,000 and the allocation can be cut. RBC's fee schedule says new stock issues, when available, have no commission. Wealthsimple and Qtrade pages we checked do not promise a US IPO allocation. After the stock opens, you buy it like any other US-listed share."),
+        ("Can Canadians buy a US IPO at the IPO price?", "Sometimes, and you should not count on it. Questrade says that in most cases a US IPO is filled in the United States and Canadian residents cannot take part. When a deal is offered there, the minimum commitment is $5,000 and the allocation can be cut. RBC's fee schedule says new stock issues, when available, have no commission. Wealthsimple and Qtrade pages we checked do not promise a US IPO allocation in general. For Anthropic, the Canada guide lists RBC Capital Markets, TD Securities and Wealthsimple, the firms named both on Anthropic's help page and by MT Newswires on Nov 3, 2026. An allocation there is still not guaranteed. Check with your broker. After the stock opens, you buy it like any other US-listed share."),
         ("Which Canadian brokers offer US stocks?", "Wealthsimple, Questrade, RBC Direct Investing and Qtrade each describe US-listed stock trading on their own sites. Whether a specific new ticker is enabled in your account is a symbol search, not something this page can promise."),
         ("Can I hold a US stock in a TFSA or RRSP?", anth_faq_account()),
         ("How much does currency conversion cost?", fx_faq_answer()),
@@ -1152,12 +1198,12 @@ def upcoming_ai_ipos_page():
     faq, fs = faq_block([
         ("Which AI IPOs are furthest along?", f"In this tracker, confidentially filed, publicly filed, or on the roadshow: {along_txt}. Reported rumours and companies with no filing are in the same table, with a different status. Withdrawn deals stay listed so the record is intact."),
         ("Has Anthropic filed a public S-1?", anth_faq_filed(a)),
-        ("How does someone in Canada buy one?", "Most buyers here purchase the shares after they open on a US exchange, through a broker that offers US stocks. Getting an allocation at the IPO price is a separate, and often unavailable, step. The walkthrough is the how-to-buy guide. This is general information, not a recommendation."),
+        ("How does someone in Canada buy one?", "Most buyers here purchase the shares after they open on a US exchange, through a broker that offers US stocks. Getting an allocation at the IPO price is a separate step, and it is not guaranteed. For Anthropic, RBC Capital Markets, TD Securities and Wealthsimple are the Canadian names given both on Anthropic's IPO help page and by MT Newswires on Nov 3, 2026. Access, eligibility, minimums and size depend on the broker. Check with your broker. The walkthrough is the Anthropic Canada guide. This is general information, not a recommendation."),
         ("Is there a Canadian company on the list?", "Cohere, based in Toronto, is on the pipeline as reported only. No filing date is confirmed."),
     ])
     body = f"""<article><h1>Upcoming AI IPOs</h1>{asof_line()}
 {advice_note()}
-<p class="lead">Anthropic's S-1 Amendment No. 1 is on EDGAR (filed Nov 2, 2026, proposed ticker ANT, Nasdaq Global Select Market, price range still blank). This hub is for AI companies that are not yet trading, plus the guides for buying a US listing from Canada. The table is the same pipeline as the <a href="/ipo-pipeline/">tracker</a>. Every date in a row links back to its source from the company page. IFR's Nov 9 roadshow and Nov 20 debut for Anthropic are reported, not confirmed. Confirmed dates for those steps are TBD.</p>
+<p class="lead">Anthropic's S-1 Amendment No. 1 is on EDGAR (filed Nov 2, 2026, proposed ticker ANT, Nasdaq Global Select Market, price range still blank). Anthropic's IPO help page lists firms for a proposed Canadian retail offering. The names also given by a Nov 3, 2026 MT Newswires report are RBC Capital Markets, TD Securities and Wealthsimple. An allocation is not guaranteed. Check with your broker. This hub is for AI companies that are not yet trading, plus the guides for buying a US listing from Canada. The table is the same pipeline as the <a href="/ipo-pipeline/">tracker</a>. Every date in a row links back to its source from the company page. IFR's Nov 9 roadshow and Nov 20 debut for Anthropic are reported, not confirmed. Confirmed dates for those steps are TBD.</p>
 {newsletter_cta()}
 <h2>Start here</h2>
 <ul>
@@ -1275,7 +1321,9 @@ def company_pages():
             if slug == "anthropic":
                 parts.append(ipo_timeline(it))
                 parts.append(s1_financials_html(it))
+                parts.append(canada_retail_html(it, "h2"))
                 parts.append(retail_platforms_html(it, "h2"))
+                parts.append(japan_retail_note(it))
                 parts.append("<p><a href='/anthropic-ipo/'>Full Anthropic IPO page</a> · <a href='/how-to-buy-anthropic-ipo-canada/'>How to buy the Anthropic IPO from Canada</a>.</p>")
             elif slug == "openai":
                 parts.append("<p>See <a href='/upcoming-ai-ipos/'>upcoming AI IPOs</a> and <a href='/how-to-buy-a-us-ipo-from-canada/'>how to buy a US IPO from Canada</a>.</p>")
@@ -1286,7 +1334,7 @@ def company_pages():
             parts.append(f"<h2>SEC filings</h2>{sec_html}")
         parts.append(affiliates()); parts.append(newsletter())
         if slug == "anthropic":
-            desc = "Anthropic IPO: S-1/A filed Nov 2, 2026. Q3 revenue $16.96 billion. Proposed ticker ANT. Price range still blank."
+            desc = "Anthropic IPO: S-1/A filed Nov 2, 2026. Q3 revenue $16.96 billion. Proposed ticker ANT. RBC Capital Markets, TD Securities and Wealthsimple named for a proposed Canadian retail offering."
         else:
             desc = (it.get("summary") or f"{name}: IPO status, price since listing, lock-ups, SEC filings and listed-fund exposure.")[:155]
         headline = f"{name} IPO: status, dates & how to invest" if not is_fund else f"{it['ticker']} ({name}): NAV, premium & holdings"
@@ -1350,8 +1398,13 @@ def write_llms():
         "- Next confirmed steps, with dates TBD: a price-range amendment, then pricing (Form 424B4) and the first trade.",
         "- Roadshow week of Nov 9, 2026: reported by IFR, not confirmed.",
         "- First trade about Nov 20, 2026: reported by IFR, not confirmed.",
-        "- US retail platforms named in the amendment, which says the company anticipates offering a portion of shares through them at the IPO price: Charles Schwab, Fidelity, Robinhood, Trade-PMR, SoFi, and E*TRADE from Morgan Stanley. These are US platforms. The filing does not name a Canadian broker.",
-        "- Canadians should not count on an allocation at the IPO price. After listing, the usual path is a Canadian broker that offers US stocks. See the Canada guide. Not a recommendation.",
+        "- US retail platforms named in the amendment, which says the company anticipates offering a portion of shares through them at the IPO price: Charles Schwab, Fidelity, Robinhood, Trade-PMR, SoFi, and E*TRADE from Morgan Stanley. These are US platforms.",
+        "- Canadian retail offering: Anthropic's IPO help page (checked Nov 5, 2026) lists firms it says are expected to participate. MT Newswires (Nov 3, 2026) also names RBC Capital Markets, TD Securities and Wealthsimple. This site lists a firm only when both sources name it. Access, eligibility, minimums and allocation size depend on the broker and are not guaranteed. Check with your broker. Not a recommendation.",
+        "- Japan: Reuters and Nikkei Asia reported on Nov 2, 2026 that a Japanese filing shows a sale of up to $3.5 billion of shares in Japan. Reported. That is a cap for Japan, not a Canadian allocation.",
+        f"- Anthropic help page: https://support.claude.com/en/articles/17889756-anthropic-ipo-international-retail-brokers-and-selling-agents",
+        f"- MT Newswires (Nov 3, 2026): https://ttm.financial/m/news/2680749742",
+        f"- Reuters on the Japan figure (via Investing.com): https://www.investing.com/news/stock-market-news/anthropic-plans-to-sell-35-billion-of-shares-to-japan-investors-in-ipo-filing-shows-4989963",
+        f"- Nikkei Asia on the Japan figure: https://asia.nikkei.com/business/markets/ipo/anthropic-seeks-to-raise-up-to-3.5bn-from-japanese-investors-in-ipo",
         "",
         "## Key pages",
         f"- [Home]({BASE}/): pipeline, returns, lock-ups, pre-IPO funds.",
@@ -1487,8 +1540,12 @@ def assert_subpath():
         "canada guide": "Not financial advice." in canada and "Check with your broker" in canada and "Charles Schwab" in canada and "E*TRADE" in canada and "Trade-PMR" in canada and "reported, not confirmed" not in canada.split("US platforms")[0],
         "robots bots": all(f"User-agent: {bot}\nAllow: /" in robots for bot in ("GPTBot", "ChatGPT-User", "OAI-SearchBot", "PerplexityBot", "ClaudeBot", "Google-Extended")),
         "llms": "Q3 2026 revenue" in llms and "$16,956 million" in llms and f"{BASE}/how-to-buy-anthropic-ipo-canada/" in llms and "reported, not confirmed" in llms,
-        "company anthropic": "IPO timeline / what's next" in company and "$16,956 million" in company and "/how-to-buy-anthropic-ipo-canada/" in company,
+        "company anthropic": "IPO timeline / what's next" in company and "$16,956 million" in company and "/how-to-buy-anthropic-ipo-canada/" in company and "RBC Capital Markets" in company,
         "no em dash": "\u2014" not in anth and "\u2014" not in canada and "\u2014" not in company and "\u2014" not in llms,
+        "named canada brokers": all(n in page for n in ("RBC Capital Markets", "TD Securities", "Wealthsimple") for page in (anth, canada, company, hub, llms)),
+        "broker sources": "support.claude.com/en/articles/17889756" in anth and "ttm.financial/m/news/2680749742" in anth and "$3.5 billion" in anth and "Nikkei Asia" in canada,
+        "old no-broker claim gone": "does not name a Canadian broker" not in (anth + canada + company + hub + llms + home) and "has not confirmed that RBC, or any other Canadian broker" not in canada and "Do not plan on getting shares at the IPO price through a Canadian account" not in canada,
+        "allocation caveat": "not guaranteed" in canada and "Check with your broker" in canada and "Nov 5, 2026" in anth,
     }
     for name in ("methodology", "data", "disclaimer"):
         checks[f"newsletter {name}"] = 'id="newsletter"' in (OUT / name / "index.html").read_text()

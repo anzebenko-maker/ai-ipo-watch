@@ -20,7 +20,7 @@
       "exchange": "Nasdaq Global Select Market",
       "sector": "AI model developer",
       "hq": "San Francisco, CA",
-      "summary": "Anthropic, PBC filed a public S-1 on Oct 26, 2026 (accession 0001628280-26-067168) and Amendment No. 1 on Nov 2, 2026 (accession 0001628280-26-068676, CIK 2130357): https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm. The company has applied to list Class A common stock on the Nasdaq Global Select Market under the proposed symbol ANT. The cover still leaves the IPO price blank (between $ and $) and does not state a share count. The amendment's quarterly table, in millions, prints Q3 2026 revenue of 16,956, Q2 2026 revenue of 11,555, nine-month 2026 revenue of 33,242, a Q3 net loss of 23,291, a Q2 net loss of 66,309, a Q3 operating loss of 567, and Q2 operating income of 974. Compute purchase commitments are approximately $895.4 billion as of and subsequent to September 30, 2026. The amendment anticipates a US retail selling group that includes Charles Schwab, Fidelity, Robinhood, Trade-PMR, SoFi, and E*TRADE. IFR has reported a roadshow from Nov 9 and a Nasdaq debut aimed at Nov 20. Those later dates are not in the filing and are not confirmed.",
+      "summary": "Anthropic, PBC filed a public S-1 on Oct 26, 2026 (accession 0001628280-26-067168) and Amendment No. 1 on Nov 2, 2026 (accession 0001628280-26-068676, CIK 2130357): https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm. The company has applied to list Class A common stock on the Nasdaq Global Select Market under the proposed symbol ANT. The cover still leaves the IPO price blank (between $ and $) and does not state a share count. The amendment's quarterly table, in millions, prints Q3 2026 revenue of 16,956, Q2 2026 revenue of 11,555, nine-month 2026 revenue of 33,242, a Q3 net loss of 23,291, a Q2 net loss of 66,309, a Q3 operating loss of 567, and Q2 operating income of 974. Compute purchase commitments are approximately $895.4 billion as of and subsequent to September 30, 2026. The amendment anticipates a US retail selling group that includes Charles Schwab, Fidelity, Robinhood, Trade-PMR, SoFi, and E*TRADE. Anthropic's IPO help page, checked Nov 5, 2026, says firms are expected to participate in a proposed Canadian retail offering: https://support.claude.com/en/articles/17889756-anthropic-ipo-international-retail-brokers-and-selling-agents. Names that page shares with a Nov 3, 2026 MT Newswires report (https://ttm.financial/m/news/2680749742) are RBC Capital Markets, TD Securities and Wealthsimple. An allocation is not guaranteed. Access, eligibility, minimums and size depend on the broker. IFR has reported a roadshow from Nov 9 and a Nasdaq debut aimed at Nov 20. Those later dates are not in the filing and are not confirmed.",
       "last_private_valuation": {
         "value": "$965B post-money",
         "date": "2026-05-28",
@@ -91,6 +91,27 @@
           "confirmed": true,
           "source_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm",
           "source_name": "SEC EDGAR S-1/A"
+        },
+        {
+          "date": "2026-11-02",
+          "label": "Japanese filing shows a sale of up to $3.5 billion of shares in Japan (reported). This is a reported cap for Japan, not a Canadian allocation.",
+          "confirmed": false,
+          "source_url": "https://www.investing.com/news/stock-market-news/anthropic-plans-to-sell-35-billion-of-shares-to-japan-investors-in-ipo-filing-shows-4989963",
+          "source_name": "Reuters (via Investing.com)"
+        },
+        {
+          "date": "2026-11-03",
+          "label": "MT Newswires reports Anthropic expects a retail offering in Canada and names RBC Capital Markets, TD Securities and Wealthsimple (reported).",
+          "confirmed": false,
+          "source_url": "https://ttm.financial/m/news/2680749742",
+          "source_name": "MT Newswires"
+        },
+        {
+          "date": "2026-11-05",
+          "label": "Anthropic IPO help page lists firms expected to participate in a proposed Canadian retail offering. Names also given by the Nov 3 MT Newswires report: RBC Capital Markets, TD Securities, Wealthsimple. Allocation not guaranteed.",
+          "confirmed": true,
+          "source_url": "https://support.claude.com/en/articles/17889756-anthropic-ipo-international-retail-brokers-and-selling-agents",
+          "source_name": "Anthropic"
         },
         {
           "date": "2026-11-09",
@@ -205,7 +226,7 @@
       "retail_platforms": {
         "confirmed": true,
         "as_of": "2026-11-02",
-        "note": "Amendment No. 1 says Anthropic anticipates that a portion of the Class A shares will, at its request, be offered to retail investors through the US platforms below. Those platforms will act as selling group members. A purchase through them would be at the initial public offering price on the cover, subject to each platform's own terms. The cover price is still blank. The filing does not name a Canadian broker.",
+        "note": "Amendment No. 1 says Anthropic anticipates that a portion of the Class A shares will, at its request, be offered to retail investors through the US platforms below. Those platforms will act as selling group members. A purchase through them would be at the initial public offering price on the cover, subject to each platform's own terms. The cover price is still blank. These are US platforms. Canadian names for the proposed retail offering are on Anthropic's IPO help page, not in this US list.",
         "source_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm",
         "source_name": "SEC EDGAR S-1/A, Sales to Retail Investors",
         "names": [
@@ -216,6 +237,39 @@
           "SoFi Securities LLC",
           "E*TRADE from Morgan Stanley"
         ]
+      },
+      "canada_retail": {
+        "as_of": "2026-11-05T17:40:00Z",
+        "names": [
+          "RBC Capital Markets",
+          "TD Securities",
+          "Wealthsimple"
+        ],
+        "sources": [
+          {
+            "name": "Anthropic IPO help page",
+            "url": "https://support.claude.com/en/articles/17889756-anthropic-ipo-international-retail-brokers-and-selling-agents"
+          },
+          {
+            "name": "MT Newswires, Nov 3, 2026",
+            "url": "https://ttm.financial/m/news/2680749742"
+          }
+        ],
+        "japan": {
+          "confirmed": false,
+          "date": "2026-11-02",
+          "label": "up to $3.5 billion of shares in Japan",
+          "sources": [
+            {
+              "name": "Reuters (via Investing.com)",
+              "url": "https://www.investing.com/news/stock-market-news/anthropic-plans-to-sell-35-billion-of-shares-to-japan-investors-in-ipo-filing-shows-4989963"
+            },
+            {
+              "name": "Nikkei Asia",
+              "url": "https://asia.nikkei.com/business/markets/ipo/anthropic-seeks-to-raise-up-to-3.5bn-from-japanese-investors-in-ipo"
+            }
+          ]
+        }
       },
       "edgar_checked_at": "2026-11-02T16:45:00Z",
       "public_s1_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm",

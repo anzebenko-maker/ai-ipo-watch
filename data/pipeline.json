@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-02",
+  "as_of": "2026-11-10",
   "status_legend": {
     "reported": "Media reports only (not confirmed by the company or an SEC filing).",
     "confidentially_filed": "Company confirmed a confidential draft S-1 (DRS). Not visible on EDGAR until a public filing.",
@@ -14,13 +14,13 @@
       "slug": "anthropic",
       "name": "Anthropic",
       "legal_name": "Anthropic, PBC",
-      "status": "publicly_filed",
+      "status": "roadshow",
       "status_confirmed": true,
       "ticker": "ANT",
       "exchange": "Nasdaq Global Select Market",
       "sector": "AI model developer",
       "hq": "San Francisco, CA",
-      "summary": "Anthropic, PBC filed a public S-1 on Oct 26, 2026 (accession 0001628280-26-067168) and Amendment No. 1 on Nov 2, 2026 (accession 0001628280-26-068676, CIK 2130357): https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm. The company has applied to list Class A common stock on the Nasdaq Global Select Market under the proposed symbol ANT. The cover still leaves the IPO price blank (between $ and $) and does not state a share count. The amendment's quarterly table, in millions, prints Q3 2026 revenue of 16,956, Q2 2026 revenue of 11,555, nine-month 2026 revenue of 33,242, a Q3 net loss of 23,291, a Q2 net loss of 66,309, a Q3 operating loss of 567, and Q2 operating income of 974. Compute purchase commitments are approximately $895.4 billion as of and subsequent to September 30, 2026. The amendment anticipates a US retail selling group that includes Charles Schwab, Fidelity, Robinhood, Trade-PMR, SoFi, and E*TRADE. Anthropic's IPO help page, checked Nov 5, 2026, says firms are expected to participate in a proposed Canadian retail offering: https://support.claude.com/en/articles/17889756-anthropic-ipo-international-retail-brokers-and-selling-agents. Names that page shares with a Nov 3, 2026 MT Newswires report (https://ttm.financial/m/news/2680749742) are RBC Capital Markets, TD Securities and Wealthsimple. An allocation is not guaranteed. Access, eligibility, minimums and size depend on the broker. IFR has reported a roadshow from Nov 9 and a Nasdaq debut aimed at Nov 20. Those later dates are not in the filing and are not confirmed.",
+      "summary": "Anthropic, PBC filed a public S-1 on Oct 26, 2026 (accession 0001628280-26-067168), Amendment No. 1 on Nov 2, 2026 (accession 0001628280-26-068676), and Amendment No. 2 on Nov 10, 2026 (accession 0001628280-26-072484, CIK 2130357): https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm. On Nov 10 the company also launched the roadshow for its proposed IPO: https://www.anthropic.com/news/roadshow-launch. Anthropic has applied to list Class A common stock on the Nasdaq Global Select Market under the proposed symbol ANT. The expected IPO price is $70.00 to $78.00 per share. The offering is 825,000,000 shares of Class A common stock, of which 801,351,354 are being offered by Anthropic and 23,648,646 by selling stockholders. Anthropic also expects to grant the underwriters a 30-day option to buy up to 123,750,000 more shares. Those terms are in Amendment No. 2 and in Anthropic's roadshow announcement, and were also reported by CNBC and by Reuters (via Investing.com). The Nov 2 amendment's quarterly table, in millions, prints Q3 2026 revenue of 16,956, Q2 2026 revenue of 11,555, nine-month 2026 revenue of 33,242, a Q3 net loss of 23,291, a Q2 net loss of 66,309, a Q3 operating loss of 567, and Q2 operating income of 974. Compute purchase commitments in that amendment were approximately $895.4 billion as of and subsequent to September 30, 2026. The Nov 2 amendment anticipates a US retail selling group that includes Charles Schwab, Fidelity, Robinhood, Trade-PMR, SoFi, and E*TRADE. Anthropic's IPO help page, checked Nov 10, 2026, lists these firms as expected to participate in a proposed Canadian retail offering: BMO Capital Markets, CIBC Capital Markets, RBC Capital Markets, Scotiabank, TD Securities and Wealthsimple: https://support.claude.com/en/articles/17889756-anthropic-ipo-international-retail-brokers-and-selling-agents. Names that page shares with a Nov 3, 2026 MT Newswires report (https://ttm.financial/m/news/2680749742) are RBC Capital Markets, TD Securities and Wealthsimple. An allocation is not guaranteed. Access, eligibility, minimums and size depend on the broker. CNBC, citing people familiar with the plans who were not authorized to speak publicly, reported a plan to price on Nov 18 and trade on Nov 19. Those dates are not in Anthropic's roadshow announcement and are not confirmed.",
       "last_private_valuation": {
         "value": "$965B post-money",
         "date": "2026-05-28",
@@ -133,6 +133,34 @@
           "confirmed": false,
           "source_url": "https://www.renaissancecapital.com/IPO-Center/Winners-Losers/1555",
           "source_name": "Renaissance Capital"
+        },
+        {
+          "date": "2026-11-10",
+          "label": "S-1 Amendment No. 2 filed. Expected IPO price $70.00 to $78.00 per share. Offering of 825,000,000 Class A shares (801,351,354 by Anthropic and 23,648,646 by selling stockholders). 30-day underwriter option for up to 123,750,000 more shares.",
+          "confirmed": true,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm",
+          "source_name": "SEC EDGAR S-1/A"
+        },
+        {
+          "date": "2026-11-10",
+          "label": "Anthropic launched the roadshow for its proposed IPO and published the $70.00 to $78.00 price range and the 825,000,000-share offering size.",
+          "confirmed": true,
+          "source_url": "https://www.anthropic.com/news/roadshow-launch",
+          "source_name": "Anthropic"
+        },
+        {
+          "date": "2026-11-10",
+          "label": "Anthropic IPO help page, checked Nov 10, 2026, lists Canadian selling agents: BMO Capital Markets, CIBC Capital Markets, RBC Capital Markets, Scotiabank, TD Securities and Wealthsimple. It also says an amended and restated preliminary base PREP prospectus has been filed and is on SEDAR+.",
+          "confirmed": true,
+          "source_url": "https://support.claude.com/en/articles/17889756-anthropic-ipo-international-retail-brokers-and-selling-agents",
+          "source_name": "Anthropic"
+        },
+        {
+          "date": "2026-11-18",
+          "label": "Pricing planned for Nov 18 and trading planned for Nov 19, according to people familiar with the details who were not authorized to speak publicly (reported)",
+          "confirmed": false,
+          "source_url": "https://www.cnbc.com/2026/11/10/anthropic-sets-price-range-of-70-to-78-in-upcoming-ipo.html",
+          "source_name": "CNBC"
         }
       ],
       "reported_valuation_talk": {
@@ -164,7 +192,10 @@
           "net_loss": null,
           "note": "",
           "sources": [
-            {"source_name": "WSJ", "source_url": "https://www.wsj.com/tech/ai/anthropic-revenue-growth-ipo-accaf0f1"}
+            {
+              "source_name": "WSJ",
+              "source_url": "https://www.wsj.com/tech/ai/anthropic-revenue-growth-ipo-accaf0f1"
+            }
           ]
         },
         {
@@ -173,8 +204,14 @@
           "net_loss": "$80.7B",
           "note": "About $72B of the net loss is a non-cash charge tied to convertible notes and other financing instruments (reported).",
           "sources": [
-            {"source_name": "WSJ", "source_url": "https://www.wsj.com/tech/ai/anthropic-revenue-growth-ipo-accaf0f1"},
-            {"source_name": "Reuters (via Investing.com)", "source_url": "https://www.investing.com/news/stock-market-news/anthropic-recorded-net-loss-of-over-80-billion-in-first-half-of-this-year-wsj-reports-4960917"}
+            {
+              "source_name": "WSJ",
+              "source_url": "https://www.wsj.com/tech/ai/anthropic-revenue-growth-ipo-accaf0f1"
+            },
+            {
+              "source_name": "Reuters (via Investing.com)",
+              "source_url": "https://www.investing.com/news/stock-market-news/anthropic-recorded-net-loss-of-over-80-billion-in-first-half-of-this-year-wsj-reports-4960917"
+            }
           ]
         },
         {
@@ -183,7 +220,10 @@
           "net_loss": null,
           "note": "News report from Oct 15, 2026, before the amendment. The Nov 2, 2026 S-1/A prints $16,956 million of revenue and a $23,291 million net loss for this quarter.",
           "sources": [
-            {"source_name": "CNBC", "source_url": "https://www.cnbc.com/2026/10/15/anthropics-third-quarter-revenue-hits-16point8-billion-ipo.html"}
+            {
+              "source_name": "CNBC",
+              "source_url": "https://www.cnbc.com/2026/10/15/anthropics-third-quarter-revenue-hits-16point8-billion-ipo.html"
+            }
           ]
         }
       ],
@@ -239,7 +279,7 @@
         ]
       },
       "canada_retail": {
-        "as_of": "2026-11-05T17:40:00Z",
+        "as_of": "2026-11-10T20:15:00Z",
         "names": [
           "RBC Capital Markets",
           "TD Securities",
@@ -269,18 +309,78 @@
               "url": "https://asia.nikkei.com/business/markets/ipo/anthropic-seeks-to-raise-up-to-3.5bn-from-japanese-investors-in-ipo"
             }
           ]
+        },
+        "help_page_also_names": [
+          "BMO Capital Markets",
+          "CIBC Capital Markets",
+          "Scotiabank"
+        ],
+        "wealthsimple": {
+          "as_of": "2026-11-10T19:30:00Z",
+          "as_of_label": "the afternoon of Nov 10, 2026, America/Regina time",
+          "app_page_seen": true,
+          "public_announcement_found": false,
+          "major_outlet_found": false,
+          "expected_bidding_window_close": "2026-11-18",
+          "expected_ipo_day_in_app": "2026-11-30",
+          "app_note": "Anthropic has not publicly communicated a timeline for this IPO. We will update this timeline once an IPO day has been announced.",
+          "screenshot_sources": [
+            {
+              "name": "Client screenshot of the Wealthsimple Anthropic IPO page, Nov 10, 2026",
+              "url": "https://x.com/PlantInvestor16/status/2120233995304923268"
+            },
+            {
+              "name": "Client screenshot after submitting a request, Nov 10, 2026",
+              "url": "https://x.com/gurgavin/status/2120237738293420424"
+            }
+          ],
+          "policy_sources": [
+            {
+              "name": "Wealthsimple IPO bidding help",
+              "url": "https://help.wealthsimple.com/hc/en-ca/articles/50825154775451-Bid-on-initial-public-offerings-IPOs"
+            },
+            {
+              "name": "Wealthsimple IPO policies",
+              "url": "https://www.wealthsimple.com/en-ca/legal/IPO-policies"
+            },
+            {
+              "name": "Wealthsimple IPO Access",
+              "url": "https://www.wealthsimple.com/en-ca/trade/ipo-access"
+            }
+          ]
         }
       },
-      "edgar_checked_at": "2026-11-02T16:45:00Z",
-      "public_s1_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026068676/anthropicpbc-sx1ax1.htm",
-      "edgar_note": "S-1 Amendment No. 1 filed Nov 2, 2026. Accession 0001628280-26-068676. Original S-1 filed Oct 26, 2026, accession 0001628280-26-067168. CIK 2130357. Price range and share count are blank.",
+      "edgar_checked_at": "2026-11-10T20:15:00Z",
+      "public_s1_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm",
+      "edgar_note": "S-1 Amendment No. 2 filed Nov 10, 2026. Accession 0001628280-26-072484. Amendment No. 1 filed Nov 2, 2026, accession 0001628280-26-068676. Original S-1 filed Oct 26, 2026, accession 0001628280-26-067168. CIK 2130357. Expected IPO price $70.00 to $78.00. Offering of 825,000,000 Class A shares.",
       "cik": 2130357,
       "listed_fund_exposure": [
         "DXYZ",
         "VCX",
         "ARKVX"
       ],
-      "faq_extra": []
+      "faq_extra": [],
+      "offering": {
+        "as_of": "2026-11-10",
+        "price_range": "$70.00 to $78.00",
+        "price_low": 70.0,
+        "price_high": 78.0,
+        "currency": "USD",
+        "shares_offered": 825000000,
+        "shares_offered_label": "825,000,000 shares of Class A common stock",
+        "shares_by_company": 801351354,
+        "shares_by_selling_stockholders": 23648646,
+        "underwriter_option": 123750000,
+        "confirmed": true,
+        "source_url": "https://www.anthropic.com/news/roadshow-launch",
+        "source_name": "Anthropic",
+        "filing_url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm",
+        "filing_name": "SEC EDGAR S-1/A (Amendment No. 2, filed Nov 10, 2026)",
+        "independent_source_url": "https://www.cnbc.com/2026/11/10/anthropic-sets-price-range-of-70-to-78-in-upcoming-ipo.html",
+        "independent_source_name": "CNBC",
+        "reuters_source_url": "https://www.investing.com/news/stock-market-news/anthropic-files-for-825m-share-ipo-at-7078sh-432SI-5014878",
+        "reuters_source_name": "Reuters (via Investing.com)"
+      }
     },
     {
       "slug": "openai",

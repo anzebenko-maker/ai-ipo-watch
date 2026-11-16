@@ -1,5 +1,5 @@
 {
- "as_of": "2026-11-15T02:00Z",
+ "as_of": "2026-11-16T02:16Z",
  "note": "Delayed quotes from free public endpoints. Not for trading.",
  "prices": {
   "CRWV": {
@@ -11,9 +11,9 @@
    "source_url": "https://finance.yahoo.com/quote/CRWV"
   },
   "0100.HK": {
-   "price": 152.4,
+   "price": 130.2,
    "currency": "HKD",
-   "price_time": "2026-11-13T08:08Z",
+   "price_time": "2026-11-16T02:01Z",
    "exchange": "HKSE",
    "source": "Yahoo Finance chart API",
    "source_url": "https://finance.yahoo.com/quote/0100.HK"

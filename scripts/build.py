@@ -219,7 +219,7 @@ def affiliates(context="buy US-listed funds from Canada"):
 def pipeline_table(limit=None):
     rows = ""
     items = PIPE.get("items", [])
-    order = {"roadshow": 0, "publicly_filed": 1, "confidentially_filed": 2, "reported": 3, "pre_ipo": 4, "withdrawn": 5}
+    order = {"priced": 0, "roadshow": 1, "publicly_filed": 2, "confidentially_filed": 3, "reported": 4, "pre_ipo": 5, "withdrawn": 6}
     items = sorted(items, key=lambda x: (order.get(x["status"], 9), x["name"]))
     for it in items[:limit]:
         k = next_date(it)
@@ -415,8 +415,44 @@ def has_public_s1(a):
 def offering(a):
     return a.get("offering") or {}
 
+def is_priced(a):
+    return a.get("status") == "priced" or offering(a).get("offer_price") is not None
+
+def canada_broker_names(a):
+    names = (a.get("canada_retail") or {}).get("names") or []
+    if not names:
+        return ""
+    if len(names) == 1:
+        return names[0]
+    return ", ".join(names[:-1]) + " and " + names[-1]
+
+def money_plain(v, cur="USD"):
+    if v is None:
+        return ""
+    if isinstance(v, (int, float)):
+        if float(v).is_integer() and abs(v) >= 100:
+            return f"${v:,.0f}" if cur == "USD" else f"{cur} {v:,.0f}"
+        return f"${v:,.2f}" if cur == "USD" else f"{cur} {v:,.2f}"
+    return str(v)
+
 def offering_terms_sentence(a, html=False):
     off = offering(a)
+    if off.get("offer_price") and off.get("shares_offered_label"):
+        price = money_plain(off["offer_price"])
+        when = fmt_date(off.get("pricing_date")) if off.get("pricing_date") else ""
+        when_bit = f" on {when}" if when else ""
+        range_bit = f", above the earlier price range of {off['price_range']}" if off.get("price_range") else ""
+        prior = off.get("prior_shares_offered")
+        prior_bit = f" The earlier prospectus had listed {prior:,} shares." if prior else ""
+        proceeds = off.get("gross_proceeds_label")
+        proceeds_bit = f" The offering totaled {proceeds}." if proceeds else ""
+        return (
+            f"The IPO priced at {price} per share{when_bit}{range_bit}. "
+            f"The offering was upsized to {off['shares_offered_label']}, of which "
+            f"{off['shares_by_company']:,} were sold by Anthropic and "
+            f"{off['shares_by_selling_stockholders']:,} by selling stockholders."
+            f"{proceeds_bit}{prior_bit}"
+        )
     if not off.get("price_range") or not off.get("shares_offered_label"):
         return "The price range and the share count are not set."
     sent = (
@@ -448,6 +484,8 @@ def confirmed_public_s1_date(a):
 
 def edgar_note_for(a):
     """Generated from edgar_checked_at so a filing-day edit does not touch this sentence."""
+    if is_priced(a):
+        return "The final prospectus (Form 424B4) is the current prospectus on EDGAR."
     if has_public_s1(a):
         if amendment_key_date(a):
             return f"S-1 {amendment_name(a)} is the current prospectus on EDGAR."
@@ -458,6 +496,9 @@ def edgar_note_for(a):
     return a.get("edgar_note") or "No public S-1 found on EDGAR."
 
 def s1_edgar_url(a):
+    off = offering(a)
+    if is_priced(a) and (off.get("filing_url") or "").strip():
+        return off["filing_url"].strip()
     url = (a.get("public_s1_url") or "").strip()
     if url:
         return url
@@ -526,13 +567,21 @@ def s1_box(a):
         amd = amendment_key_date(a)
         amd_bit = f" {amendment_name(a)} filed {fmt_date(amd.get('date'))}." if amd else ""
         off = offering(a)
-        if off.get("price_range") and off.get("shares_offered_label"):
-            terms = f" Expected IPO price {off['price_range']} per share. Offering of {off['shares_offered_label']}"
+        if is_priced(a):
+            trade = fmt_date(off.get("trade_date")) if off.get("trade_date") else ""
+            trade_bit = f" First trade date {trade}." if trade else ""
+            terms = f" {offering_terms_sentence(a)}{trade_bit} This page does not list a first-trade or opening price"
+            blurb = f"Filed {when}.{amd_bit} Ticker {tk} on {ex}.{terms}"
+            extra_html = ""
+            note = "The current prospectus is the final prospectus (Form 424B4) on EDGAR. Pricing is confirmed. The first-trade date is confirmed. A first-trade or opening price is not listed here, because it had not been confirmed by two major sources when this was written."
         else:
-            terms = " The price range and the share count are not set"
-        blurb = f"Filed {when}.{amd_bit} Proposed ticker {tk}. Applied to list on {ex}.{terms}"
-        extra_html = f"<p><strong>Still reported, not confirmed:</strong><br>{extra}</p>" if extra else ""
-        note = f"The current prospectus is {amendment_name(a)} on EDGAR. Pricing and first-trade dates are media reports or still TBD, unless a later filing sets them. They are not confirmed."
+            if off.get("price_range") and off.get("shares_offered_label"):
+                terms = f" Expected IPO price {off['price_range']} per share. Offering of {off['shares_offered_label']}"
+            else:
+                terms = " The price range and the share count are not set"
+            blurb = f"Filed {when}.{amd_bit} Proposed ticker {tk}. Applied to list on {ex}.{terms}"
+            extra_html = f"<p><strong>Still reported, not confirmed:</strong><br>{extra}</p>" if extra else ""
+            note = f"The current prospectus is {amendment_name(a)} on EDGAR. Pricing and first-trade dates are media reports or still TBD, unless a later filing sets them. They are not confirmed."
     else:
         blurb = filing_blurb(a)
         extra_html = f"<p>{extra}</p>" if extra else ""
@@ -602,7 +651,9 @@ def valuation_html(a):
     return f"<h2>Valuation</h2>{html_}" if html_ else ""
 
 def canadians_exposure(a):
-    if a.get("ticker") and a.get("status") in ("publicly_filed", "roadshow", "priced"):
+    if is_priced(a) and a.get("ticker"):
+        tick_note = f"{e(a['ticker'])}, which is listed on Nasdaq"
+    elif a.get("ticker") and a.get("status") in ("publicly_filed", "roadshow", "priced"):
         tick_note = f"{e(a['ticker'])}, the proposed Anthropic ticker, which is not listed yet"
     else:
         tick_note = "Anthropic, which has no ticker"
@@ -614,9 +665,13 @@ def canadians_exposure(a):
         prem = pct(f["premium"], neutral=True) if f["premium"] is not None else NA
         brokers = "".join(f"<div>{broker_home_link(k, nm)}: {broker_cell(f['brokers'].get(k))}</div>" for k, nm in BROKER_NAMES)
         rows += f"<tr><td><a href='/company/{e(f['slug'])}/'><strong>{e(f['ticker'])}</strong></a><br><span class='muted small'>{e(f['name'])}</span></td><td>{money(f['price'])}</td><td>{prem}<br><span class='muted small'>vs last reported NAV</span></td><td class='small brk'>{brokers}</td></tr>"
-    return f"""<h2>How Canadians can get exposure before a listing</h2>
-<p>You cannot buy Anthropic itself yet. Two NYSE-listed funds report Anthropic holdings. You would be buying the fund, not Anthropic. The share price can sit far above or below the last reported NAV.</p>
-<div class="tw"><table><thead><tr><th>Fund</th><th>Latest price</th><th>Premium / discount</th><th>Canadian brokers</th></tr></thead><tbody>{rows}</tbody></table></div>
+    if is_priced(a):
+        heading = "<h2>Listed funds that still report an Anthropic holding</h2>"
+        lead = "<p>After ANT lists, you can buy Anthropic itself through a broker that offers US-listed stocks. The funds below are a different product. You would be buying the fund, not a direct share of Anthropic. The fund price can sit far above or below the last reported NAV.</p>"
+    else:
+        heading = "<h2>How Canadians can get exposure before a listing</h2>"
+        lead = "<p>You cannot buy Anthropic itself yet. Two NYSE-listed funds report Anthropic holdings. You would be buying the fund, not Anthropic. The share price can sit far above or below the last reported NAV.</p>"
+    return heading + lead + f"""<div class="tw"><table><thead><tr><th>Fund</th><th>Latest price</th><th>Premium / discount</th><th>Canadian brokers</th></tr></thead><tbody>{rows}</tbody></table></div>
 <p class="small muted">Broker cells are symbol-search checks for these fund tickers, on the date shown. They are not a check for {tick_note}. RBC Direct Investing is not in this check. Unverified means we did not confirm it.</p>"""
 
 def sec_block(a):
@@ -630,6 +685,17 @@ def sec_block(a):
     return f"<h2>SEC filings</h2><p>{e(note)} Last checked {e(checked)}.</p>"
 
 def anth_faq_when(a):
+    if is_priced(a):
+        off = offering(a)
+        trade = fmt_date(off.get("trade_date")) if off.get("trade_date") else "the stated first trade date"
+        return (
+            f"{offering_terms_sentence(a)} "
+            f"Anthropic, the pricing free writing prospectus, and the final prospectus set the first trade date as {trade} "
+            "on the Nasdaq Global Select Market under ANT. "
+            "This page does not list a first-trade or opening price, because that print had not been confirmed by two major sources when this was written. "
+            "CNBC and Reuters described the $81.34 billion offering as the largest IPO on record. "
+            "CNBC, Reuters and AP put the fully diluted valuation at about $1.5 trillion. That valuation figure comes from those outlets, not from Anthropic's pricing release."
+        )
     if has_public_s1(a):
         when = fmt_date(confirmed_public_s1_date(a))
         amd = amendment_key_date(a)
@@ -688,8 +754,9 @@ def anth_faq_filed(a):
         cik = e(a.get("cik") or "")
         amd = amendment_key_date(a)
         amd_bit = f" {amendment_name(a)} was filed on {fmt_date(amd.get('date'))} and is the current prospectus." if amd else ""
+        tick = f"Ticker {tk} on {ex}." if is_priced(a) else f"Proposed ticker {tk} on {ex}."
         return (f"Yes. Anthropic filed a public S-1 on {when}.{extra}{amd_bit} "
-                f"Proposed ticker {tk} on {ex}. {offering_terms_sentence(a)} "
+                f"{tick} {offering_terms_sentence(a)} "
                 f"CIK {cik}. Last checked {e(format_checked(a.get('edgar_checked_at')))}.")
     conf = ""
     for k in a.get("key_dates", []):
@@ -703,7 +770,15 @@ def anth_faq_valuation(a):
     v = a.get("last_private_valuation") or {}
     talks = a.get("reported_valuations") or ([a["reported_valuation_talk"]] if a.get("reported_valuation_talk") else [])
     extra = " ".join(f"{e(t.get('source_name') or 'Report')} (reported): {e(t.get('value'))}." for t in talks)
-    return f"The last confirmed private valuation was {e(v.get('value'))} ({e(v.get('label'))}, {fmt_date(v.get('date'))}). {extra} None of the IPO valuation talk is confirmed by the company."
+    if is_priced(a):
+        off = offering(a)
+        ipo_val = (
+            f"CNBC, Reuters and AP put the fully diluted IPO valuation at {e(off.get('valuation_fully_diluted_label') or 'about $1.5 trillion')}. "
+            "That figure comes from those outlets, not from Anthropic's pricing release. "
+        )
+    else:
+        ipo_val = "None of the IPO valuation talk is confirmed by the company. "
+    return f"The last confirmed private valuation was {e(v.get('value'))} ({e(v.get('label'))}, {fmt_date(v.get('date'))}). {extra} {ipo_val}".strip()
 
 def anth_faq_revenue(a):
     fin = a.get("s1_financials") or {}
@@ -738,19 +813,28 @@ def anth_faq_canadians(a):
         links += f'<a href="{e(help_url)}" rel="noopener nofollow" target="_blank">Anthropic IPO help page</a> '
     if wire_url:
         links += f'<a href="{e(wire_url)}" rel="noopener nofollow" target="_blank">MT Newswires, Nov 3, 2026</a> '
+    if is_priced(a):
+        open_mkt = (
+            "The IPO priced on Nov 18, 2026, so new requests at the IPO price are closed. "
+            "If you received an allocation, those shares were sold at $83.00. An allocation was not guaranteed. "
+            "Now that ANT is listed on Nasdaq, Canadians can buy the shares through any broker that offers US-listed stocks. "
+            "Search ANT in your broker before you move cash, and consider a limit order if you trade near the open. "
+        )
+    else:
+        open_mkt = (
+            "The company does not currently intend to list the shares on an exchange in Canada. ANT is a proposed Nasdaq ticker and is not trading yet. "
+            "After the stock opens, you can also use a broker that offers US-listed stocks, then a limit order. Search the symbol before you move cash. "
+        )
+    named_bit = named or canada_broker_names(a)
     return (
-        "Maybe, and only if a broker actually offers you shares. Do not count on an allocation. "
-        f"Anthropic's IPO help page lists firms it says are expected to participate in a proposed Canadian retail offering. "
-        f"A Nov 3, 2026 MT Newswires report names the same three: {named}. "
-        "Those are the names both sources give. "
-        "Access, eligibility, any minimum, and how many shares you receive depend on the broker and are not guaranteed. Check with your broker. "
-        f"The Nov 2, 2026 S-1/A also says the company anticipates offering a portion of the shares through these US platforms: {us}. "
-        f"A purchase there would be at the initial public offering price, subject to each platform's own terms. {(('The expected IPO price is ' + offering(a)['price_range'] + ' per share. ') if offering(a).get('price_range') else 'The cover price is still blank. ')}"
-        "Those are US platforms, not a Canadian allocation. "
-        "The company does not currently intend to list the shares on an exchange in Canada. ANT is a proposed Nasdaq ticker and is not trading yet. "
-        "After the stock opens, you can also use a broker that offers US-listed stocks, then a limit order. Search the symbol before you move cash. "
-        f"Sources: {links}"
-        f'The step-by-step page is <a href="/how-to-buy-anthropic-ipo-canada/">How to buy the Anthropic IPO from Canada</a> ({BASE}/how-to-buy-anthropic-ipo-canada/). '
+        ("The IPO-price request window has closed. " if is_priced(a) else "Maybe, and only if a broker actually offers you shares. Do not count on an allocation. ")
+        + f"Anthropic's IPO help page lists six Canadian firms for the retail offering: {named_bit}. "
+        "The Globe and Mail, on Nov 11, 2026, named the same six, citing Anthropic. "
+        "Access, eligibility, any minimum, and how many shares you received depended on the broker and were not guaranteed. "
+        f"The Nov 2, 2026 S-1/A also said the company anticipated offering a portion of the shares through these US platforms: {us}. "
+        + open_mkt
+        + f"Sources: {links}"
+        + f'The step-by-step page is <a href="/how-to-buy-anthropic-ipo-canada/">How to buy the Anthropic IPO from Canada</a> ({BASE}/how-to-buy-anthropic-ipo-canada/). '
         "This is general information, not a recommendation to buy or sell."
     )
 
@@ -776,6 +860,17 @@ def write(path, content):
     p = OUT / path.strip("/") / "index.html" if not path.endswith(".html") else OUT / path.strip("/")
     p.parent.mkdir(parents=True, exist_ok=True); p.write_text(content)
 
+def anth_home_stat(a):
+    off = offering(a)
+    if is_priced(a):
+        price = money_plain(off.get("offer_price")) or "$83.00"
+        return f"Priced at {price}. Ticker {a.get('ticker') or 'ANT'} on Nasdaq."
+    if a.get("status") in ("publicly_filed", "roadshow"):
+        if off.get("price_range"):
+            return f"Proposed ticker {a.get('ticker') or 'ANT'}. Expected price {off['price_range']}."
+        return f"Proposed ticker {a.get('ticker') or 'ANT'}. Price range not set."
+    return filing_blurb(a)
+
 def home():
     lb = leaderboard(); up, _ = lockups(); fs = funds()
     anth = next(x for x in PIPE["items"] if x["slug"] == "anthropic")
@@ -784,7 +879,7 @@ def home():
 <div class="stat"><span class="k">Tracked pipeline</span><span class="v">{len(PIPE['items'])}</span><span class="muted small">companies</span></div>
 <div class="stat"><span class="k">Recent AI listings</span><span class="v">{len(lb)}</span><span class="muted small">with returns</span></div>
 <div class="stat"><span class="k">Next lock-up</span><span class="v">{fmt_date(nxt['date']) if nxt and nxt['date'] else 'TBD'}</span><span class="muted small">{e(nxt['name']) if nxt else ''}</span></div>
-<div class="stat"><span class="k">Anthropic</span><span class="v sm">{e(STATUS_LABEL[anth['status']])}</span><span class="muted small">{e(filing_blurb(anth) if anth.get('status') != 'publicly_filed' else (f"Proposed ticker {anth.get('ticker') or 'ANT'}. Price range not set."))}</span></div></div>"""
+<div class="stat"><span class="k">Anthropic</span><span class="v sm">{e(STATUS_LABEL[anth['status']])}</span><span class="muted small">{e(anth_home_stat(anth))}</span></div></div>"""
     body = f"""<section class="hero"><p class="eyebrow">AI IPO tracker for Canadian investors</p><h1>Every AI IPO, lock-up and pre-IPO fund in one place</h1>
 <p class="lead">Track Anthropic, OpenAI and the rest of the AI IPO pipeline, see how recent AI listings have traded, know when insiders can sell, and compare the listed funds that hold private AI stakes, including which Canadian brokers carry them. The practical Anthropic guide is <a href="/how-to-buy-anthropic-ipo-canada/">how to buy the Anthropic IPO from Canada</a>.</p>{asof_line()}{s1_box(anth)}{newsletter_cta()}{stats}</section>
 <section id="pipeline"><div class="sh"><h2>IPO pipeline</h2><a href="/ipo-pipeline/">Full pipeline →</a></div>
@@ -793,8 +888,8 @@ def home():
 <section id="lockups"><div class="sh"><h2>Lock-up expiry calendar</h2><a href="/lockup-calendar/">Calendar →</a></div><p class="muted">The dates when pre-IPO insiders can first sell. Big unlocks can weigh on a share price.</p>{lockup_table(show_past=False)}</section>
 <section id="funds"><div class="sh"><h2>Listed funds with private AI stakes</h2><a href="/private-ai-funds/">Compare →</a></div>{funds_table()}</section>
 {affiliates()}
-<section class="grid3"><a class="card link" href="/anthropic-ipo/"><h3>Anthropic IPO</h3><p>S-1 filed Oct 26. Amendment No. 2 filed Nov 10. Expected price $70 to $78. 825 million shares. Proposed ticker ANT.</p></a>
-<a class="card link" href="/how-to-buy-anthropic-ipo-canada/"><h3>Buy the Anthropic IPO from Canada</h3><p>Check the Wealthsimple app to request shares. RBC Capital Markets, TD Securities and Wealthsimple are named for the proposed retail offering. An allocation is not guaranteed.</p></a>
+<section class="grid3"><a class="card link" href="/anthropic-ipo/"><h3>Anthropic IPO</h3><p>Priced Nov 18 at $83, above the $70 to $78 range. 980 million shares, $81.34 billion. Ticker ANT, first trade Nov 19.</p></a>
+<a class="card link" href="/how-to-buy-anthropic-ipo-canada/"><h3>Buy Anthropic (ANT) from Canada</h3><p>The IPO-price window is closed. Canadians can buy ANT on Nasdaq through a broker that offers US stocks. Six firms took IPO requests.</p></a>
 <a class="card link" href="/how-to-buy-a-us-ipo-from-canada/"><h3>Buy a US IPO from Canada</h3><p>Allocation versus day one, brokers, TFSA, RRSP and FX costs.</p></a>
 <a class="card link" href="/upcoming-ai-ipos/"><h3>Upcoming AI IPOs</h3><p>The pipeline in one list, with the Canada guides.</p></a>
 <a class="card link" href="/openai-ipo/"><h3>OpenAI IPO</h3><p>The confidential S-1, the reported 2027 timeline, and the funds that hold it.</p></a>
@@ -917,6 +1012,11 @@ def listing_section(a):
         tk = e(ticker) if ticker else "not filled in yet"
         price = ""
         off = offering(a)
+        if is_priced(a):
+            trade = fmt_date(off.get("trade_date")) if off.get("trade_date") else ""
+            trade_bit = f" The first trade date is {trade}." if trade else ""
+            price = f" {e(offering_terms_sentence(a))}{trade_bit} This page does not list a first-trade or opening price."
+            return f"<p>Anthropic's Class A common stock is listed on the <strong>{ex}</strong> under the symbol <strong>{tk}</strong>.{price}</p>"
         if off.get("price_range") and off.get("shares_offered_label"):
             price = f" The expected IPO price is {e(off['price_range'])} per share. The offering is {e(off['shares_offered_label'])}. The shares are not trading."
         elif a.get("status") == "publicly_filed":
@@ -934,6 +1034,11 @@ def listing_section(a):
 def anth_faq_listing(a):
     if a.get("status") in ("publicly_filed", "roadshow", "priced") and (a.get("ticker") or a.get("exchange")):
         off = offering(a)
+        if is_priced(a):
+            trade = fmt_date(off.get("trade_date")) if off.get("trade_date") else ""
+            trade_bit = f" The first trade date is {trade}." if trade else ""
+            extra = f" {offering_terms_sentence(a)}{trade_bit} This page does not list a first-trade or opening price."
+            return (f"The ticker is {a.get('ticker') or 'n/a'} on the {a.get('exchange') or 'n/a'}.{extra}")
         if off.get("price_range"):
             extra = f" The expected IPO price is {off['price_range']} per share. ANT is proposed, and the shares are not trading yet."
         else:
@@ -977,6 +1082,12 @@ def anth_guide_desc(a):
         when = fmt_date(amd.get("date") if amd else confirmed_public_s1_date(a))
         tk = a.get("ticker") or "ANT"
         off = offering(a)
+        if is_priced(a):
+            price = money_plain(off.get("offer_price")) or "the IPO price"
+            return (f"Anthropic priced its IPO at {price} per share on {fmt_date(off.get('pricing_date'))}, above the earlier $70 to $78 range. "
+                    f"It sold 980 million shares and raised $81.34 billion, with first trade date {fmt_date(off.get('trade_date'))} under ticker {tk}. "
+                    "BMO, CIBC, RBC, Scotiabank, TD and Wealthsimple were the Canadian firms named for IPO share requests. "
+                    "Canadians can now buy ANT on Nasdaq through a broker that offers US stocks. Not financial advice.")
         terms = f" Expected IPO price {off['price_range']}. {off['shares_offered_label']}." if off.get("price_range") else ""
         return (f"Anthropic filed S-1 {amendment_name(a)} on {when}.{terms} Q3 2026 revenue was $16.96 billion. "
                 f"Proposed ticker {tk}. RBC Capital Markets, TD Securities and Wealthsimple are named for a proposed Canadian retail offering. Allocation not guaranteed.")
@@ -988,8 +1099,8 @@ def anth_lead(a):
     fin = a.get("s1_financials") or {}
     orig = (fin.get("original_s1_url") or "").strip()
     off = offering(a)
-    link = (off.get("filing_url") or a.get("public_s1_url") or orig or "").strip()
-    linked = f'<a href="{e(link)}" rel="noopener nofollow" target="_blank">public S-1</a>' if link else "public S-1"
+    s1_link = (a.get("public_s1_url") or orig or "").strip()
+    linked = f'<a href="{e(s1_link)}" rel="noopener nofollow" target="_blank">public S-1</a>' if s1_link else "public S-1"
     when = fmt_date(confirmed_public_s1_date(a))
     tk = e(a.get("ticker") or "")
     ex = e(a.get("exchange") or "")
@@ -1000,6 +1111,19 @@ def anth_lead(a):
         amd_link = f'<a href="{e(amd_url)}" rel="noopener nofollow" target="_blank">{amendment_name(a)}</a>' if amd_url else amendment_name(a)
         terms = offering_terms_sentence(a)
         amd_bit = f" {amd_link} was filed on {fmt_date(amd.get('date'))}. {terms}"
+    if is_priced(a):
+        off_link = (off.get("filing_url") or s1_link or "").strip()
+        final = f'<a href="{e(off_link)}" rel="noopener nofollow" target="_blank">final prospectus (Form 424B4)</a>' if off_link else "final prospectus (Form 424B4)"
+        trade = fmt_date(off.get("trade_date")) if off.get("trade_date") else ""
+        trade_bit = f" The first trade date is {trade}." if trade else ""
+        amd_short = f" {amendment_name(a)} was filed on {fmt_date(amd.get('date'))}." if amd else ""
+        return (
+            f"Anthropic filed a {linked} on {when}.{amd_short} "
+            f"The {final} sets the final terms. {offering_terms_sentence(a)} "
+            f"The ticker is <strong>{tk}</strong> on the {ex}.{trade_bit} "
+            "This page does not list a first-trade or opening price, because that print had not been confirmed by two major sources when this was written. "
+            "The quarterly figures below are from the Nov 2 amendment."
+        )
     return (f"Anthropic filed a {linked} on {when}.{amd_bit} The proposed ticker is <strong>{tk}</strong>, and the company has applied to list Class A common stock on the {ex}. "
             "The quarterly figures below are from the Nov 2 amendment. CNBC, citing people familiar with the plans, later said pricing was planned for Nov 18 and trading for Nov 19. Those later dates are not in Anthropic's roadshow announcement. Confirmed pricing and first-trade dates are TBD.")
 
@@ -1007,6 +1131,10 @@ def anth_buy_first_step(a):
     tk = a.get("ticker")
     if a.get("status") in ("publicly_filed", "roadshow", "priced") and tk:
         off = offering(a)
+        if is_priced(a):
+            terms = f" {e(offering_terms_sentence(a))}" if off.get("offer_price") else ""
+            return (f"<li><strong>The ticker is {e(tk)} on Nasdaq.</strong>{terms} "
+                    f"Search {e(tk)} in your broker before you move cash. This page does not list a first-trade or opening price.</li>")
         terms = f" The expected IPO price is {e(off['price_range'])} per share." if off.get("price_range") else " The price range is not set."
         return (f"<li><strong>The proposed ticker is {e(tk)}.</strong> It is not trading yet.{terms} "
                 f"Search {e(tk)} in your broker on listing day before you move cash.</li>")
@@ -1015,6 +1143,8 @@ def anth_buy_first_step(a):
 def anth_broker_caveat(a):
     tk = a.get("ticker")
     if a.get("status") in ("publicly_filed", "roadshow", "priced") and tk:
+        if is_priced(a):
+            return f"they are not symbol-search checks for {e(tk)}"
         return f"they are not symbol-search checks for {e(tk)}, which is proposed and not listed yet"
     return "they are not symbol-search checks for a ticker that does not exist yet"
 
@@ -1050,27 +1180,46 @@ def ipo_timeline(a):
             "Roadshow. IFR reported a roadshow from Nov 9, with pricing the following week. Confirmed date: TBD.",
             road_rep,
         ))
-    items.append(li(
-        "TBD",
-        '<span class="tag ok">confirmed date not set</span>',
-        "Pricing. The final offer price is set in a Form 424B4. No 424B4 is on file. Confirmed date: TBD.",
-    ))
-    if cnbc_trade:
+    if is_priced(a):
+        off = offering(a)
+        priced = next((k for k in a.get("key_dates") or [] if k.get("confirmed") and "IPO priced at" in (k.get("label") or "")), None)
+        filed_424 = next((k for k in a.get("key_dates") or [] if k.get("confirmed") and "Form 424B4" in (k.get("label") or "")), None)
+        first_trade = next((k for k in a.get("key_dates") or [] if k.get("confirmed") and "First trade date" in (k.get("label") or "")), None)
+        settle = next((k for k in a.get("key_dates") or [] if k.get("confirmed") and "settlement date" in (k.get("label") or "").lower()), None)
+        if priced:
+            items.append(li(fmt_date(priced.get("date")), dated_badge(True), e(priced.get("label")), priced))
+        if filed_424:
+            items.append(li(fmt_date(filed_424.get("date")), dated_badge(True), e(filed_424.get("label")), filed_424))
+        if first_trade:
+            items.append(li(fmt_date(first_trade.get("date")), dated_badge(True), e(first_trade.get("label")), first_trade))
+        elif off.get("trade_date"):
+            items.append(li(fmt_date(off.get("trade_date")), dated_badge(True), "First trade date for ANT on the Nasdaq Global Select Market. This page does not list a first-trade or opening price.", off))
+        if settle:
+            items.append(li(fmt_date(settle.get("date")), dated_badge(True), e(settle.get("label")), settle))
+        intro = "Filed steps are on EDGAR. Pricing and the first-trade date are confirmed. This page does not list a first-trade or opening price."
+    else:
         items.append(li(
-            "Nov 18 and Nov 19, 2026",
-            '<span class="tag rep">reported, not confirmed</span>',
-            "CNBC, citing people familiar with the plans who were not authorized to speak publicly, reported a plan to price on Nov 18 and trade on Nov 19. Confirmed date: TBD.",
-            cnbc_trade,
+            "TBD",
+            '<span class="tag ok">confirmed date not set</span>',
+            "Pricing. The final offer price is set in a Form 424B4. No 424B4 is on file. Confirmed date: TBD.",
         ))
-    if trade:
-        items.append(li(
-            "About Nov 20, 2026",
-            '<span class="tag rep">reported, not confirmed</span>',
-            "First trade. IFR reported a Nasdaq debut aimed at Nov 20. Confirmed date: TBD.",
-            trade,
-        ))
+        if cnbc_trade:
+            items.append(li(
+                "Nov 18 and Nov 19, 2026",
+                '<span class="tag rep">reported, not confirmed</span>',
+                "CNBC, citing people familiar with the plans who were not authorized to speak publicly, reported a plan to price on Nov 18 and trade on Nov 19. Confirmed date: TBD.",
+                cnbc_trade,
+            ))
+        if trade:
+            items.append(li(
+                "About Nov 20, 2026",
+                '<span class="tag rep">reported, not confirmed</span>',
+                "First trade. IFR reported a Nasdaq debut aimed at Nov 20. Confirmed date: TBD.",
+                trade,
+            ))
+        intro = "Filed steps are on EDGAR. Later steps do not have a confirmed date. Where a news report names a day, the label is reported, not confirmed, and the confirmed date stays TBD."
     return f"""<h2 id="ipo-timeline">IPO timeline / what's next</h2>
-<p>Filed steps are on EDGAR. Later steps do not have a confirmed date. Where a news report names a day, the label is reported, not confirmed, and the confirmed date stays TBD.</p>
+<p>{intro}</p>
 <ol class="tl">{''.join(items)}</ol>"""
 
 def retail_platforms_html(a, heading="h3"):
@@ -1095,19 +1244,46 @@ def canada_retail_html(a, heading="h2"):
     also_bit = ""
     if also:
         also_bit = (
-            f"<p>Anthropic's help page, checked Nov 10, 2026, also names {e(', '.join(also))}. "
-            "The Nov 3, 2026 news report did not repeat those names, so they are not in the dual-source list above.</p>"
+            f"<p>Anthropic's help page also names {e(', '.join(also))}. "
+            "A second independent source did not repeat those names, so they are not in the dual-source list above.</p>"
         )
     off = offering(a)
-    terms = offering_terms_sentence(a) if off.get("price_range") else "The IPO price and the share count are still blank."
-    return f"""<{heading}>Canadian firms listed for the proposed retail offering</{heading}>
-<p>Anthropic's own IPO help page says a retail offering in Canada is expected. It lists firms it says are expected to participate. A Nov 3, 2026 MT Newswires report also says Anthropic expects a retail offering in Canada, and it names three Canadian firms. This page lists a firm only when both sources name it:</p>
+    terms = offering_terms_sentence(a) if (off.get("offer_price") or off.get("price_range")) else "The IPO price and the share count are still blank."
+    if is_priced(a):
+        heading_txt = "Canadian firms that offered IPO share requests"
+        lead = (
+            "Anthropic's IPO help page named six Canadian firms for the retail offering. "
+            "The Globe and Mail, on Nov 11, 2026, named the same six, citing Anthropic. Those firms are:"
+        )
+        after = (
+            "<p>The IPO priced on Nov 18, 2026, so new requests at the IPO price are closed. "
+            "Being listed was not an allocation. Access, eligibility, any minimum, and how many shares you received depended on the broker and were not guaranteed. "
+            "RBC Capital Markets, TD Securities, BMO Capital Markets, CIBC Capital Markets and Scotiabank are dealer names. "
+            "That is not a confirmation that the matching direct-investing brokerage showed the deal in your account.</p>"
+            "<p>Now that ANT is listed on Nasdaq, Canadians can buy the shares through any broker that offers US-listed stocks. "
+            "Search ANT in your own account before you move cash. This is not a recommendation to buy or sell.</p>"
+            "<p>Anthropic's help page also pointed to a Canadian base PREP prospectus on SEDAR+ at www.sedarplus.ca.</p>"
+        )
+    else:
+        heading_txt = "Canadian firms listed for the proposed retail offering"
+        lead = (
+            "Anthropic's own IPO help page says a retail offering in Canada is expected. It lists firms it says are expected to participate. "
+            "The Globe and Mail also named the same six firms, citing Anthropic. This page lists a firm when both sources name it:"
+        )
+        after = (
+            "<p>Being listed is not an allocation. Access, eligibility, any minimum, and how many shares you receive depend on the broker. None of that is guaranteed. "
+            "Dealer names are not a confirmation that a matching direct-investing brokerage will show the deal in your account. "
+            "Check with your broker before you send money or open an account. Opening an account does not reserve shares.</p>"
+            "<p>Anthropic's help page says an amended and restated preliminary base PREP prospectus has been filed with the securities regulators in each province and territory and is accessible through SEDAR+ at www.sedarplus.ca. "
+            "It also says there will not be a sale, or an acceptance of an offer to buy, until a receipt for the final Canadian base PREP prospectus has been issued.</p>"
+        )
+    return f"""<{heading}>{heading_txt}</{heading}>
+<p>{lead}</p>
 <ul>{lis}</ul>
 <p>{srcs}</p>
 {also_bit}
-<p>Both sources say Anthropic has not authorized any other firm or platform to offer, or to advertise access to, shares in that proposed international retail offering. Anthropic says the help page will be updated if the list changes.</p>
-<p>Being listed is not an allocation. Access, eligibility, any minimum, and how many shares you receive depend on the broker. None of that is guaranteed. RBC Capital Markets and TD Securities are dealer names. That is not a confirmation that RBC Direct Investing or TD Direct Investing will show the deal in your account. Check with your broker before you send money or open an account. Opening an account does not reserve shares.</p>
-<p>Anthropic's help page says an amended and restated preliminary base PREP prospectus has been filed with the securities regulators in each province and territory and is accessible through SEDAR+ at www.sedarplus.ca. It also says there will not be a sale, or an acceptance of an offer to buy, until a receipt for the final Canadian base PREP prospectus has been issued. {e(terms)}</p>"""
+<p>{e(terms)}</p>
+{after}"""
 
 def japan_retail_note(a):
     j = (a.get("canada_retail") or {}).get("japan") or {}
@@ -1144,7 +1320,7 @@ def anthropic_page():
         ("What is Anthropic's valuation?", anth_faq_valuation(a)),
         ("Can I hold Anthropic in a TFSA or RRSP?", anth_faq_account()),
         ("What does it cost to convert Canadian dollars?", fx_faq_answer()),
-        ("Can Canadians buy Anthropic stock before the IPO?", "Not the company itself. ANT is a proposed ticker and is not trading yet. Indirect exposure exists through funds that report Anthropic holdings, such as DXYZ, VCX and ARKVX, if your broker offers them. DXYZ and VCX can trade at large premiums or discounts to their last reported NAV. ARKVX is an interval fund and is not a Canadian brokerage listing. This is general information only, not a recommendation to buy or sell."),
+        ("Can Canadians buy Anthropic stock before the IPO?", "The IPO has priced, and ANT is listed on Nasdaq. Before the listing, the company itself was not available as a regular stock. Indirect exposure still exists through funds that report Anthropic holdings, such as DXYZ, VCX and ARKVX, if your broker offers them. Those funds are a different product from ANT. DXYZ and VCX can trade at large premiums or discounts to their last reported NAV. ARKVX is an interval fund and is not a Canadian brokerage listing. This is general information only, not a recommendation to buy or sell."),
         ("Will Anthropic list on the TSX?", "The S-1/A says Anthropic has applied to list Class A common stock on the Nasdaq Global Select Market under ANT. The same prospectus says the offering includes a public offering in Canada, and that the company does not currently intend to list Class A common stock on an exchange outside the United States, including Canada. Nothing in the filing describes a TSX listing."),
     ])
     body = f"""<article><h1>{e(ANTH_TITLE)}</h1>{asof_line()}
@@ -1154,7 +1330,7 @@ def anthropic_page():
 {ipo_timeline(a)}
 <div class="card status">{badge(a['status'], a.get('status_confirmed', True))}<p>{linkify(a['summary'])}</p></div>
 <h2>Dated record</h2>
-<p>Confirmed items come from Anthropic. Everything else is a news report and can move. Yahoo Finance wrote on Oct 21 that a company using the confidential process has to put the registration on EDGAR at least 15 days before a formal roadshow. That is Yahoo's description of the rule, not a date Anthropic has confirmed. {src("https://finance.yahoo.com/markets/article/anthropic-to-publicly-file-for-ipo-as-early-as-friday-sources-say-135343841.html", "Yahoo Finance")}</p>
+<p>Confirmed items come from Anthropic or an SEC filing. Everything else is a news report and can move, and is reported, not confirmed. Yahoo Finance wrote on Oct 21 that a company using the confidential process has to put the registration on EDGAR at least 15 days before a formal roadshow. That is Yahoo's description of the rule, not a date Anthropic has confirmed. {src("https://finance.yahoo.com/markets/article/anthropic-to-publicly-file-for-ipo-as-early-as-friday-sources-say-135343841.html", "Yahoo Finance")}</p>
 {timeline(a)}
 <h2>Exchange and ticker</h2>
 {listing_section(a)}
@@ -1167,7 +1343,7 @@ def anthropic_page():
 <p>The plain-language version is <a href="/how-to-buy-anthropic-ipo-canada/">how to buy the Anthropic IPO from Canada</a>. The same ideas for any US listing are on <a href="/how-to-buy-a-us-ipo-from-canada/">how to buy a US IPO from Canada</a>.</p>
 {allocation_vs_market_html("Who receives shares is up to the underwriters and the brokers on the deal. An allocation is not guaranteed.")}
 <h3>What that means for Anthropic</h3>
-<p>The expected IPO price and the share count are in Amendment No. 2. The prospectus says the offering includes a public offering in Canada, and that Anthropic does not currently intend to list the shares on a Canadian exchange. {src(s1_edgar_url(a), "S-1/A")} Firms both sources name for the proposed Canadian retail offering are listed below. If your broker offers the new issue, it will show on that broker's IPO or new-issue screen. Opening an account does not reserve shares.</p>
+<p>The final IPO price and the upsized share count are in the Form 424B4. The prospectus says the offering includes a public offering in Canada, and that Anthropic does not currently intend to list the shares on a Canadian exchange. {src(s1_edgar_url(a), "424B4")} The six Canadian firms named for IPO share requests are listed below. The IPO-price request window is closed. After ANT lists, you buy it like any other US-listed stock.</p>
 {canada_retail_html(a, "h3")}
 {retail_platforms_html(a)}
 {japan_retail_note(a)}
@@ -1216,9 +1392,20 @@ def wealthsimple_request_html(a):
             "Wealthsimple's policy pages say the exact deadline is on the IPO page, and that the order book can close several days before pricing, sometimes with little notice. "
         )
     asof = ws.get("as_of_label") or format_checked(ws.get("as_of"))
+    if is_priced(a):
+        status = (
+            f"<p>The IPO priced at $83.00 on Nov 18, 2026. New requests at the IPO price are closed. "
+            "If you already submitted a request, check your Wealthsimple account for any allocation. An allocation was not guaranteed, and you would pay $83.00 only for shares you actually received.</p>"
+            f"<p>As of {e(asof)}, before pricing, client screenshots of Wealthsimple's official Anthropic IPO page showed a Request button, a {e(range_txt)} USD range, and a link to the preliminary prospectus dated Nov 10, 2026. "
+            f"One screenshot showed a View IPO request button after a bid had already been placed. {shot_links} {close_bit}</p>"
+        )
+    else:
+        status = (
+            "<p>Wealthsimple is the online broker on Anthropic's Canadian list. Check the Wealthsimple app or IPO Centre in your own account to see if you can request shares, and to see the current deadline.</p>"
+            f"<p>As of {e(asof)}, client screenshots of Wealthsimple's official Anthropic IPO page showed a Request button, a {e(range_txt)} USD range, and a link to the preliminary prospectus dated Nov 10, 2026. One screenshot showed a View IPO request button after a bid had already been placed. {shot_links} We have not found a Wealthsimple newsroom post, an @Wealthsimple post, or a public Wealthsimple web page for this offering, and we have not found a major news outlet that confirms requests are open. {close_bit}Look in your own account rather than relying on a date from a screenshot.</p>"
+        )
     return f"""<h2>How Canadians can request Anthropic (ANT) IPO shares</h2>
-<p>Wealthsimple is the online broker on Anthropic's Canadian list. Check the Wealthsimple app or IPO Centre in your own account to see if you can request shares, and to see the current deadline.</p>
-<p>As of {e(asof)}, client screenshots of Wealthsimple's official Anthropic IPO page showed a Request button, a {e(range_txt)} USD range, and a link to the preliminary prospectus dated Nov 10, 2026. One screenshot showed a View IPO request button after a bid had already been placed. {shot_links} We have not found a Wealthsimple newsroom post, an @Wealthsimple post, or a public Wealthsimple web page for this offering, and we have not found a major news outlet that confirms requests are open. {close_bit}Look in your own account rather than relying on a date from a screenshot.</p>
+{status}
 <p>Wealthsimple's own IPO pages describe the process this way:</p>
 <ol class="steps">
 <li>Open the Anthropic IPO page in the Wealthsimple app or on the web, or go to the IPO Centre.</li>
@@ -1247,42 +1434,46 @@ def how_to_buy_anthropic_canada_page():
     fx_list = "<ul>" + "".join(fx_items) + "</ul>"
     faq, fs = faq_block([
         ("Can Canadians buy the Anthropic IPO at the IPO price?", anth_faq_canadians(a)),
-        ("Which Canadian brokers can buy ANT on day one?", "Wealthsimple, Questrade, Qtrade and RBC Direct Investing each describe US-listed stock trading on their own sites. Other big-bank brokerages generally do too. This page does not quote TD, BMO, Scotiabank or CIBC fee schedules. Search ANT in your own broker on listing day. The symbol is proposed and is not trading yet."),
+        ("Which Canadian brokers can buy ANT on day one?", "Wealthsimple, Questrade, Qtrade and RBC Direct Investing each describe US-listed stock trading on their own sites. Other big-bank brokerages generally do too. This page does not quote TD, BMO, Scotiabank or CIBC fee schedules. Search ANT in your own broker. ANT is the Nasdaq ticker."),
         ("Can I hold ANT in a TFSA or RRSP?", anth_faq_account()),
         ("What does currency conversion cost for a US stock?", fx_faq_answer()),
-        ("How can Canadians get Anthropic exposure before ANT lists?", "Not by buying the company. Funds this site already tracks that report an Anthropic holding include DXYZ, VCX and ARKVX. You would own the fund, not Anthropic. DXYZ and VCX can trade far from their last reported NAV. ARKVX is not exchange-listed. This is general information, not a recommendation."),
+        ("How can Canadians get Anthropic exposure before ANT lists?", "The IPO has priced, and ANT is listed on Nasdaq. Before the listing, you could not buy the company itself as a regular stock. Funds this site already tracks that report an Anthropic holding include DXYZ, VCX and ARKVX. You would own the fund, not a direct share of Anthropic. DXYZ and VCX can trade far from their last reported NAV. ARKVX is not exchange-listed. This is general information, not a recommendation."),
     ])
     title = "How to buy the Anthropic IPO from Canada"
     off = offering(a)
     terms = offering_terms_sentence(a) if off.get("price_range") else "Amendment No. 1, filed Nov 2, 2026, still does not set a price or a share count."
-    desc = "How Canadians can request Anthropic (ANT) IPO shares. Expected price $70 to $78. Wealthsimple steps, cash hold, allocation and the 60-day rule. Not financial advice."
+    if is_priced(a):
+        desc = "Anthropic (ANT) priced at $83 and starts trading Nov 19. How Canadians can buy ANT on Nasdaq, the six firms that took IPO requests, and a rough C$ conversion. Not financial advice."
+    else:
+        desc = "How Canadians can request Anthropic (ANT) IPO shares. Expected price $70 to $78. Wealthsimple steps, cash hold, allocation and the 60-day rule. Not financial advice."
     body = f"""<article><h1>{e(title)}</h1>{asof_line()}
 {advice_note()}
-<p class="lead">Anthropic has applied to list Class A shares on the Nasdaq Global Select Market under the symbol ANT. {e(terms)} This page is for someone in Canada. It is not a recommendation to buy or sell.</p>
+<p class="lead">Anthropic lists Class A shares on the Nasdaq Global Select Market under the symbol ANT. {e(terms)} This page is for someone in Canada. It is not a recommendation to buy or sell.</p>
 {newsletter("newsletter-top")}
-<p>The numbers and the filing status live on <a href="/anthropic-ipo/">the Anthropic IPO page</a>. {src(s1_edgar_url(a), "S-1/A on EDGAR")}</p>
+<p>The numbers and the filing status live on <a href="/anthropic-ipo/">the Anthropic IPO page</a>. {src(s1_edgar_url(a), "424B4 on EDGAR")}</p>
 <h2>Can you buy shares at the IPO price?</h2>
 <p>Two different purchases.</p>
-<p><strong>An allocation</strong> means shares from the offering, at the IPO price, before the first trade. The underwriters decide who gets them.</p>
+<p><strong>An allocation</strong> means shares from the offering, at the IPO price, before the first trade. The underwriters decide who gets them. The IPO priced on Nov 18, 2026, so new requests at that $83.00 price are closed.</p>
 <p><strong>Day one</strong> is a normal trade after ANT opens. You pay the market price. That price can be higher or lower than the IPO price.</p>
-<p>The prospectus says the offering includes a public offering in Canada. It also says Anthropic does not currently intend to list the shares on an exchange in Canada. {src(s1_edgar_url(a), "S-1/A")} The Canadian names below come from Anthropic's IPO help page and from a news report, not from that US platform list.</p>
+<p>The prospectus says the offering includes a public offering in Canada. It also says Anthropic does not currently intend to list the shares on an exchange in Canada. {src(s1_edgar_url(a), "424B4")} The Canadian names below come from Anthropic's IPO help page and from The Globe and Mail, not from the US platform list.</p>
 {wealthsimple_request_html(a)}
 {canada_retail_html(a, "h2")}
-<p>Questrade is not one of those three names. Its IPO centre says that, in most cases, a US IPO is filled in the United States and Canadian residents cannot take part. RBC Direct Investing's fee schedule says there is no commission on new stock issues when those issues are available. A fee line is not an allocation. {src("https://www.questrade.com/learning/using-questrade/questrades-ipo-centre", "Questrade IPO centre")} {src("https://www.rbcdirectinvesting.com/pricing/", "RBC Direct Investing pricing")}</p>
+<p>Questrade is not one of those six names. Its IPO centre says that, in most cases, a US IPO is filled in the United States and Canadian residents cannot take part. RBC Direct Investing's fee schedule says there is no commission on new stock issues when those issues are available. A fee line is not an allocation. {src("https://www.questrade.com/learning/using-questrade/questrades-ipo-centre", "Questrade IPO centre")} {src("https://www.rbcdirectinvesting.com/pricing/", "RBC Direct Investing pricing")}</p>
 {retail_platforms_html(a, "h2")}
 {japan_retail_note(a)}
-<h2>Buying ANT on day one through a Canadian broker</h2>
-<p>After the shares list on Nasdaq, the usual path in Canada is a broker that already lets you buy US stocks. Search ANT in that broker's symbol search on listing day, before you move cash. The symbol is proposed. It is not trading yet.</p>
+<h2>Buying ANT on Nasdaq through a Canadian broker</h2>
+<p>Now that ANT is listed on Nasdaq, the usual path in Canada is a broker that already lets you buy US stocks. Search ANT in that broker's symbol search before you move cash.</p>
 <p>The notes below are from each firm's own pages, checked {day}. They describe US-listed trading and currency conversion. They are not a promise that ANT will be in the symbol search on the first morning, and {anth_broker_caveat(a)}.</p>
 {broker_fact_cards()}
 <p>The big-bank brokerages also let clients trade US-listed stocks. This page quotes RBC Direct Investing because we read its fee pages. It does not quote TD Direct Investing, BMO InvestorLine, Scotia iTRADE or CIBC Investor's Edge. Check the fee schedule and the symbol search in the account you already use.</p>
 <h2>Currency conversion and a US-dollar account</h2>
-<p>ANT would trade in US dollars. If you pay with Canadian dollars, the broker converts the cash. That conversion has a fee or a spread. US dollars already in the account let you buy without converting on the way in and again on the way out. Schedules change. Read the fee page before you convert a large amount. Checked {day}.</p>
+<p>ANT trades in US dollars. If you pay with Canadian dollars, the broker converts the cash. That conversion has a fee or a spread. US dollars already in the account let you buy without converting on the way in and again on the way out. Schedules change. Read the fee page before you convert a large amount. Checked {day}.</p>
+<p>As a rough conversion, one US dollar was {e((a.get("canada_retail") or {}).get("fx", {}).get("approx_label") or "about C$1.43")} around the pricing date. The Bank of Canada's daily average rate on Nov 18, 2026 was 1.4326 Canadian dollars per US dollar. Mid-market quotes on Nov 19 were still around that level. Your broker's rate will include a spread or a fee, so the amount you actually pay will differ. Rates change. {src("https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/", "Bank of Canada")} {src("https://www.fxstreet.com/news/canadian-dollar-moves-little-as-surging-oil-prices-offset-stronger-us-dollar-202611190813", "FXStreet, Nov 19, 2026")}</p>
 {fx_list}
-<p>ANT is not listed yet, so the qualified-investment rule below does not apply to it today. It starts to matter after Nasdaq lists the shares. This is not tax advice.</p>
+<p>Once Nasdaq lists the shares, the qualified-investment rule below can apply. Confirm with your broker before you place an order in a registered account. This is not tax advice.</p>
 {registered_accounts_html()}
-<h2>Exposure before the IPO</h2>
-<p>You cannot buy Anthropic itself today. The options below are funds this site already tracks. You would own the fund, not Anthropic. A fund price can sit far above or below the last reported value of its holdings. Nothing here is a suggestion to buy or sell a fund.</p>
+<h2>Funds that still report an Anthropic holding</h2>
+<p>ANT itself can be bought on Nasdaq through a broker that offers US stocks. The options below are funds this site already tracks. You would own the fund, not a direct share of Anthropic. A fund price can sit far above or below the last reported value of its holdings. Nothing here is a suggestion to buy or sell a fund.</p>
 {canadians_exposure(a)}
 <h2>Funds that report an Anthropic holding</h2>
 {exposure_list('Anthropic')}
@@ -1294,7 +1485,7 @@ def how_to_buy_anthropic_canada_page():
 
 def how_to_buy_us_ipo_page():
     faq, fs = faq_block([
-        ("Can Canadians buy a US IPO at the IPO price?", "Sometimes, and you should not count on it. Questrade says that in most cases a US IPO is filled in the United States and Canadian residents cannot take part. When a deal is offered there, the minimum commitment is $5,000 and the allocation can be cut. RBC's fee schedule says new stock issues, when available, have no commission. Wealthsimple and Qtrade pages we checked do not promise a US IPO allocation in general. For Anthropic, the Canada guide lists RBC Capital Markets, TD Securities and Wealthsimple, the firms named both on Anthropic's help page and by MT Newswires on Nov 3, 2026. An allocation there is still not guaranteed. Check with your broker. After the stock opens, you buy it like any other US-listed share."),
+        ("Can Canadians buy a US IPO at the IPO price?", "Sometimes, and you should not count on it. Questrade says that in most cases a US IPO is filled in the United States and Canadian residents cannot take part. When a deal is offered there, the minimum commitment is $5,000 and the allocation can be cut. RBC's fee schedule says new stock issues, when available, have no commission. Wealthsimple and Qtrade pages we checked do not promise a US IPO allocation in general. For Anthropic, the Canada guide lists BMO Capital Markets, CIBC Capital Markets, RBC Capital Markets, Scotiabank, TD Securities and Wealthsimple, the firms named both on Anthropic's help page and by The Globe and Mail. The Anthropic IPO-price window is now closed. After the stock opens, you buy it like any other US-listed share. Check with your broker."),
         ("Which Canadian brokers offer US stocks?", "Wealthsimple, Questrade, RBC Direct Investing and Qtrade each describe US-listed stock trading on their own sites. Whether a specific new ticker is enabled in your account is a symbol search, not something this page can promise."),
         ("Can I hold a US stock in a TFSA or RRSP?", anth_faq_account()),
         ("How much does currency conversion cost?", fx_faq_answer()),
@@ -1306,7 +1497,7 @@ def how_to_buy_us_ipo_page():
 {newsletter_cta()}
 {allocation_vs_market_html()}
 <h2>A workable order of steps</h2>
-<ol class="steps"><li><strong>Read the prospectus when it is public.</strong> <a href="/anthropic-ipo/">Anthropic's S-1</a> is on EDGAR, with proposed ticker ANT. Amendment No. 2, filed Nov 10, 2026, sets an expected IPO price of $70.00 to $78.00 and an offering of 825,000,000 shares. Until some other company's S-1 or F-1 is on EDGAR, that company's price, share count and ticker are not set.</li>
+<ol class="steps"><li><strong>Read the prospectus when it is public.</strong> <a href="/anthropic-ipo/">Anthropic's final prospectus</a> is on EDGAR. The IPO priced at $83.00 on Nov 18, 2026, above the earlier $70.00 to $78.00 range, and the offering was upsized to 980,000,000 shares, with ticker ANT. Until some other company's S-1 or F-1 is on EDGAR, that company's price, share count and ticker are not set.</li>
 <li><strong>Decide whether you even want an allocation.</strong> Check the IPO or new-issue screen inside the broker you already use. If the deal is not listed, you do not have a way in at the IPO price through that firm.</li>
 <li><strong>Plan on buying after the open</strong> if the allocation is not offered. That is the path most Canadians actually have.</li>
 <li><strong>Pick the account</strong> and confirm a US-listed common share is accepted there. See the TFSA and RRSP notes below.</li>
@@ -1331,12 +1522,12 @@ def upcoming_ai_ipos_page():
     faq, fs = faq_block([
         ("Which AI IPOs are furthest along?", f"In this tracker, confidentially filed, publicly filed, or on the roadshow: {along_txt}. Reported rumours and companies with no filing are in the same table, with a different status. Withdrawn deals stay listed so the record is intact."),
         ("Has Anthropic filed a public S-1?", anth_faq_filed(a)),
-        ("How does someone in Canada buy one?", "Most buyers here purchase the shares after they open on a US exchange, through a broker that offers US stocks. Getting an allocation at the IPO price is a separate step, and it is not guaranteed. For Anthropic, RBC Capital Markets, TD Securities and Wealthsimple are the Canadian names given both on Anthropic's IPO help page and by MT Newswires on Nov 3, 2026. Access, eligibility, minimums and size depend on the broker. Check with your broker. The walkthrough is the Anthropic Canada guide. This is general information, not a recommendation."),
+        ("How does someone in Canada buy one?", "Most buyers here purchase the shares after they open on a US exchange, through a broker that offers US stocks. Getting an allocation at the IPO price is a separate step, and it is not guaranteed. Anthropic has already priced. Canadians can buy ANT on Nasdaq through a broker that offers US stocks. The six firms that took IPO share requests were BMO Capital Markets, CIBC Capital Markets, RBC Capital Markets, Scotiabank, TD Securities and Wealthsimple. The walkthrough is the Anthropic Canada guide. This is general information, not a recommendation."),
         ("Is there a Canadian company on the list?", "Cohere, based in Toronto, is on the pipeline as reported only. No filing date is confirmed."),
     ])
     body = f"""<article><h1>Upcoming AI IPOs</h1>{asof_line()}
 {advice_note()}
-<p class="lead">Anthropic's S-1 Amendment No. 2 is on EDGAR (filed Nov 10, 2026, proposed ticker ANT, Nasdaq Global Select Market, expected price $70.00 to $78.00, 825 million shares). Anthropic's IPO help page lists firms for a proposed Canadian retail offering. The names also given by a Nov 3, 2026 MT Newswires report are RBC Capital Markets, TD Securities and Wealthsimple. An allocation is not guaranteed. Check with your broker. This hub is for AI companies that are not yet trading, plus the guides for buying a US listing from Canada. The table is the same pipeline as the <a href="/ipo-pipeline/">tracker</a>. Every date in a row links back to its source from the company page. IFR's Nov 9 roadshow and Nov 20 debut for Anthropic are reported, not confirmed. Confirmed dates for those steps are TBD.</p>
+<p class="lead">Anthropic priced its IPO at $83.00 on Nov 18, 2026, above the earlier $70.00 to $78.00 range, and sold 980 million shares. ANT's first trade date is Nov 19, 2026 on the Nasdaq Global Select Market. The six Canadian firms named for IPO share requests were BMO Capital Markets, CIBC Capital Markets, RBC Capital Markets, Scotiabank, TD Securities and Wealthsimple. New requests at the IPO price are closed. Canadians can buy ANT through a broker that offers US stocks. This hub is for AI companies in the pipeline, plus the guides for buying a US listing from Canada. The table is the same pipeline as the <a href="/ipo-pipeline/">tracker</a>. Every date in a row links back to its source from the company page.</p>
 {newsletter_cta()}
 <h2>Start here</h2>
 <ul>
@@ -1461,18 +1652,24 @@ def company_pages():
             elif slug == "openai":
                 parts.append("<p>See <a href='/upcoming-ai-ipos/'>upcoming AI IPOs</a> and <a href='/how-to-buy-a-us-ipo-from-canada/'>how to buy a US IPO from Canada</a>.</p>")
             sec_html = edgar_list(it.get("cik"))
-            if it.get("public_s1_url"):
-                filing_label = "Current prospectus on EDGAR" if slug == "anthropic" else "Public S-1 on EDGAR"
-                sec_html = f'<p><a href="{e(it["public_s1_url"])}" rel="noopener nofollow" target="_blank">{filing_label}</a> (CIK {e(it.get("cik"))}).</p>' + sec_html
+            prospectus_url = (offering(it).get("filing_url") or it.get("public_s1_url") or "") if slug == "anthropic" else it.get("public_s1_url")
+            if prospectus_url:
+                if slug == "anthropic" and is_priced(it):
+                    filing_label = "Final prospectus (Form 424B4) on EDGAR"
+                elif slug == "anthropic":
+                    filing_label = "Current prospectus on EDGAR"
+                else:
+                    filing_label = "Public S-1 on EDGAR"
+                sec_html = f'<p><a href="{e(prospectus_url)}" rel="noopener nofollow" target="_blank">{filing_label}</a> (CIK {e(it.get("cik"))}).</p>' + sec_html
             parts.append(f"<h2>SEC filings</h2>{sec_html}")
         parts.append(affiliates()); parts.append(newsletter())
         if slug == "anthropic":
-            desc = "Anthropic IPO: S-1/A Amendment No. 2 filed Nov 10, 2026. Expected price $70 to $78. 825 million shares. Proposed ticker ANT. How Canadians can request shares."
+            desc = "Anthropic (ANT) priced at $83 on Nov 18, 2026, above the $70 to $78 range, and raised $81.34 billion. First trade date Nov 19. How Canadians can buy ANT on Nasdaq."
         else:
             desc = (it.get("summary") or f"{name}: IPO status, price since listing, lock-ups, SEC filings and listed-fund exposure.")[:155]
         headline = f"{name} IPO: status, dates & how to invest" if not is_fund else f"{it['ticker']} ({name}): NAV, premium & holdings"
         if slug == "anthropic":
-            headline = "Anthropic IPO (ANT): S-1/A financials and status"
+            headline = "Anthropic IPO (ANT): priced at $83, first trade Nov 19"
         write(f"/company/{slug}/", layout(f"/company/{slug}/", headline, desc, "<article>" + "".join(parts) + "</article>", [article_ld(headline)], priority="0.6"))
 
 def static_pages():
@@ -1516,13 +1713,15 @@ def write_llms():
         f"- Company page: {BASE}/company/anthropic/",
         f"- Timeline: {BASE}/anthropic-ipo/#ipo-timeline",
         f"- FAQ: {BASE}/anthropic-ipo/#faq",
-        "- Proposed ticker: ANT. Exchange applied for: Nasdaq Global Select Market. Class A common stock.",
-        "- Expected IPO price: $70.00 to $78.00 per share. Offering: 825,000,000 Class A shares (801,351,354 by Anthropic and 23,648,646 by selling stockholders). Underwriter option: up to 123,750,000 more shares. Confirmed in Amendment No. 2 and in Anthropic's Nov 10, 2026 roadshow announcement.",
+        "- Ticker: ANT. Exchange: Nasdaq Global Select Market. Class A common stock.",
+        "- IPO price: $83.00 per share on Nov 18, 2026, above the earlier $70.00 to $78.00 price range. Offering upsized to 980,000,000 Class A shares (956,351,354 by Anthropic and 23,648,646 by selling stockholders), totaling $81.34 billion. Underwriter option: up to 147,000,000 more shares. Confirmed in Anthropic's pricing release, the SEC free writing prospectus, and the Form 424B4. The earlier Amendment No. 2 and the Nov 10, 2026 roadshow announcement had listed 825,000,000 shares at $70.00 to $78.00.",
         "- Public S-1 filed Oct 26, 2026. Accession 0001628280-26-067168.",
         f"  {fin.get('original_s1_url') or ''}",
         "- S-1 Amendment No. 1 filed Nov 2, 2026 (confirmed). Accession 0001628280-26-068676.",
         f"  {fin.get('source_url') or ''}",
         f"- S-1 Amendment No. 2 filed {fmt_date(amd.get('date') if amd else '2026-11-10')} (confirmed). Accession 0001628280-26-072484.",
+        "  https://www.sec.gov/Archives/edgar/data/2130357/000162828026072484/anthropicpbc-sx1ax2.htm",
+        "- Form 424B4 filed Nov 19, 2026, dated Nov 18, 2026 (confirmed). Accession 0001628280-26-074944.",
         f"  {(offering(a).get('filing_url') or a.get('public_s1_url') or '')}",
         f"- Q3 2026 revenue (three months ended Sept 30, 2026): {fin.get('q3_2026_revenue')}. The prospectus narrative also rounds this quarter to $17.0 billion.",
         f"- Q2 2026 revenue (three months ended June 30, 2026): {fin.get('q2_2026_revenue')}.",
@@ -1531,15 +1730,21 @@ def write_llms():
         f"- Q3 2026 operating loss: {fin.get('q3_2026_operating_loss')}. Q2 2026 operating income: {fin.get('q2_2026_operating_income')}.",
         f"- Compute purchase commitments: {fin.get('compute_commitments')} {fin.get('compute_commitments_as_of') or ''}.",
         "- Roadshow launched Nov 10, 2026: confirmed by Anthropic.",
-        "- Next confirmed steps, with dates TBD: pricing (Form 424B4) and the first trade.",
-        "- Pricing Nov 18 and trading Nov 19, 2026: reported by CNBC, citing people familiar with the plans, not confirmed.",
-        "- First trade about Nov 20, 2026: reported by IFR, not confirmed.",
+        "- IPO priced Nov 18, 2026 at $83.00: confirmed by Anthropic, the SEC free writing prospectus, and the Form 424B4. Also reported by CNBC, Reuters and AP.",
+        "- First trade date Nov 19, 2026: confirmed. This site does not list a first-trade or opening price, because that print had not been confirmed by two major sources when this was written.",
+        "- Settlement date Nov 20, 2026: confirmed in the pricing free writing prospectus, subject to customary closing conditions.",
+        "- Fully diluted valuation of about $1.5 trillion: reported by CNBC, Reuters and AP, not confirmed in Anthropic's pricing release.",
+        "- Earlier IFR report of a debut about Nov 20, 2026: reported, not confirmed, and superseded by the confirmed Nov 19 first-trade date.",
         "- US retail platforms named in the amendment, which says the company anticipates offering a portion of shares through them at the IPO price: Charles Schwab, Fidelity, Robinhood, Trade-PMR, SoFi, and E*TRADE from Morgan Stanley. These are US platforms.",
-        "- Canadian retail offering: Anthropic's IPO help page (checked Nov 10, 2026) lists BMO Capital Markets, CIBC Capital Markets, RBC Capital Markets, Scotiabank, TD Securities and Wealthsimple. MT Newswires (Nov 3, 2026) also names RBC Capital Markets, TD Securities and Wealthsimple. This site lists a firm on the dual-source list only when both sources name it. Access, eligibility, minimums and allocation size depend on the broker and are not guaranteed. Check with your broker. Not a recommendation.",
-        "- Wealthsimple request process: Wealthsimple's IPO pages say it reserves the top of the price range plus a 20% buffer, allocates by a weighted random draw, charges no fee, and treats a sale or transfer off the platform within 60 days as flipping. Check the app for whether requests are open and for the deadline. Not a recommendation.",
+        "- Canadian retail offering: Anthropic's IPO help page lists BMO Capital Markets, CIBC Capital Markets, RBC Capital Markets, Scotiabank, TD Securities and Wealthsimple. The Globe and Mail (Nov 11, 2026, updated Nov 12) named the same six, citing Anthropic. MT Newswires (Nov 3, 2026) had earlier named RBC Capital Markets, TD Securities and Wealthsimple. The IPO-price request window is closed. After ANT lists, Canadians can buy the shares on Nasdaq through a broker that offers US-listed stocks. A rough conversion is about C$1.43 per US dollar (Bank of Canada daily average 1.4326 on Nov 18, 2026). Not a recommendation.",
+        "- Wealthsimple request process: the IPO priced on Nov 18, so new requests at the IPO price are closed. Wealthsimple's IPO pages say it reserved the top of the price range plus a 20% buffer, allocated by a weighted random draw, charged no fee, and treats a sale or transfer off the platform within 60 days as flipping. Not a recommendation.",
         "- Japan: Reuters and Nikkei Asia reported on Nov 2, 2026 that a Japanese filing shows a sale of up to $3.5 billion of shares in Japan. Reported. That is a cap for Japan, not a Canadian allocation.",
         f"- Anthropic help page: https://support.claude.com/en/articles/17889756-anthropic-ipo-international-retail-brokers-and-selling-agents",
+        f"- The Globe and Mail (Nov 11, 2026): https://www.theglobeandmail.com/investing/personal-finance/article-anthropics-ipo-is-open-to-canadian-retail-investors/",
         f"- MT Newswires (Nov 3, 2026): https://ttm.financial/m/news/2680749742",
+        f"- Anthropic pricing release: https://www.anthropic.com/news/anthropic-prices-initial-public-offering",
+        f"- CNBC on pricing: https://www.cnbc.com/2026/11/18/anthropic-ipo-ai-offering-price.html",
+        f"- Reuters on pricing (via Honolulu Star-Advertiser): https://www.staradvertiser.com/2026/11/19/breaking-news/anthropic-raises-record-81-3b-in-ipo-at-1-5t-valuation/",
         f"- Reuters on the Japan figure (via Investing.com): https://www.investing.com/news/stock-market-news/anthropic-plans-to-sell-35-billion-of-shares-to-japan-investors-in-ipo-filing-shows-4989963",
         f"- Nikkei Asia on the Japan figure: https://asia.nikkei.com/business/markets/ipo/anthropic-seeks-to-raise-up-to-3.5bn-from-japanese-investors-in-ipo",
         "",
@@ -1652,8 +1857,8 @@ def assert_subpath():
         "s1 box": "S-1 filed?" in home and "S-1 filed?" in anth and "Public S-1 on EDGAR:" in anth and "Last checked" in anth,
         "old oct 26 copy": "public S-1 reported for Oct 26" not in home and "public filing reported for Oct 26" not in anth,
         "financials": "Financials (reported)" in anth and "Financials from the S-1" in anth and "$16,956 million" in anth and "$11,555 million" in anth and "$33,242 million" in anth and "$23,291 million" in anth and "$66,309 million" in anth and "$567 million" in anth and "$974 million" in anth and "$895.4 billion" in anth and "$80,748 million" in anth and "72,388 million" in anth,
-        "s1 filed copy": "000162828026068676" in anth and "000162828026067168" in anth and ">ANT<" in anth and "price range" in anth.lower() and "What is Anthropic's ticker?" in anth and "When is the Anthropic IPO?" in anth and "How much revenue does Anthropic make?" in anth and "Can Canadians buy the Anthropic IPO?" in anth and "IPO timeline / what's next" in anth and "reported, not confirmed" in anth and "the public prospectus is not on EDGAR" not in anth and "which has no ticker" not in anth and "None has been reported" not in anth and "Nasdaq Global Select" in hub and "Proposed ticker ANT" in home and "not set.." not in anth and "sx1.htm." not in anth,
-        "exposure": "How Canadians can get exposure" in anth and "Can Canadians buy the Anthropic IPO?" in anth,
+        "s1 filed copy": "000162828026068676" in anth and "000162828026067168" in anth and ">ANT<" in anth and "price range" in anth.lower() and "What is Anthropic's ticker?" in anth and "When is the Anthropic IPO?" in anth and "How much revenue does Anthropic make?" in anth and "Can Canadians buy the Anthropic IPO?" in anth and "IPO timeline / what's next" in anth and "reported, not confirmed" in anth and "the public prospectus is not on EDGAR" not in anth and "which has no ticker" not in anth and "None has been reported" not in anth and "Nasdaq Global Select" in hub and "Ticker ANT" in home and "not set.." not in anth and "sx1.htm." not in anth,
+        "exposure": ("How Canadians can get exposure" in anth or "Listed funds that still report an Anthropic holding" in anth) and "Can Canadians buy the Anthropic IPO?" in anth,
         "cta": pitch in home and pitch in anth and pitch in canada and pitch in company,
         "subscribe nav": ">Subscribe</a>" in home,
         "disclosure": "How we make money" in disc and "not registered with any securities regulator" in disc,
@@ -1679,11 +1884,12 @@ def assert_subpath():
         "llms": "Q3 2026 revenue" in llms and "$16,956 million" in llms and f"{BASE}/how-to-buy-anthropic-ipo-canada/" in llms and "reported, not confirmed" in llms,
         "company anthropic": "IPO timeline / what's next" in company and "$16,956 million" in company and "/how-to-buy-anthropic-ipo-canada/" in company and "RBC Capital Markets" in company,
         "no em dash": "\u2014" not in anth and "\u2014" not in canada and "\u2014" not in company and "\u2014" not in llms,
-        "named canada brokers": all(n in page for n in ("RBC Capital Markets", "TD Securities", "Wealthsimple") for page in (anth, canada, company, hub, llms)),
-        "broker sources": "support.claude.com/en/articles/17889756" in anth and "ttm.financial/m/news/2680749742" in anth and "$3.5 billion" in anth and "Nikkei Asia" in canada,
+        "named canada brokers": all(n in page for n in ("BMO Capital Markets", "CIBC Capital Markets", "RBC Capital Markets", "Scotiabank", "TD Securities", "Wealthsimple") for page in (anth, canada, company, hub, llms)),
+        "broker sources": "support.claude.com/en/articles/17889756" in anth and "theglobeandmail.com" in anth and "ttm.financial/m/news/2680749742" in anth and "$3.5 billion" in anth and "Nikkei Asia" in canada,
         "old no-broker claim gone": "does not name a Canadian broker" not in (anth + canada + company + hub + llms + home) and "has not confirmed that RBC, or any other Canadian broker" not in canada and "Do not plan on getting shares at the IPO price through a Canadian account" not in canada,
         "allocation caveat": "not guaranteed" in canada and "Check with your broker" in canada and "Nov 10, 2026" in anth,
         "amendment 2": "000162828026072484" in anth and "Amendment No. 2" in anth and "$70.00 to $78.00" in anth and "825,000,000" in anth,
+        "priced terms": "$83.00" in anth and "980,000,000" in anth and "$81.34 billion" in anth and "424B4" in anth and "first trade" in anth.lower() and "does not list a first-trade or opening price" in anth and "C$1.43" in canada and "1.4326" in canada,
         "wealthsimple request section": "How Canadians can request Anthropic (ANT) IPO shares" in canada and "top of the price range, plus a 20% buffer" in canada and "60 days" in canada and "Not financial advice." in canada and "www.sedarplus.ca" in canada and "help.wealthsimple.com" in canada,
     }
     for name in ("methodology", "data", "disclaimer"):
